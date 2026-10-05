@@ -20,3 +20,15 @@ venv/
 *.pt
 *.pth
 *.ckpt
+
+# Additional local and generated files
+*.py[cod]
+.pytest_cache/
+.Rhistory
+.RData
+.env
+.env.*
+!.env.example
+data/pretrained/
+runs/
+*.onnx

@@ -1,0 +1,10 @@
+# Draft experiment settings; do not run with unresolved values.
+status: pending_smoke_test
+model: small_cnn
+seed: null
+batch_size: null
+max_epochs: null
+max_wall_minutes: null
+learning_rate: null
+selection_metric: macro_f1
+manifest_sha256: null

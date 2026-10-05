@@ -1,0 +1,8 @@
+# Draft split contract. Resolve fields after auditing source metadata.
+status: pending_data_audit
+seed: null
+group_unit: null  # panel/site/session when available; otherwise documented duplicate proxy
+train_fraction: null
+validation_fraction: null
+test_fraction: null
+frozen_manifest_sha256: null
