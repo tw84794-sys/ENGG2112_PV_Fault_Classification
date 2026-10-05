@@ -1,0 +1,22 @@
+# Dataset
+data/raw/
+data/processed/
+
+# Python
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Mac
+.DS_Store
+
+# Virtual environments
+venv/
+.venv/
+
+# Model checkpoints
+*.pt
+*.pth
+*.ckpt
