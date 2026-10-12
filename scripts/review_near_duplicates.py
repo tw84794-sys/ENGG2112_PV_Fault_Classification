@@ -1,9 +1,10 @@
-"""List visually similar PV images for human review without excluding them."""
+"""Review similar PV images and create a cross-label-filtered dataset."""
 
 import csv
 import html
 import json
-from collections import defaultdict
+import shutil
+from collections import Counter, defaultdict
 from itertools import combinations
 from pathlib import Path
 
@@ -15,6 +16,7 @@ PROCESSED_DIR = PROJECT_DIR / "data" / "processed"
 METADATA_PATH = PROCESSED_DIR / "module_metadata.json"
 CSV_PATH = PROCESSED_DIR / "near_duplicate_candidates.csv"
 HTML_PATH = PROCESSED_DIR / "near_duplicate_review.html"
+NEAR_CLEAN_DIR = PROCESSED_DIR / "near_clean"
 
 MAX_THUMBNAIL_MAE = 4.0
 EXPECTED_SIZE = (24, 40)
@@ -225,17 +227,163 @@ page = f"""<!doctype html>
      Pairs have a difference-hash distance of 0 or 1 and an 8×8 thumbnail
      mean absolute difference of at most {MAX_THUMBNAIL_MAE}.
      This is a screening rule, not proof that two images show the same module.
-     No images were excluded. Different-label pairs appear first.</p>
+     The original processed images remain unchanged. Both images in every
+     different-label candidate pair are excluded from the near-clean dataset.
+     Same-label candidates remain and must be kept together in the data split.
+     Different-label pairs appear first.</p>
   {''.join(cards)}
 </body>
 </html>
 """
 HTML_PATH.write_text(page, encoding="utf-8")
 
+cross_label_pairs = [
+    candidate for candidate in candidates if candidate["different_labels"]
+]
+related_cross_label_ids = defaultdict(set)
+
+for candidate in cross_label_pairs:
+    first_id = candidate["first_id"]
+    second_id = candidate["second_id"]
+    related_cross_label_ids[first_id].add(second_id)
+    related_cross_label_ids[second_id].add(first_id)
+
+excluded_ids = set(related_cross_label_ids)
+near_clean_metadata = {
+    image_id: details
+    for image_id, details in metadata.items()
+    if image_id not in excluded_ids
+}
+
+NEAR_CLEAN_DIR.mkdir(parents=True, exist_ok=True)
+near_clean_images_dir = NEAR_CLEAN_DIR / "images"
+expected_paths = {
+    records[image_id]["path"] for image_id in near_clean_metadata
+}
+
+if len(expected_paths) != len(near_clean_metadata):
+    raise SystemExit("Two retained image IDs point to the same image path.")
+
+if near_clean_images_dir.exists():
+    for existing_path in near_clean_images_dir.rglob("*"):
+        if existing_path.is_file() and existing_path.name != ".DS_Store":
+            relative_path = existing_path.relative_to(NEAR_CLEAN_DIR).as_posix()
+            if relative_path not in expected_paths:
+                raise SystemExit(
+                    f"Unexpected old file in near-clean images: {relative_path}"
+                )
+
+copied_count = 0
+verified_count = 0
+
+for image_id in near_clean_metadata:
+    relative_path = Path(records[image_id]["path"])
+    source_path = PROCESSED_DIR / relative_path
+    destination_path = NEAR_CLEAN_DIR / relative_path
+    destination_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if destination_path.exists():
+        if source_path.read_bytes() != destination_path.read_bytes():
+            raise SystemExit(
+                f"Near-clean image differs from source: {relative_path}"
+            )
+        verified_count += 1
+    else:
+        shutil.copy2(source_path, destination_path)
+        copied_count += 1
+
+exclusions_path = NEAR_CLEAN_DIR / "exclusions.csv"
+
+with exclusions_path.open("w", newline="", encoding="utf-8") as output:
+    writer = csv.writer(output)
+    writer.writerow(
+        ["image_id", "image_path", "label", "reason", "paired_image_ids"]
+    )
+
+    for image_id in sorted(excluded_ids, key=numeric_id):
+        writer.writerow(
+            [
+                image_id,
+                records[image_id]["path"],
+                records[image_id]["label"],
+                "cross_label_near_duplicate_candidate",
+                ";".join(
+                    sorted(related_cross_label_ids[image_id], key=numeric_id)
+                ),
+            ]
+        )
+
+parent = {image_id: image_id for image_id in near_clean_metadata}
+
+
+def find_group(image_id):
+    while parent[image_id] != image_id:
+        parent[image_id] = parent[parent[image_id]]
+        image_id = parent[image_id]
+    return image_id
+
+
+def join_groups(first_id, second_id):
+    first_root = find_group(first_id)
+    second_root = find_group(second_id)
+    if first_root != second_root:
+        parent[second_root] = first_root
+
+
+for candidate in candidates:
+    if candidate["different_labels"]:
+        continue
+    first_id = candidate["first_id"]
+    second_id = candidate["second_id"]
+    if first_id in parent and second_id in parent:
+        join_groups(first_id, second_id)
+
+members_by_root = defaultdict(list)
+for image_id in near_clean_metadata:
+    members_by_root[find_group(image_id)].append(image_id)
+
+group_info = {}
+for member_ids in members_by_root.values():
+    group_id = min(member_ids, key=numeric_id)
+    for image_id in member_ids:
+        group_info[image_id] = (group_id, len(member_ids))
+
+groups_path = NEAR_CLEAN_DIR / "related_groups.csv"
+with groups_path.open("w", newline="", encoding="utf-8") as output:
+    writer = csv.writer(output)
+    writer.writerow(["image_id", "label", "group_id", "group_size"])
+    for image_id in sorted(near_clean_metadata, key=numeric_id):
+        group_id, group_size = group_info[image_id]
+        writer.writerow(
+            [image_id, records[image_id]["label"], group_id, group_size]
+        )
+
+near_clean_metadata_path = NEAR_CLEAN_DIR / "module_metadata.json"
+near_clean_metadata_path.write_text(
+    json.dumps(near_clean_metadata, indent=2) + "\n",
+    encoding="utf-8",
+)
+
+removed_by_class = Counter(
+    records[image_id]["label"] for image_id in excluded_ids
+)
+multi_image_groups = sum(
+    len(member_ids) > 1 for member_ids in members_by_root.values()
+)
+
 print(f"Processed images checked: {len(records)}")
 print(f"Pairs screened by difference hash: {screened_pairs}")
 print(f"Pairs selected for review: {len(candidates)}")
-print(f"Selected pairs with different labels: {sum(c['different_labels'] for c in candidates)}")
+print(f"Selected pairs with different labels: {len(cross_label_pairs)}")
+print(f"Distinct cross-label images excluded: {len(excluded_ids)}")
+print(f"Near-clean images retained: {len(near_clean_metadata)}")
+print(f"Excluded images by class: {dict(sorted(removed_by_class.items()))}")
+print(f"Same-label groups with multiple retained images: {multi_image_groups}")
+print(f"Images copied this run: {copied_count}")
+print(f"Existing copies verified: {verified_count}")
 print(f"CSV report: {CSV_PATH}")
 print(f"Side-by-side review page: {HTML_PATH}")
-print("No images or labels were changed.")
+print(f"Near-clean metadata: {near_clean_metadata_path}")
+print(f"Near-clean exclusions: {exclusions_path}")
+print(f"Related-image groups for splitting: {groups_path}")
+print("Original raw and exact-clean images were not changed.")
