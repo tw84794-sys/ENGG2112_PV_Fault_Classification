@@ -1,0 +1,13 @@
+{
+  "seed": 2112,
+  "test_fraction_target": 0.15,
+  "val_fraction_target": 0.15,
+  "images": 19922,
+  "groups": 19741,
+  "source": "https://github.com/RaptorMaps/InfraredSolarModules",
+  "split_limit": "Duplicate-aware stratified benchmark; no panel, site, or capture IDs are available, so unseen-site generalization is not established.",
+  "metadata_sha256": "b3b32c9a070ae8831df2cd4e942182345326600c1ba7d497fb5740b2b09d9c67",
+  "groups_sha256": "deb26421cd702dcd34377c6146447e7e7daeb268dafd54c16f4ac1cf769fdab0",
+  "image_tree_sha256": "e4b2e67ff99f9c7741737201ff56cd1d731160a8bbfe5ba2f591b8408d025dd9",
+  "manifest_sha256": "8c6c80cc05943e85d4a03874b1d5d89cb83eaf98e5637560b9ec9a2dcdee1ef8"
+}
