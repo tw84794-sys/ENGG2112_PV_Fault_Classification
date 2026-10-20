@@ -1,0 +1,27 @@
+{
+  "stage": "longer_local_small_cnn_trial",
+  "dataset": "InfraredSolarModules",
+  "manifest": "data/splits/infrared_solar_modules_v1.csv",
+  "manifest_sha256": "8c6c80cc05943e85d4a03874b1d5d89cb83eaf98e5637560b9ec9a2dcdee1ef8",
+  "run_id": "smallcnn-s2112-cpu-v2",
+  "hypothesis": "More epochs with all other settings fixed will improve validation macro-F1 over the five-epoch CNN run.",
+  "comparison": ["smallcnn-s2112-cpu-v1", "smallcnn-s2112-cpu-v2"],
+  "selection_metric": "validation_macro_f1",
+  "also_report": ["per_class_recall", "fault_to_normal_rate", "normal_false_alarm_rate"],
+  "seed": 2112,
+  "device": "cpu",
+  "batch_size": 64,
+  "learning_rate": 0.001,
+  "max_epochs": 15,
+  "early_stopping_patience": 2,
+  "max_elapsed_seconds": 60,
+  "max_trials": 1,
+  "paid_compute_cost": 0,
+  "test_policy": "Do not run predictions or select settings on the test split.",
+  "prior_run": {
+    "epochs": 5,
+    "elapsed_seconds": 17.386,
+    "best_validation_macro_f1": 0.10900031304208278,
+    "fault_to_normal_rate": 0.8605898123324397
+  }
+}
