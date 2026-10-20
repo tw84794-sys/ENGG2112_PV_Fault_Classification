@@ -25,3 +25,31 @@ class SmallCNN(nn.Module):
     def forward(self, images):
         features = self.features(images)
         return self.classifier(features)
+
+
+class WideCNN(nn.Module):
+    """Wider version of SmallCNN for a controlled capacity comparison."""
+
+    def __init__(self, num_classes: int = 12):
+        super().__init__()
+
+        self.features = nn.Sequential(
+            nn.Conv2d(1, 64, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+            nn.AdaptiveAvgPool2d((4, 4)),
+        )
+
+        self.classifier = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(128 * 4 * 4, 128),
+            nn.ReLU(),
+            nn.Linear(128, num_classes),
+        )
+
+    def forward(self, images):
+        features = self.features(images)
+        return self.classifier(features)

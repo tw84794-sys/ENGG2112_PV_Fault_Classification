@@ -1,4 +1,4 @@
-"""Run the planned small-CNN trial using training and validation only."""
+"""Run a planned CNN trial using training and validation only."""
 
 import argparse
 import hashlib
@@ -22,7 +22,7 @@ from pv_fault.evaluate import (
     classification_metrics,
     collect_validation_predictions,
 )
-from pv_fault.models.baseline import SmallCNN
+from pv_fault.models.baseline import SmallCNN, WideCNN
 from pv_fault.train import train_one_epoch, evaluate_one_epoch
 
 
@@ -61,6 +61,8 @@ def load_plan(plan_path):
         raise ValueError("Early-stopping patience must be positive.")
     if plan["selection_metric"] != "validation_macro_f1":
         raise ValueError("Checkpoint selection must use validation macro-F1.")
+    if plan.get("model", "small_cnn") not in ("small_cnn", "wide_cnn"):
+        raise ValueError("Unknown CNN model.")
     if plan.get("class_weighting", "none") not in (
         "none", "sqrt_inverse_frequency"
     ):
@@ -163,7 +165,13 @@ def main():
         train_data, val_data
     )
 
-    model = SmallCNN(num_classes=len(CLASS_NAMES)).to("cpu")
+    model_name = plan.get("model", "small_cnn")
+    model_class = {"small_cnn": SmallCNN, "wide_cnn": WideCNN}[model_name]
+    model = model_class(num_classes=len(CLASS_NAMES)).to("cpu")
+    trainable_parameters = sum(
+        parameter.numel() for parameter in model.parameters()
+        if parameter.requires_grad
+    )
     class_weights = (
         make_training_class_weights(train_data)
         if plan.get("class_weighting", "none") == "sqrt_inverse_frequency"
@@ -176,22 +184,30 @@ def main():
     )
 
     if not args.full:
+        train_started = time.monotonic()
         train_smoke = train_one_epoch(
             model, train_loader, optimizer, criterion, "cpu",
             max_batches=2,
         )
+        train_smoke_seconds = time.monotonic() - train_started
+        validation_started = time.monotonic()
         val_smoke = evaluate_one_epoch(
             model, val_loader, validation_criterion, "cpu",
             max_batches=2,
         )
+        validation_smoke_seconds = time.monotonic() - validation_started
         print(json.dumps({
+            "model": model_name,
+            "trainable_parameters": trainable_parameters,
             "majority_class": majority_class,
             "majority_validation_accuracy": majority_metrics["accuracy"],
             "majority_validation_macro_f1": majority_metrics["macro_f1"],
             "majority_fault_to_normal_rate":
                 majority_metrics["fault_to_normal_rate"],
             "cnn_smoke_train": train_smoke,
+            "cnn_smoke_train_seconds": train_smoke_seconds,
             "cnn_smoke_validation": val_smoke,
+            "cnn_smoke_validation_seconds": validation_smoke_seconds,
             "cnn_smoke_seconds": time.monotonic() - started,
         }, indent=2))
         return
@@ -214,6 +230,8 @@ def main():
             name: file_hash(ROOT / name) for name in source_files
         },
         "class_names": CLASS_NAMES,
+        "model": model_name,
+        "trainable_parameters": trainable_parameters,
         "class_weighting": plan.get("class_weighting", "none"),
         "train_class_counts": dict(
             Counter(row["label"] for row in train_data.rows)
@@ -283,6 +301,8 @@ def main():
 
             torch.save({
                 "model_state_dict": model.state_dict(),
+                "model": model_name,
+                "trainable_parameters": trainable_parameters,
                 "epoch": epoch,
                 "class_names": CLASS_NAMES,
                 "manifest_sha256": plan["manifest_sha256"],

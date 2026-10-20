@@ -1,0 +1,40 @@
+{
+  "stage": "class_weighted_wide_cnn_trial",
+  "dataset": "InfraredSolarModules",
+  "manifest": "data/splits/infrared_solar_modules_v1.csv",
+  "manifest_sha256": "8c6c80cc05943e85d4a03874b1d5d89cb83eaf98e5637560b9ec9a2dcdee1ef8",
+  "run_id": "widecnn-s2112-cpu-v1-weighted",
+  "hypothesis": "Increasing only CNN width will improve validation macro-F1 and accuracy compared with the class-weighted small CNN, without worsening fault-to-normal errors.",
+  "comparison": [
+    "smallcnn-s2112-cpu-v3-weighted",
+    "widecnn-s2112-cpu-v1-weighted"
+  ],
+  "class_weighting": "sqrt_inverse_frequency",
+  "selection_metric": "validation_macro_f1",
+  "also_report": [
+    "per_class_recall",
+    "fault_to_normal_rate",
+    "normal_false_alarm_rate"
+  ],
+  "seed": 2112,
+  "device": "cpu",
+  "batch_size": 64,
+  "learning_rate": 0.001,
+  "max_epochs": 15,
+  "early_stopping_patience": 2,
+  "max_elapsed_seconds": 120,
+  "max_trials": 1,
+  "paid_compute_cost": 0,
+  "test_policy": "Do not run predictions or select settings on the test split.",
+  "model": "wide_cnn",
+  "smoke_measurement": {
+    "train_images": 128,
+    "train_seconds": 0.1318047079257667,
+    "validation_images": 128,
+    "validation_seconds": 0.048734250012785196,
+    "total_seconds_including_setup": 2.103965541929938,
+    "hardware": "local CPU"
+  },
+  "budget_rationale": "Two-batch smoke implies roughly 7.2 seconds per full training pass and 1.1 seconds per validation pass, before prediction collection and overhead. A 15-epoch run may exceed 120 seconds; stop at the 120-second cap if so.",
+  "stopping_rule": "Stop after 15 epochs, two epochs without validation macro-F1 improvement, or 120 elapsed seconds, whichever comes first."
+}
