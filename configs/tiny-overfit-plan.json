@@ -1,0 +1,10 @@
+{
+  "purpose": "Check whether SmallCNN can memorize two training images per class",
+  "seed": 2112,
+  "images_per_class": 2,
+  "max_steps": 200,
+  "max_seconds": 60,
+  "learning_rate": 0.001,
+  "data_split": "train",
+  "test_evaluated": false
+}
