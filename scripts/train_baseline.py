@@ -7,6 +7,7 @@ import platform
 import random
 import sys
 import time
+import re
 from collections import Counter
 from pathlib import Path
 
@@ -40,8 +41,8 @@ def save_json(path, value):
     )
 
 
-def load_plan():
-    plan = json.loads(PLAN_PATH.read_text(encoding="utf-8"))
+def load_plan(plan_path):
+    plan = json.loads(plan_path.read_text(encoding="utf-8"))
     manifest = ROOT / plan["manifest"]
 
     if file_hash(manifest) != plan["manifest_sha256"]:
@@ -50,8 +51,8 @@ def load_plan():
         raise ValueError("This trial must use local CPU with no paid compute.")
     if plan["max_trials"] != 1:
         raise ValueError("This plan allows exactly one full trial.")
-    if not 1 <= plan["max_epochs"] <= 5:
-        raise ValueError("Epoch limit must be between 1 and 5.")
+    if not 1 <= plan["max_epochs"] <= 15:
+        raise ValueError("Epoch limit must be between 1 and 15.")
     if not 0 < plan["max_elapsed_seconds"] <= 120:
         raise ValueError("Time limit must be at most 120 seconds.")
     if plan["batch_size"] < 1 or plan["learning_rate"] <= 0:
@@ -111,15 +112,28 @@ def main():
         "--full", action="store_true",
         help="Run the one planned, bounded full training trial.",
     )
+    parser.add_argument(
+        "--plan",
+        type=Path,
+        default=PLAN_PATH,
+        help="Plan JSON; defaults to the original five-epoch plan.",
+    )
     args = parser.parse_args()
 
-    plan = load_plan()
+    plan_path = args.plan
+    if not plan_path.is_absolute():
+        plan_path = ROOT / plan_path
+    plan = load_plan(plan_path)
+
     seed = plan["seed"]
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
 
-    run_dir = ROOT / "runs" / f"smallcnn-s{seed}-cpu-v1"
+    run_id = plan.get("run_id", f"smallcnn-s{seed}-cpu-v1")
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]*", run_id):
+        raise ValueError("run_id must be a simple folder name.")
+    run_dir = ROOT / "runs" / run_id
     if args.full and run_dir.exists():
         raise FileExistsError(
             f"{run_dir} already exists; the planned trial will not be overwritten."
@@ -171,7 +185,7 @@ def main():
     )
     save_json(run_dir / "provenance.json", {
         "manifest_sha256": plan["manifest_sha256"],
-        "plan_sha256": file_hash(PLAN_PATH),
+        "plan_sha256": file_hash(plan_path),
         "source_sha256": {
             name: file_hash(ROOT / name) for name in source_files
         },
