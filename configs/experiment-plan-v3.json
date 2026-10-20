@@ -1,0 +1,22 @@
+{
+  "stage": "class_weighted_small_cnn_trial",
+  "dataset": "InfraredSolarModules",
+  "manifest": "data/splits/infrared_solar_modules_v1.csv",
+  "manifest_sha256": "8c6c80cc05943e85d4a03874b1d5d89cb83eaf98e5637560b9ec9a2dcdee1ef8",
+  "run_id": "smallcnn-s2112-cpu-v3-weighted",
+  "hypothesis": "Moderate class weighting from training labels will improve validation macro-F1 and reduce faults predicted No-Anomaly compared with the unweighted 15-epoch CNN.",
+  "comparison": ["smallcnn-s2112-cpu-v2", "smallcnn-s2112-cpu-v3-weighted"],
+  "class_weighting": "sqrt_inverse_frequency",
+  "selection_metric": "validation_macro_f1",
+  "also_report": ["per_class_recall", "fault_to_normal_rate", "normal_false_alarm_rate"],
+  "seed": 2112,
+  "device": "cpu",
+  "batch_size": 64,
+  "learning_rate": 0.001,
+  "max_epochs": 15,
+  "early_stopping_patience": 2,
+  "max_elapsed_seconds": 60,
+  "max_trials": 1,
+  "paid_compute_cost": 0,
+  "test_policy": "Do not run predictions or select settings on the test split."
+}
