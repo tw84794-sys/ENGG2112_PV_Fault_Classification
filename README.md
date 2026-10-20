@@ -8,3 +8,17 @@ Dataset:
 InfraredSolarModules
 
 https://github.com/RaptorMaps/InfraredSolarModules
+
+## Frozen ResNet18 comparison
+
+After recreating the cleaned data and frozen split, activate the project's environment and run these commands from the repository root:
+
+```bash
+PYTHONPATH=src .venv/bin/python scripts/fetch_resnet18_weights.py
+PYTHONPATH=src .venv/bin/python scripts/fetch_resnet18_weights.py --verify-only
+PYTHONPATH=src .venv/bin/python -m unittest discover -s tests
+PYTHONPATH=src .venv/bin/python scripts/train_resnet18.py --plan configs/experiment-plan-resnet18.json
+PYTHONPATH=src .venv/bin/python scripts/train_resnet18.py --plan configs/experiment-plan-resnet18.json --full
+```
+
+The first training command runs a two-batch smoke check. The final command runs one bounded trial and refuses to overwrite an existing run. It saves its checkpoint, metrics and validation predictions under `runs/resnet18-frozen-s2112-cpu-v1/`, which is excluded from Git. The [validation comparison](results/resnet18-frozen-v1-validation.md) contains the shareable results and limitations. The frozen test split remains untouched until independent review.
