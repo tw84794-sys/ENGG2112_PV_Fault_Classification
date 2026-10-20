@@ -1,0 +1,28 @@
+{
+  "stage": "first_local_small_cnn_trial",
+  "dataset": "InfraredSolarModules",
+  "manifest": "data/splits/infrared_solar_modules_v1.csv",
+  "manifest_sha256": "8c6c80cc05943e85d4a03874b1d5d89cb83eaf98e5637560b9ec9a2dcdee1ef8",
+  "hypothesis": "The small CNN will improve validation macro-F1 over predicting the most common training class.",
+  "comparison": ["training-majority predictor", "SmallCNN"],
+  "selection_metric": "validation_macro_f1",
+  "also_report": ["per_class_recall", "fault_to_normal_rate", "normal_false_alarm_rate"],
+  "seed": 2112,
+  "device": "cpu",
+  "batch_size": 64,
+  "learning_rate": 0.001,
+  "max_epochs": 5,
+  "early_stopping_patience": 2,
+  "max_elapsed_seconds": 120,
+  "max_trials": 1,
+  "paid_compute_cost": 0,
+  "test_policy": "Do not run predictions or select settings on the test split.",
+  "smoke_measurement": {
+    "loader_setup_seconds": 2.44,
+    "train_images": 512,
+    "train_seconds": 0.23,
+    "validation_images": 256,
+    "validation_seconds": 0.06,
+    "hardware": "local arm64 CPU; MPS unavailable in this execution context"
+  }
+}
