@@ -61,7 +61,10 @@ def load_plan(plan_path):
         raise ValueError("Early-stopping patience must be positive.")
     if plan["selection_metric"] != "validation_macro_f1":
         raise ValueError("Checkpoint selection must use validation macro-F1.")
-
+    if plan.get("class_weighting", "none") not in (
+        "none", "sqrt_inverse_frequency"
+    ):
+        raise ValueError("Unknown class-weighting method.")
     return plan
 
 
@@ -106,6 +109,21 @@ def majority_baseline(train_data, val_data):
     return CLASS_NAMES[majority_index], metrics
 
 
+def make_training_class_weights(train_data):
+    if train_data.split != "train":
+        raise ValueError("Class weights must come from training data.")
+
+    counts = Counter(row["label"] for row in train_data.rows)
+    if any(counts[name] == 0 for name in CLASS_NAMES):
+        raise ValueError("Every class needs training examples.")
+
+    weights = torch.tensor(
+        [counts[name] ** -0.5 for name in CLASS_NAMES],
+        dtype=torch.float32,
+    )
+    return weights / weights.mean()
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -146,7 +164,13 @@ def main():
     )
 
     model = SmallCNN(num_classes=len(CLASS_NAMES)).to("cpu")
-    criterion = nn.CrossEntropyLoss()
+    class_weights = (
+        make_training_class_weights(train_data)
+        if plan.get("class_weighting", "none") == "sqrt_inverse_frequency"
+        else None
+    )
+    criterion = nn.CrossEntropyLoss(weight=class_weights)
+    validation_criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(
         model.parameters(), lr=plan["learning_rate"]
     )
@@ -157,7 +181,7 @@ def main():
             max_batches=2,
         )
         val_smoke = evaluate_one_epoch(
-            model, val_loader, criterion, "cpu",
+            model, val_loader, validation_criterion, "cpu",
             max_batches=2,
         )
         print(json.dumps({
@@ -190,6 +214,13 @@ def main():
             name: file_hash(ROOT / name) for name in source_files
         },
         "class_names": CLASS_NAMES,
+        "class_weighting": plan.get("class_weighting", "none"),
+        "train_class_counts": dict(
+            Counter(row["label"] for row in train_data.rows)
+        ),
+        "class_weights": (
+            class_weights.tolist() if class_weights is not None else None
+        ),
         "train_images": len(train_data),
         "validation_images": len(val_data),
         "seed": seed,
@@ -217,7 +248,7 @@ def main():
             model, train_loader, optimizer, criterion, "cpu"
         )
         val_stats = evaluate_one_epoch(
-            model, val_loader, criterion, "cpu"
+            model, val_loader, validation_criterion, "cpu"
         )
         records = collect_validation_predictions(
             model, val_loader, "cpu"
