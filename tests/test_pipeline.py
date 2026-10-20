@@ -2,11 +2,14 @@
 
 import sys
 import unittest
-from pathlib import Path
+import torch
 
+from pathlib import Path
+from torch.utils.data import DataLoader, Dataset
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from pv_fault.evaluate import classification_metrics
+from pv_fault.data import CLASS_NAMES, CLASS_TO_INDEX
+from pv_fault.evaluate import classification_metrics, collect_validation_predictions
 
 
 class PipelineContractTests(unittest.TestCase):
@@ -39,6 +42,49 @@ class MetricsTests(unittest.TestCase):
     def test_invalid_class_is_rejected(self):
         with self.assertRaises(ValueError):
             classification_metrics([0], [12])
+
+class TinyDataset(Dataset):
+    def __init__(self, split="val"):
+        self.split = split
+        self.rows = [
+            {"image_id": "a", "group_id": "g1",
+             "image_path": "images/a.jpg", "label": "Cell"},
+            {"image_id": "b", "group_id": "g2",
+             "image_path": "images/b.jpg", "label": "No-Anomaly"},
+        ]
+
+    def __len__(self):
+        return len(self.rows)
+
+    def __getitem__(self, index):
+        return (
+            torch.zeros(1, 40, 24),
+            CLASS_TO_INDEX[self.rows[index]["label"]],
+        )
+
+
+class ConstantModel(torch.nn.Module):
+    def forward(self, images):
+        scores = torch.zeros(len(images), len(CLASS_NAMES))
+        scores[:, 0] = 5
+        return scores
+
+
+class ValidationPredictionTests(unittest.TestCase):
+    def test_keeps_image_ids_and_true_labels(self):
+        loader = DataLoader(TinyDataset(), batch_size=2, shuffle=False)
+        records = collect_validation_predictions(ConstantModel(), loader, "cpu")
+
+        self.assertEqual([row["image_id"] for row in records], ["a", "b"])
+        self.assertEqual([row["true_index"] for row in records], [0, 7])
+        self.assertEqual([row["predicted_index"] for row in records], [0, 0])
+        self.assertEqual(len(records[0]["probabilities"]), 12)
+        self.assertAlmostEqual(sum(records[0]["probabilities"]), 1.0)
+
+    def test_rejects_test_loader(self):
+        loader = DataLoader(TinyDataset(split="test"), batch_size=2)
+        with self.assertRaisesRegex(ValueError, "validation loader"):
+            collect_validation_predictions(ConstantModel(), loader, "cpu")
 
 
 if __name__ == "__main__":

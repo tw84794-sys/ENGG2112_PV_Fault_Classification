@@ -1,8 +1,10 @@
 """Class-aware metrics for solar-module fault predictions."""
 
+import torch
 import numpy as np  # noqa: E402
 
-from pv_fault.data import CLASS_NAMES  # noqa: E402
+from torch.utils.data import SequentialSampler
+from pv_fault.data import CLASS_NAMES, CLASS_TO_INDEX
 
 
 def classification_metrics(y_true, y_pred, class_names=CLASS_NAMES):
@@ -80,3 +82,49 @@ def classification_metrics(y_true, y_pred, class_names=CLASS_NAMES):
             normal_called_fault / normal_count if normal_count else None
         ),
     }
+
+@torch.inference_mode()
+def collect_validation_predictions(model, loader, device, max_batches=None):
+    if getattr(loader.dataset, "split", None) != "val":
+        raise ValueError("Expected the validation loader.")
+    if not isinstance(loader.sampler, SequentialSampler):
+        raise ValueError("Validation loader must keep manifest order.")
+    if max_batches is not None and max_batches < 1:
+        raise ValueError("max_batches must be positive.")
+
+    model.eval()
+    records = []
+    row_offset = 0
+
+    for batch_number, (images, labels) in enumerate(loader):
+        if max_batches is not None and batch_number >= max_batches:
+            break
+
+        probabilities = model(images.to(device)).softmax(dim=1).cpu()
+        if probabilities.shape != (len(labels), len(CLASS_NAMES)):
+            raise ValueError("Model output does not match the class contract.")
+
+        for position, (true_index, probs) in enumerate(
+            zip(labels.tolist(), probabilities)
+        ):
+            row = loader.dataset.rows[row_offset + position]
+            if true_index != CLASS_TO_INDEX[row["label"]]:
+                raise ValueError("Loader label differs from manifest label.")
+
+            records.append({
+                "image_id": row["image_id"],
+                "group_id": row["group_id"],
+                "image_path": row["image_path"],
+                "true_index": true_index,
+                "predicted_index": int(probs.argmax().item()),
+                "probabilities": probs.tolist(),
+            })
+
+        row_offset += len(labels)
+
+    if not records:
+        raise ValueError("No validation predictions collected.")
+    if max_batches is None and len(records) != len(loader.dataset):
+        raise ValueError("Validation predictions do not cover every image.")
+
+    return records
