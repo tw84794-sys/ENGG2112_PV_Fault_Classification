@@ -1,0 +1,45 @@
+{
+  "stage": "frozen_resnet18_transfer_trial",
+  "dataset": "InfraredSolarModules",
+  "manifest": "data/splits/infrared_solar_modules_v1.csv",
+  "manifest_sha256": "8c6c80cc05943e85d4a03874b1d5d89cb83eaf98e5637560b9ec9a2dcdee1ef8",
+  "run_id": "resnet18-frozen-s2112-cpu-v1",
+  "hypothesis": "A frozen ImageNet ResNet18 backbone with a new 12-class head will improve validation macro-F1 over the class-weighted wide CNN at the same seed and split.",
+  "comparison": [
+    "widecnn-s2112-cpu-v1-weighted",
+    "resnet18-frozen-s2112-cpu-v1"
+  ],
+  "model": "resnet18_frozen",
+  "pretrained_weights": "data/pretrained/resnet18-f37072fd.pth",
+  "pretrained_sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+  "preprocessing": "repeat grayscale to 3 channels; bilinear resize 40x24 to 80x48; ImageNet mean/std",
+  "class_weighting": "sqrt_inverse_frequency",
+  "selection_metric": "validation_macro_f1",
+  "also_report": [
+    "accuracy",
+    "balanced_accuracy",
+    "per_class_recall",
+    "fault_to_normal_rate",
+    "normal_false_alarm_rate"
+  ],
+  "seed": 2112,
+  "device": "cpu",
+  "batch_size": 64,
+  "learning_rate": 0.001,
+  "max_epochs": 5,
+  "early_stopping_patience": 2,
+  "max_elapsed_seconds": 390,
+  "max_trials": 1,
+  "paid_compute_cost": 0,
+  "test_policy": "Do not run predictions or select settings on the test split.",
+  "budget_note": "Measured on local CPU: 128 training images in 0.436 s and 128 validation images in 0.384 s. Scaling to 13,946 train images plus two passes over 2,988 validation images gives roughly 66 s/epoch and 330 s for five epochs; cap at 390 s.",
+  "smoke_measurement": {
+    "train_images": 128,
+    "train_seconds": 0.4360114159062505,
+    "validation_images": 128,
+    "validation_seconds": 0.3837482499657199,
+    "total_seconds_including_setup": 2.497473584022373,
+    "hardware": "local CPU; MPS unavailable in this execution context"
+  },
+  "stopping_rule": "Stop at five epochs, two epochs without validation macro-F1 improvement, or 390 elapsed seconds, whichever comes first."
+}
