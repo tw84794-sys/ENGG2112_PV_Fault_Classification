@@ -1,0 +1,272 @@
+"""Run the planned small-CNN trial using training and validation only."""
+
+import argparse
+import hashlib
+import json
+import platform
+import random
+import sys
+import time
+from collections import Counter
+from pathlib import Path
+
+import numpy as np
+import torch
+from PIL import __version__ as pillow_version
+from torch import nn
+from torch.utils.data import DataLoader
+
+from pv_fault.data import CLASS_NAMES, CLASS_TO_INDEX, SolarModuleDataset
+from pv_fault.evaluate import (
+    classification_metrics,
+    collect_validation_predictions,
+)
+from pv_fault.models.baseline import SmallCNN
+from pv_fault.train import train_one_epoch, evaluate_one_epoch
+
+
+ROOT = Path(__file__).resolve().parents[1]
+PLAN_PATH = ROOT / "configs/experiment-plan.json"
+
+
+def file_hash(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def save_json(path, value):
+    path.write_text(
+        json.dumps(value, indent=2, allow_nan=False) + "\n",
+        encoding="utf-8",
+    )
+
+
+def load_plan():
+    plan = json.loads(PLAN_PATH.read_text(encoding="utf-8"))
+    manifest = ROOT / plan["manifest"]
+
+    if file_hash(manifest) != plan["manifest_sha256"]:
+        raise ValueError("Frozen manifest differs from the experiment plan.")
+    if plan["device"] != "cpu" or plan["paid_compute_cost"] != 0:
+        raise ValueError("This trial must use local CPU with no paid compute.")
+    if plan["max_trials"] != 1:
+        raise ValueError("This plan allows exactly one full trial.")
+    if not 1 <= plan["max_epochs"] <= 5:
+        raise ValueError("Epoch limit must be between 1 and 5.")
+    if not 0 < plan["max_elapsed_seconds"] <= 120:
+        raise ValueError("Time limit must be at most 120 seconds.")
+    if plan["batch_size"] < 1 or plan["learning_rate"] <= 0:
+        raise ValueError("Batch size and learning rate must be positive.")
+    if plan["early_stopping_patience"] < 1:
+        raise ValueError("Early-stopping patience must be positive.")
+    if plan["selection_metric"] != "validation_macro_f1":
+        raise ValueError("Checkpoint selection must use validation macro-F1.")
+
+    return plan
+
+
+def make_loaders(plan):
+    train_data = SolarModuleDataset(
+        "train", manifest=ROOT / plan["manifest"]
+    )
+    val_data = SolarModuleDataset(
+        "val", manifest=ROOT / plan["manifest"]
+    )
+
+    train_loader = DataLoader(
+        train_data,
+        batch_size=plan["batch_size"],
+        shuffle=True,
+        generator=torch.Generator().manual_seed(plan["seed"]),
+        num_workers=0,
+        drop_last=False,
+    )
+    val_loader = DataLoader(
+        val_data,
+        batch_size=plan["batch_size"],
+        shuffle=False,
+        num_workers=0,
+        drop_last=False,
+    )
+    return train_data, val_data, train_loader, val_loader
+
+
+def majority_baseline(train_data, val_data):
+    counts = Counter(row["label"] for row in train_data.rows)
+    majority_index = max(
+        range(len(CLASS_NAMES)),
+        key=lambda index: (counts[CLASS_NAMES[index]], -index),
+    )
+    true_labels = [
+        CLASS_TO_INDEX[row["label"]] for row in val_data.rows
+    ]
+    metrics = classification_metrics(
+        true_labels, [majority_index] * len(true_labels)
+    )
+    return CLASS_NAMES[majority_index], metrics
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--full", action="store_true",
+        help="Run the one planned, bounded full training trial.",
+    )
+    args = parser.parse_args()
+
+    plan = load_plan()
+    seed = plan["seed"]
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+
+    run_dir = ROOT / "runs" / f"smallcnn-s{seed}-cpu-v1"
+    if args.full and run_dir.exists():
+        raise FileExistsError(
+            f"{run_dir} already exists; the planned trial will not be overwritten."
+        )
+
+    started = time.monotonic()
+    train_data, val_data, train_loader, val_loader = make_loaders(plan)
+    majority_class, majority_metrics = majority_baseline(
+        train_data, val_data
+    )
+
+    model = SmallCNN(num_classes=len(CLASS_NAMES)).to("cpu")
+    criterion = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(
+        model.parameters(), lr=plan["learning_rate"]
+    )
+
+    if not args.full:
+        train_smoke = train_one_epoch(
+            model, train_loader, optimizer, criterion, "cpu",
+            max_batches=2,
+        )
+        val_smoke = evaluate_one_epoch(
+            model, val_loader, criterion, "cpu",
+            max_batches=2,
+        )
+        print(json.dumps({
+            "majority_class": majority_class,
+            "majority_validation_accuracy": majority_metrics["accuracy"],
+            "majority_validation_macro_f1": majority_metrics["macro_f1"],
+            "majority_fault_to_normal_rate":
+                majority_metrics["fault_to_normal_rate"],
+            "cnn_smoke_train": train_smoke,
+            "cnn_smoke_validation": val_smoke,
+            "cnn_smoke_seconds": time.monotonic() - started,
+        }, indent=2))
+        return
+
+    run_dir.mkdir(parents=True, exist_ok=False)
+    save_json(run_dir / "experiment-plan.json", plan)
+    save_json(run_dir / "majority_validation_metrics.json", majority_metrics)
+
+    source_files = (
+        "scripts/train_baseline.py",
+        "src/pv_fault/data.py",
+        "src/pv_fault/models/baseline.py",
+        "src/pv_fault/train.py",
+        "src/pv_fault/evaluate.py",
+    )
+    save_json(run_dir / "provenance.json", {
+        "manifest_sha256": plan["manifest_sha256"],
+        "plan_sha256": file_hash(PLAN_PATH),
+        "source_sha256": {
+            name: file_hash(ROOT / name) for name in source_files
+        },
+        "class_names": CLASS_NAMES,
+        "train_images": len(train_data),
+        "validation_images": len(val_data),
+        "seed": seed,
+        "python": sys.version,
+        "torch": torch.__version__,
+        "numpy": np.__version__,
+        "pillow": pillow_version,
+        "platform": platform.platform(),
+        "device": "cpu",
+        "test_evaluated": False,
+    })
+
+    history = []
+    best_score = -1.0
+    best_epoch = None
+    epochs_without_improvement = 0
+    stop_reason = "max_epochs"
+
+    for epoch in range(1, plan["max_epochs"] + 1):
+        if time.monotonic() - started >= plan["max_elapsed_seconds"]:
+            stop_reason = "time_limit_before_epoch"
+            break
+
+        train_stats = train_one_epoch(
+            model, train_loader, optimizer, criterion, "cpu"
+        )
+        val_stats = evaluate_one_epoch(
+            model, val_loader, criterion, "cpu"
+        )
+        records = collect_validation_predictions(
+            model, val_loader, "cpu"
+        )
+        metrics = classification_metrics(
+            [row["true_index"] for row in records],
+            [row["predicted_index"] for row in records],
+        )
+
+        if abs(metrics["accuracy"] - val_stats["accuracy"]) > 1e-9:
+            raise ValueError("Validation accuracy and saved predictions disagree.")
+
+        elapsed = time.monotonic() - started
+        epoch_result = {
+            "epoch": epoch,
+            "train": train_stats,
+            "validation_loss": val_stats["loss"],
+            "validation_accuracy": metrics["accuracy"],
+            "validation_macro_f1": metrics["macro_f1"],
+            "fault_to_normal_rate": metrics["fault_to_normal_rate"],
+            "normal_false_alarm_rate": metrics["normal_false_alarm_rate"],
+            "elapsed_seconds": elapsed,
+        }
+        history.append(epoch_result)
+        save_json(run_dir / "history.json", history)
+        print(json.dumps(epoch_result))
+
+        if metrics["macro_f1"] > best_score:
+            best_score = metrics["macro_f1"]
+            best_epoch = epoch
+            epochs_without_improvement = 0
+
+            torch.save({
+                "model_state_dict": model.state_dict(),
+                "epoch": epoch,
+                "class_names": CLASS_NAMES,
+                "manifest_sha256": plan["manifest_sha256"],
+            }, run_dir / "best_model.pt")
+            save_json(run_dir / "best_validation_metrics.json", metrics)
+            save_json(
+                run_dir / "best_validation_predictions.json", records
+            )
+        else:
+            epochs_without_improvement += 1
+
+        if elapsed >= plan["max_elapsed_seconds"]:
+            stop_reason = "time_limit_after_epoch"
+            break
+        if epochs_without_improvement >= plan["early_stopping_patience"]:
+            stop_reason = "early_stopping"
+            break
+
+    save_json(run_dir / "summary.json", {
+        "best_epoch": best_epoch,
+        "best_validation_macro_f1": best_score if best_epoch else None,
+        "majority_validation_macro_f1": majority_metrics["macro_f1"],
+        "epochs_completed": len(history),
+        "stop_reason": stop_reason,
+        "elapsed_seconds": time.monotonic() - started,
+        "test_evaluated": False,
+    })
+    print(f"Saved run to {run_dir}")
+
+
+if __name__ == "__main__":
+    main()
