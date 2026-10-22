@@ -70,9 +70,11 @@ def load_plan(plan_path):
     return plan
 
 
-def make_loaders(plan):
+def make_loaders(plan, train_transform=None):
     train_data = SolarModuleDataset(
-        "train", manifest=ROOT / plan["manifest"]
+        "train",
+        manifest=ROOT / plan["manifest"],
+        transform=train_transform,
     )
     val_data = SolarModuleDataset(
         "val", manifest=ROOT / plan["manifest"]

@@ -1,0 +1,45 @@
+{
+  "stage": "resnet18_layer4_augmentation",
+  "dataset": "InfraredSolarModules",
+  "manifest": "data/splits/infrared_solar_modules_v1.csv",
+  "manifest_sha256": "8c6c80cc05943e85d4a03874b1d5d89cb83eaf98e5637560b9ec9a2dcdee1ef8",
+  "parent_checkpoint": "runs/resnet18-frozen-s2112-cpu-v1/best_model.pt",
+  "parent_checkpoint_sha256": "ed017354a9258b5f31cc4ea90d371f41e12276c3bc678748e3be93115d03773a",
+  "pretrained_weights": "data/pretrained/resnet18-f37072fd.pth",
+  "pretrained_sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+  "run_id": "resnet18-layer4-augment-s2112-cpu-v1",
+  "hypothesis": "Mild training-only flips and contrast changes may improve validation macro-F1 and low-contrast fault recall without an unacceptable rise in false alarms.",
+  "comparison": [
+    "resnet18-layer4-s2112-cpu-v1",
+    "resnet18-layer4-augment-s2112-cpu-v1"
+  ],
+  "model": "resnet18_layer4",
+  "class_weighting": "sqrt_inverse_frequency",
+  "train_augmentation": {
+    "horizontal_flip_probability": 0.5,
+    "contrast_probability": 0.5,
+    "contrast_min": 0.9,
+    "contrast_max": 1.1
+  },
+  "selection_metric": "validation_macro_f1",
+  "seed": 2112,
+  "device": "cpu",
+  "batch_size": 64,
+  "head_learning_rate": 0.0001,
+  "layer4_learning_rate": 0.00001,
+  "max_epochs": 4,
+  "early_stopping_patience": 2,
+  "max_elapsed_seconds": 480,
+  "max_trials": 1,
+  "paid_compute_cost": 0,
+  "test_policy": "Do not use the test split for training or model selection.",
+  "smoke_measurement": {
+    "train_images": 128,
+    "train_seconds": 0.6723697499837726,
+    "validation_images": 128,
+    "validation_seconds": 0.3766740410355851,
+    "total_seconds": 2.531544249970466
+  },
+  "budget_note": "The augmentation smoke run took 0.67 seconds for 128 training images and 0.38 seconds for 128 validation images. The comparable four-epoch run took 309 seconds on this CPU; allow up to 480 seconds for this single full trial.",
+  "stopping_rule": "Stop after four epochs, two epochs without validation macro-F1 improvement, or 480 seconds, whichever comes first."
+}
