@@ -1,0 +1,69 @@
+{
+  "source_manifest_sha256": "8c6c80cc05943e85d4a03874b1d5d89cb83eaf98e5637560b9ec9a2dcdee1ef8",
+  "fold_manifest_sha256": "f5cb30e06ecf3d83674edcd8c6de29c1cd6a853c13a30a6c4c6e5b31267f018f",
+  "seed": 2112,
+  "folds": 3,
+  "images": 13946,
+  "groups": 13946,
+  "held_out_original_val_test": true,
+  "fold_summary": [
+    {
+      "fold": 0,
+      "images": 4649,
+      "groups": 4649,
+      "class_counts": {
+        "Cell": 437,
+        "Cell-Multi": 299,
+        "Cracking": 219,
+        "Diode": 347,
+        "Diode-Multi": 41,
+        "Hot-Spot": 58,
+        "Hot-Spot-Multi": 58,
+        "No-Anomaly": 2326,
+        "Offline-Module": 191,
+        "Shadowing": 244,
+        "Soiling": 47,
+        "Vegetation": 382
+      }
+    },
+    {
+      "fold": 1,
+      "images": 4649,
+      "groups": 4649,
+      "class_counts": {
+        "Cell": 437,
+        "Cell-Multi": 299,
+        "Cracking": 218,
+        "Diode": 348,
+        "Diode-Multi": 41,
+        "Hot-Spot": 58,
+        "Hot-Spot-Multi": 57,
+        "No-Anomaly": 2327,
+        "Offline-Module": 191,
+        "Shadowing": 243,
+        "Soiling": 48,
+        "Vegetation": 382
+      }
+    },
+    {
+      "fold": 2,
+      "images": 4648,
+      "groups": 4648,
+      "class_counts": {
+        "Cell": 436,
+        "Cell-Multi": 300,
+        "Cracking": 218,
+        "Diode": 348,
+        "Diode-Multi": 41,
+        "Hot-Spot": 58,
+        "Hot-Spot-Multi": 57,
+        "No-Anomaly": 2327,
+        "Offline-Module": 190,
+        "Shadowing": 244,
+        "Soiling": 47,
+        "Vegetation": 382
+      }
+    }
+  ],
+  "limit": "Duplicate-aware folds within the original training partition. No panel/site/capture IDs; no unseen-site generalization claim."
+}
