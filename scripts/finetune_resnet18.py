@@ -8,6 +8,7 @@ import re
 import sys
 import time
 from collections import Counter
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -15,6 +16,7 @@ import torchvision
 from PIL import __version__ as pillow_version
 from torch import nn
 
+from pv_fault.augmentation import ThermalTrainAugmentation
 from pv_fault.data import CLASS_NAMES
 from pv_fault.evaluate import (
     classification_metrics,
@@ -69,6 +71,25 @@ def load_plan(path):
     if plan["selection_metric"] != "validation_macro_f1":
         raise ValueError("Checkpoint selection must use validation macro-F1.")
 
+    augmentation = plan.get("train_augmentation")
+    if augmentation is not None:
+        expected_keys = {
+            "horizontal_flip_probability",
+            "contrast_probability",
+            "contrast_min",
+            "contrast_max",
+        }
+        if not isinstance(augmentation, dict) or set(augmentation) != expected_keys:
+            raise ValueError("Unexpected train_augmentation settings.")
+
+        # Constructing the transform also checks its probability and range limits.
+        ThermalTrainAugmentation(
+            flip_probability=augmentation["horizontal_flip_probability"],
+            contrast_probability=augmentation["contrast_probability"],
+            contrast_min=augmentation["contrast_min"],
+            contrast_max=augmentation["contrast_max"],
+        )
+
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]*", plan["run_id"]):
         raise ValueError("run_id must be a simple folder name.")
 
@@ -82,9 +103,19 @@ def main():
         action="store_true",
         help="Run the single bounded full training trial.",
     )
+    parser.add_argument(
+        "--plan",
+        type=Path,
+        default=PLAN_PATH,
+        help="Plan JSON; defaults to the original layer-4 plan.",
+    )
     args = parser.parse_args()
 
-    plan = load_plan(PLAN_PATH)
+    plan_path = args.plan
+    if not plan_path.is_absolute():
+        plan_path = ROOT / plan_path
+    plan = load_plan(plan_path)
+
     run_dir = ROOT / "runs" / plan["run_id"]
 
     # Never overwrite an earlier full trial.
@@ -95,8 +126,24 @@ def main():
     np.random.seed(plan["seed"])
     torch.manual_seed(plan["seed"])
 
+    augmentation_settings = plan.get("train_augmentation")
+    train_transform = None
+    if augmentation_settings is not None:
+        train_transform = ThermalTrainAugmentation(
+            flip_probability=augmentation_settings[
+                "horizontal_flip_probability"
+            ],
+            contrast_probability=augmentation_settings[
+                "contrast_probability"
+            ],
+            contrast_min=augmentation_settings["contrast_min"],
+            contrast_max=augmentation_settings["contrast_max"],
+        )
+
     started = time.monotonic()
-    train_data, val_data, train_loader, val_loader = make_loaders(plan)
+    train_data, val_data, train_loader, val_loader = make_loaders(
+        plan, train_transform=train_transform
+    )
 
     model = ResNet18Thermal(
         num_classes=len(CLASS_NAMES),
@@ -187,6 +234,7 @@ def main():
     source_files = (
         "scripts/finetune_resnet18.py",
         "scripts/train_baseline.py",
+        "src/pv_fault/augmentation.py",
         "src/pv_fault/models/resnet.py",
         "src/pv_fault/data.py",
         "src/pv_fault/train.py",
@@ -196,7 +244,7 @@ def main():
         "manifest_sha256": plan["manifest_sha256"],
         "parent_checkpoint_sha256": plan["parent_checkpoint_sha256"],
         "pretrained_sha256": plan["pretrained_sha256"],
-        "plan_sha256": file_hash(PLAN_PATH),
+        "plan_sha256": file_hash(plan_path),
         "source_sha256": {
             name: file_hash(ROOT / name) for name in source_files
         },
@@ -204,6 +252,7 @@ def main():
         "trainable_parameters": trainable_parameters,
         "class_names": CLASS_NAMES,
         "class_weighting": plan["class_weighting"],
+        "train_augmentation": augmentation_settings,
         "train_class_counts": dict(
             Counter(row["label"] for row in train_data.rows)
         ),
