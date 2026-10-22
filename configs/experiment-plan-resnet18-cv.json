@@ -1,0 +1,51 @@
+{
+  "run_id": "resnet18-cv3-lr-s2112-cpu-v1",
+  "hypothesis": "A paper-informed threefold increase in fine-tuning learning rates may improve macro-F1 without materially increasing faults classified as normal.",
+  "academic_reference": "https://www.sciencedirect.com/science/article/pii/S2213138821005579",
+  "reference_note": "Le et al. used Adam, 0.0003 learning rate and batch 64 on InfraredSolarModules with a different architecture. This is a candidate value, not a reproduced result.",
+  "manifest": "data/splits/infrared_solar_modules_v1.csv",
+  "manifest_sha256": "8c6c80cc05943e85d4a03874b1d5d89cb83eaf98e5637560b9ec9a2dcdee1ef8",
+  "fold_manifest": "data/splits/infrared_solar_modules_train_cv3.csv",
+  "fold_manifest_sha256": "f5cb30e06ecf3d83674edcd8c6de29c1cd6a853c13a30a6c4c6e5b31267f018f",
+  "pretrained_weights": "data/pretrained/resnet18-f37072fd.pth",
+  "pretrained_sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+  "folds": 3,
+  "seed": 2112,
+  "device": "cpu",
+  "cpu_threads": 4,
+  "batch_size": 64,
+  "class_weighting": "sqrt_inverse_frequency_from_fold_train_only",
+  "augmentation": "none_for_this_learning_rate_comparison",
+  "frozen_head": {
+    "learning_rate": 0.001,
+    "max_epochs": 5,
+    "early_stopping_patience": 2
+  },
+  "fine_tuning": {
+    "max_epochs": 6,
+    "early_stopping_patience": 2,
+    "arms": [
+      {"name": "current_lr", "head_learning_rate": 0.0001, "layer4_learning_rate": 0.00001},
+      {"name": "paper_informed_lr", "head_learning_rate": 0.0003, "layer4_learning_rate": 0.00003}
+    ]
+  },
+  "selection_metric": "fold_mean_macro_f1",
+  "also_report": ["accuracy", "balanced_accuracy", "per_class_recall", "fault_to_normal_rate", "normal_false_alarm_rate"],
+  "max_trials": 6,
+  "max_total_seconds": 3600,
+  "paid_compute_cost": 0,
+  "smoke_measurement": {
+    "train_images_in_fold": 9297,
+    "validation_images_in_fold": 4649,
+    "batches_per_stage": 2,
+    "frozen_train_seconds": 0.4553910420509055,
+    "frozen_validation_seconds": 0.3948324170196429,
+    "fine_train_seconds": 0.6443408749764785,
+    "fine_validation_seconds": 0.3538367080036551,
+    "projected_full_seconds_before_early_stop": 2873.0931931189843
+  },
+  "budget_note": "Measured on this Mac with the same image files, weights and CPU environment. The 48-minute projection is approximate; cap all nine fits at 3600 seconds and stop between epochs.",
+  "test_policy": "No original validation or test images in cross-validation training. Never evaluate internal test while tuning.",
+  "stopping_rule": "At most three fold-specific frozen-head fits and six fine-tuning fits; stop any fit after its epoch cap or two non-improving validation macro-F1 epochs; stop all work at the total local time cap.",
+  "external_data_policy": "Schaefer sUAS is exploratory binary domain-shift evidence and is not used to choose this 12-class learning rate."
+}

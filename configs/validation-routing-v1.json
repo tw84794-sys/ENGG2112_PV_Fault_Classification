@@ -1,0 +1,222 @@
+{
+  "source_predictions_sha256": "ea764d15bf36296ac147e5e4c3f70795ec60677a3a4dacf61880c9d67297ac27",
+  "earlier_predictions_sha256": "bb9691cfafe26ca95766e9e3153980b65f3b9e68e9c86d65cdca3469f685d1b1",
+  "source_split": "original validation only",
+  "model_class_prediction_policy": "Keep original 12-class argmax and macro-F1 unchanged.",
+  "routing_policy": "Route as No-Anomaly candidate only when argmax is No-Anomaly and its softmax probability reaches threshold; otherwise route for qualified-technician review. A normal route is not a safety or reuse certificate.",
+  "thresholds": {
+    "earlier_lr": [
+      {
+        "normal_probability_threshold": 0.0,
+        "faults_routed_normal": 184,
+        "faults_routed_normal_rate": 0.12332439678284182,
+        "normal_images_sent_to_review": 162,
+        "normal_review_rate": 0.10828877005347594,
+        "total_images_sent_to_review": 1470,
+        "fault_fraction_in_normal_route": 0.12121212121212122,
+        "faults_routed_normal_by_true_class": {
+          "Cell": 40,
+          "Cell-Multi": 16,
+          "Cracking": 3,
+          "Diode": 24,
+          "Diode-Multi": 1,
+          "Hot-Spot": 9,
+          "Hot-Spot-Multi": 4,
+          "Offline-Module": 36,
+          "Shadowing": 33,
+          "Soiling": 1,
+          "Vegetation": 17
+        }
+      },
+      {
+        "normal_probability_threshold": 0.5,
+        "faults_routed_normal": 122,
+        "faults_routed_normal_rate": 0.08176943699731903,
+        "normal_images_sent_to_review": 262,
+        "normal_review_rate": 0.1751336898395722,
+        "total_images_sent_to_review": 1632,
+        "fault_fraction_in_normal_route": 0.08997050147492626,
+        "faults_routed_normal_by_true_class": {
+          "Cell": 23,
+          "Cell-Multi": 8,
+          "Cracking": 2,
+          "Diode": 17,
+          "Hot-Spot": 6,
+          "Hot-Spot-Multi": 3,
+          "Offline-Module": 27,
+          "Shadowing": 25,
+          "Vegetation": 11
+        }
+      },
+      {
+        "normal_probability_threshold": 0.6,
+        "faults_routed_normal": 84,
+        "faults_routed_normal_rate": 0.05630026809651475,
+        "normal_images_sent_to_review": 358,
+        "normal_review_rate": 0.2393048128342246,
+        "total_images_sent_to_review": 1766,
+        "fault_fraction_in_normal_route": 0.06873977086743044,
+        "faults_routed_normal_by_true_class": {
+          "Cell": 15,
+          "Cell-Multi": 5,
+          "Diode": 9,
+          "Hot-Spot": 4,
+          "Hot-Spot-Multi": 3,
+          "Offline-Module": 20,
+          "Shadowing": 18,
+          "Vegetation": 10
+        }
+      },
+      {
+        "normal_probability_threshold": 0.7,
+        "faults_routed_normal": 55,
+        "faults_routed_normal_rate": 0.03686327077747989,
+        "normal_images_sent_to_review": 514,
+        "normal_review_rate": 0.34358288770053474,
+        "total_images_sent_to_review": 1951,
+        "fault_fraction_in_normal_route": 0.05303760848601736,
+        "faults_routed_normal_by_true_class": {
+          "Cell": 11,
+          "Cell-Multi": 4,
+          "Diode": 6,
+          "Hot-Spot": 1,
+          "Hot-Spot-Multi": 2,
+          "Offline-Module": 11,
+          "Shadowing": 12,
+          "Vegetation": 8
+        }
+      },
+      {
+        "normal_probability_threshold": 0.8,
+        "faults_routed_normal": 27,
+        "faults_routed_normal_rate": 0.018096514745308313,
+        "normal_images_sent_to_review": 742,
+        "normal_review_rate": 0.4959893048128342,
+        "total_images_sent_to_review": 2207,
+        "fault_fraction_in_normal_route": 0.034571062740076826,
+        "faults_routed_normal_by_true_class": {
+          "Cell": 4,
+          "Diode": 3,
+          "Hot-Spot": 1,
+          "Offline-Module": 6,
+          "Shadowing": 8,
+          "Vegetation": 5
+        }
+      }
+    ],
+    "cv_selected_lr": [
+      {
+        "normal_probability_threshold": 0.0,
+        "faults_routed_normal": 206,
+        "faults_routed_normal_rate": 0.1380697050938338,
+        "normal_images_sent_to_review": 72,
+        "normal_review_rate": 0.0481283422459893,
+        "total_images_sent_to_review": 1358,
+        "fault_fraction_in_normal_route": 0.1263803680981595,
+        "faults_routed_normal_by_true_class": {
+          "Cell": 30,
+          "Cell-Multi": 13,
+          "Cracking": 3,
+          "Diode": 21,
+          "Diode-Multi": 2,
+          "Hot-Spot": 13,
+          "Hot-Spot-Multi": 7,
+          "Offline-Module": 57,
+          "Shadowing": 41,
+          "Soiling": 1,
+          "Vegetation": 18
+        }
+      },
+      {
+        "normal_probability_threshold": 0.5,
+        "faults_routed_normal": 181,
+        "faults_routed_normal_rate": 0.12131367292225201,
+        "normal_images_sent_to_review": 95,
+        "normal_review_rate": 0.06350267379679145,
+        "total_images_sent_to_review": 1406,
+        "fault_fraction_in_normal_route": 0.11441213653603034,
+        "faults_routed_normal_by_true_class": {
+          "Cell": 26,
+          "Cell-Multi": 11,
+          "Cracking": 3,
+          "Diode": 18,
+          "Diode-Multi": 2,
+          "Hot-Spot": 9,
+          "Hot-Spot-Multi": 6,
+          "Offline-Module": 52,
+          "Shadowing": 36,
+          "Soiling": 1,
+          "Vegetation": 17
+        }
+      },
+      {
+        "normal_probability_threshold": 0.6,
+        "faults_routed_normal": 160,
+        "faults_routed_normal_rate": 0.10723860589812333,
+        "normal_images_sent_to_review": 131,
+        "normal_review_rate": 0.0875668449197861,
+        "total_images_sent_to_review": 1463,
+        "fault_fraction_in_normal_route": 0.10491803278688525,
+        "faults_routed_normal_by_true_class": {
+          "Cell": 24,
+          "Cell-Multi": 10,
+          "Cracking": 3,
+          "Diode": 12,
+          "Diode-Multi": 1,
+          "Hot-Spot": 8,
+          "Hot-Spot-Multi": 6,
+          "Offline-Module": 45,
+          "Shadowing": 34,
+          "Soiling": 1,
+          "Vegetation": 16
+        }
+      },
+      {
+        "normal_probability_threshold": 0.7,
+        "faults_routed_normal": 119,
+        "faults_routed_normal_rate": 0.07975871313672922,
+        "normal_images_sent_to_review": 166,
+        "normal_review_rate": 0.11096256684491979,
+        "total_images_sent_to_review": 1539,
+        "fault_fraction_in_normal_route": 0.0821256038647343,
+        "faults_routed_normal_by_true_class": {
+          "Cell": 19,
+          "Cell-Multi": 7,
+          "Cracking": 2,
+          "Diode": 8,
+          "Diode-Multi": 1,
+          "Hot-Spot": 7,
+          "Hot-Spot-Multi": 4,
+          "Offline-Module": 35,
+          "Shadowing": 25,
+          "Vegetation": 11
+        }
+      },
+      {
+        "normal_probability_threshold": 0.8,
+        "faults_routed_normal": 81,
+        "faults_routed_normal_rate": 0.054289544235924934,
+        "normal_images_sent_to_review": 222,
+        "normal_review_rate": 0.1483957219251337,
+        "total_images_sent_to_review": 1633,
+        "fault_fraction_in_normal_route": 0.05977859778597786,
+        "faults_routed_normal_by_true_class": {
+          "Cell": 12,
+          "Cell-Multi": 5,
+          "Cracking": 2,
+          "Diode": 5,
+          "Diode-Multi": 1,
+          "Hot-Spot": 6,
+          "Hot-Spot-Multi": 2,
+          "Offline-Module": 23,
+          "Shadowing": 18,
+          "Vegetation": 7
+        }
+      }
+    ]
+  },
+  "provisional_choice": 0.7,
+  "choice_reason": "Exploratory validation choice after comparing routing curves: at 0.7, the selected model routes 119/1492 faults normal and 166/1496 normals to review; earlier model at argmax routed 184/1492 faults normal and 162/1496 normals to review. Total selected-model review workload is 1539/2988 versus 1470/2988. No expert risk or workload target has been supplied.",
+  "calibration_warning": "Softmax probabilities have not been calibrated.",
+  "internal_test_evaluated": false
+}
