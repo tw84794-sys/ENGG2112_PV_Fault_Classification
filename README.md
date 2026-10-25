@@ -50,3 +50,7 @@ the baseline notebook retains both results and the decision trade-off.
 ### Consolidated baseline error review
 
 The [baseline error review](results/cnn-error-review-v1.md) compares the two SmallCNN references, their weakest classes and common confusions. The baseline notebook includes their confusion matrices and illustrative validation errors. Higher macro-F1 came with more missed faults; retain both references for the separate ResNet comparison.
+
+### ResNet experiment notebook
+
+[ResNet18 experiments](notebooks/03_resnet18_experiments.ipynb) explains the existing frozen-backbone, layer4 fine-tuning, augmentation and learning-rate progression, then compares it with the optimised SmallCNN references. It reads tracked results by default; reproducing training requires verified pretrained weights and the recorded parent checkpoint.
