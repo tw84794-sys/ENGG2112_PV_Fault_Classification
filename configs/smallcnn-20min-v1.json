@@ -1,0 +1,27 @@
+{
+  "started_utc": "2026-10-23T06:09:49+00:00",
+  "deadline_utc": "2026-10-23T06:29:49+00:00",
+  "max_seconds": 1200,
+  "seed": 2112,
+  "test_policy": "Original train and validation only; no test inference",
+  "candidates": [
+    {
+      "arm": "gelu30",
+      "plan": "configs/experiment-plan-smallcnn-depth-gelu30.json",
+      "run_id": "smallcnn-depth-gelu30-s2112-v1",
+      "status": "pending"
+    },
+    {
+      "arm": "relu60",
+      "plan": "configs/experiment-plan-smallcnn-depth-relu60.json",
+      "run_id": "smallcnn-depth-relu60-s2112-v1",
+      "status": "pending"
+    },
+    {
+      "arm": "gelu60",
+      "plan": "configs/experiment-plan-smallcnn-depth-gelu60.json",
+      "run_id": "smallcnn-depth-gelu60-s2112-v1",
+      "status": "pending"
+    }
+  ]
+}

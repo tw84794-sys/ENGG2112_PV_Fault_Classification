@@ -1,0 +1,168 @@
+{
+  "budget": {
+    "started_utc": "2026-10-23T06:09:49+00:00",
+    "deadline_utc": "2026-10-23T06:29:49+00:00",
+    "max_seconds": 1200,
+    "seed": 2112,
+    "test_policy": "Original train and validation only; no test inference",
+    "candidates": [
+      {
+        "arm": "gelu30",
+        "plan": "configs/experiment-plan-smallcnn-depth-gelu30.json",
+        "run_id": "smallcnn-depth-gelu30-s2112-v1",
+        "status": "completed",
+        "started_utc": "2026-10-23T06:11:11.285911+00:00",
+        "finished_utc": "2026-10-23T06:12:39.010407+00:00",
+        "summary": {
+          "checkpoint_predictions_verified": true,
+          "best_epoch": 12,
+          "best_validation_macro_f1": 0.5801528134427697,
+          "majority_validation_macro_f1": 0.05560511448111805,
+          "epochs_completed": 17,
+          "stop_reason": "early_stopping",
+          "elapsed_seconds": 87.13388049999999,
+          "test_evaluated": false
+        },
+        "macro_f1": 0.5801528134427697,
+        "accuracy": 0.7469879518072289,
+        "faults_called_normal": 177,
+        "normal_called_fault": 121
+      },
+      {
+        "arm": "relu60",
+        "plan": "configs/experiment-plan-smallcnn-depth-relu60.json",
+        "run_id": "smallcnn-depth-relu60-s2112-v1",
+        "status": "completed",
+        "started_utc": "2026-10-23T06:12:39.010859+00:00",
+        "finished_utc": "2026-10-23T06:15:02.980018+00:00",
+        "summary": {
+          "checkpoint_predictions_verified": true,
+          "best_epoch": 29,
+          "best_validation_macro_f1": 0.5963823043973496,
+          "majority_validation_macro_f1": 0.05560511448111805,
+          "epochs_completed": 34,
+          "stop_reason": "early_stopping",
+          "elapsed_seconds": 143.34965154100001,
+          "test_evaluated": false
+        },
+        "macro_f1": 0.5963823043973496,
+        "accuracy": 0.7412985274431058,
+        "faults_called_normal": 82,
+        "normal_called_fault": 240
+      },
+      {
+        "arm": "gelu60",
+        "plan": "configs/experiment-plan-smallcnn-depth-gelu60.json",
+        "run_id": "smallcnn-depth-gelu60-s2112-v1",
+        "status": "not_run_redundant_early_stopping",
+        "reason": "Identical initialization/order/patience would stop at the same epoch; only the unused epoch cap differs."
+      }
+    ]
+  },
+  "status": "training_closed_documented",
+  "test_evaluated": false,
+  "trials": [
+    {
+      "arm": "gelu30",
+      "plan": "configs/experiment-plan-smallcnn-depth-gelu30.json",
+      "run_id": "smallcnn-depth-gelu30-s2112-v1",
+      "status": "completed",
+      "started_utc": "2026-10-23T06:11:11.285911+00:00",
+      "finished_utc": "2026-10-23T06:12:39.010407+00:00",
+      "summary": {
+        "checkpoint_predictions_verified": true,
+        "best_epoch": 12,
+        "best_validation_macro_f1": 0.5801528134427697,
+        "majority_validation_macro_f1": 0.05560511448111805,
+        "epochs_completed": 17,
+        "stop_reason": "early_stopping",
+        "elapsed_seconds": 87.13388049999999,
+        "test_evaluated": false
+      },
+      "macro_f1": 0.5801528134427697,
+      "accuracy": 0.7469879518072289,
+      "faults_called_normal": 177,
+      "normal_called_fault": 121
+    },
+    {
+      "arm": "relu60",
+      "plan": "configs/experiment-plan-smallcnn-depth-relu60.json",
+      "run_id": "smallcnn-depth-relu60-s2112-v1",
+      "status": "completed",
+      "started_utc": "2026-10-23T06:12:39.010859+00:00",
+      "finished_utc": "2026-10-23T06:15:02.980018+00:00",
+      "summary": {
+        "checkpoint_predictions_verified": true,
+        "best_epoch": 29,
+        "best_validation_macro_f1": 0.5963823043973496,
+        "majority_validation_macro_f1": 0.05560511448111805,
+        "epochs_completed": 34,
+        "stop_reason": "early_stopping",
+        "elapsed_seconds": 143.34965154100001,
+        "test_evaluated": false
+      },
+      "macro_f1": 0.5963823043973496,
+      "accuracy": 0.7412985274431058,
+      "faults_called_normal": 82,
+      "normal_called_fault": 240
+    },
+    {
+      "arm": "gelu60",
+      "plan": "configs/experiment-plan-smallcnn-depth-gelu60.json",
+      "run_id": "smallcnn-depth-gelu60-s2112-v1",
+      "status": "not_run_redundant_early_stopping",
+      "reason": "Identical initialization/order/patience would stop at the same epoch; only the unused epoch cap differs."
+    },
+    {
+      "arm": "augmentation30",
+      "plan": "configs/experiment-plan-smallcnn-depth-augmentation30.json",
+      "run_id": "smallcnn-depth-augmentation30-s2112-v1",
+      "status": "completed",
+      "selection_note": "Adaptive remaining-budget candidate after GELU30 and ReLU60 did not improve the reference.",
+      "started_utc": "2026-10-23T06:16:45.329336+00:00",
+      "finished_utc": "2026-10-23T06:18:12.567491+00:00",
+      "summary": {
+        "checkpoint_predictions_verified": true,
+        "best_epoch": 14,
+        "best_validation_macro_f1": 0.567982402185264,
+        "majority_validation_macro_f1": 0.05560511448111805,
+        "epochs_completed": 19,
+        "stop_reason": "early_stopping",
+        "elapsed_seconds": 86.662157792,
+        "test_evaluated": false
+      },
+      "macro_f1": 0.567982402185264,
+      "accuracy": 0.7423025435073628,
+      "faults_called_normal": 209,
+      "normal_called_fault": 134
+    },
+    {
+      "arm": "gentle60",
+      "plan": "configs/experiment-plan-smallcnn-depth-gentle60.json",
+      "run_id": "smallcnn-depth-gentle60-s2112-v1",
+      "status": "completed",
+      "selection_note": "Adaptive remaining-budget candidate after GELU30 and ReLU60 did not improve the reference.",
+      "started_utc": "2026-10-23T06:18:12.567974+00:00",
+      "finished_utc": "2026-10-23T06:22:27.488080+00:00",
+      "summary": {
+        "checkpoint_predictions_verified": true,
+        "best_epoch": 23,
+        "best_validation_macro_f1": 0.6011947353233656,
+        "majority_validation_macro_f1": 0.05560511448111805,
+        "epochs_completed": 28,
+        "stop_reason": "early_stopping",
+        "elapsed_seconds": 124.302325958,
+        "test_evaluated": false
+      },
+      "macro_f1": 0.6011947353233656,
+      "accuracy": 0.7633868808567604,
+      "faults_called_normal": 170,
+      "normal_called_fault": 112
+    }
+  ],
+  "finished_utc": "2026-10-23T06:22:27.488643+00:00",
+  "optional_patient60": {
+    "status": "not_run_budget_reserved",
+    "reason": "Full planned runtime plus verification/documentation reserve no longer fit the original UTC deadline."
+  }
+}

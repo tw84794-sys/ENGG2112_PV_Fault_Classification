@@ -1,0 +1,665 @@
+{
+  "scope": "Original validation only; descriptive review after model selection, no new training or test inference.",
+  "class_names": [
+    "Cell",
+    "Cell-Multi",
+    "Cracking",
+    "Diode",
+    "Diode-Multi",
+    "Hot-Spot",
+    "Hot-Spot-Multi",
+    "No-Anomaly",
+    "Offline-Module",
+    "Shadowing",
+    "Soiling",
+    "Vegetation"
+  ],
+  "models": [
+    {
+      "role": "Fewer missed faults",
+      "run_id": "smallcnn-search-bn-depth-s2112-v1",
+      "metrics": {
+        "count": 2988,
+        "accuracy": 0.7412985274431058,
+        "macro_f1": 0.5963823043973496,
+        "balanced_accuracy": 0.6182766722795142,
+        "confusion_matrix": [
+          [
+            177,
+            28,
+            2,
+            0,
+            1,
+            2,
+            0,
+            13,
+            7,
+            10,
+            8,
+            32
+          ],
+          [
+            38,
+            79,
+            24,
+            0,
+            1,
+            1,
+            0,
+            9,
+            1,
+            9,
+            6,
+            25
+          ],
+          [
+            4,
+            24,
+            85,
+            0,
+            0,
+            0,
+            3,
+            1,
+            0,
+            1,
+            11,
+            12
+          ],
+          [
+            2,
+            0,
+            1,
+            194,
+            2,
+            1,
+            0,
+            6,
+            5,
+            7,
+            2,
+            3
+          ],
+          [
+            0,
+            0,
+            0,
+            3,
+            18,
+            0,
+            0,
+            1,
+            3,
+            0,
+            0,
+            1
+          ],
+          [
+            3,
+            0,
+            1,
+            0,
+            0,
+            15,
+            2,
+            4,
+            4,
+            5,
+            1,
+            2
+          ],
+          [
+            0,
+            2,
+            0,
+            0,
+            0,
+            6,
+            19,
+            2,
+            3,
+            2,
+            3,
+            0
+          ],
+          [
+            16,
+            8,
+            1,
+            5,
+            0,
+            5,
+            3,
+            1256,
+            88,
+            93,
+            4,
+            17
+          ],
+          [
+            2,
+            0,
+            0,
+            0,
+            4,
+            1,
+            0,
+            27,
+            78,
+            8,
+            0,
+            3
+          ],
+          [
+            6,
+            8,
+            5,
+            0,
+            0,
+            1,
+            1,
+            11,
+            8,
+            109,
+            1,
+            6
+          ],
+          [
+            6,
+            3,
+            3,
+            1,
+            0,
+            0,
+            3,
+            0,
+            0,
+            0,
+            13,
+            2
+          ],
+          [
+            35,
+            14,
+            5,
+            1,
+            1,
+            0,
+            1,
+            8,
+            2,
+            3,
+            3,
+            172
+          ]
+        ],
+        "per_class": {
+          "Cell": {
+            "support": 280,
+            "precision": 0.6124567474048442,
+            "recall": 0.6321428571428571,
+            "f1": 0.6221441124780316
+          },
+          "Cell-Multi": {
+            "support": 193,
+            "precision": 0.4759036144578313,
+            "recall": 0.40932642487046633,
+            "f1": 0.44011142061281333
+          },
+          "Cracking": {
+            "support": 141,
+            "precision": 0.6692913385826772,
+            "recall": 0.6028368794326241,
+            "f1": 0.6343283582089552
+          },
+          "Diode": {
+            "support": 223,
+            "precision": 0.9509803921568627,
+            "recall": 0.8699551569506726,
+            "f1": 0.9086651053864168
+          },
+          "Diode-Multi": {
+            "support": 26,
+            "precision": 0.6666666666666666,
+            "recall": 0.6923076923076923,
+            "f1": 0.6792452830188679
+          },
+          "Hot-Spot": {
+            "support": 37,
+            "precision": 0.46875,
+            "recall": 0.40540540540540543,
+            "f1": 0.43478260869565216
+          },
+          "Hot-Spot-Multi": {
+            "support": 37,
+            "precision": 0.59375,
+            "recall": 0.5135135135135135,
+            "f1": 0.5507246376811593
+          },
+          "No-Anomaly": {
+            "support": 1496,
+            "precision": 0.9387144992526159,
+            "recall": 0.839572192513369,
+            "f1": 0.8863796753705011
+          },
+          "Offline-Module": {
+            "support": 123,
+            "precision": 0.39195979899497485,
+            "recall": 0.6341463414634146,
+            "f1": 0.48447204968944096
+          },
+          "Shadowing": {
+            "support": 156,
+            "precision": 0.44129554655870445,
+            "recall": 0.6987179487179487,
+            "f1": 0.5409429280397022
+          },
+          "Soiling": {
+            "support": 31,
+            "precision": 0.25,
+            "recall": 0.41935483870967744,
+            "f1": 0.3132530120481927
+          },
+          "Vegetation": {
+            "support": 245,
+            "precision": 0.6254545454545455,
+            "recall": 0.7020408163265306,
+            "f1": 0.6615384615384615
+          }
+        },
+        "faults_called_normal": 82,
+        "fault_to_normal_rate": 0.054959785522788206,
+        "normal_called_fault": 240,
+        "normal_false_alarm_rate": 0.16042780748663102
+      },
+      "top_confusions": [
+        {
+          "count": 93,
+          "true_label": "No-Anomaly",
+          "predicted_label": "Shadowing"
+        },
+        {
+          "count": 88,
+          "true_label": "No-Anomaly",
+          "predicted_label": "Offline-Module"
+        },
+        {
+          "count": 38,
+          "true_label": "Cell-Multi",
+          "predicted_label": "Cell"
+        },
+        {
+          "count": 35,
+          "true_label": "Vegetation",
+          "predicted_label": "Cell"
+        },
+        {
+          "count": 32,
+          "true_label": "Cell",
+          "predicted_label": "Vegetation"
+        },
+        {
+          "count": 28,
+          "true_label": "Cell",
+          "predicted_label": "Cell-Multi"
+        },
+        {
+          "count": 27,
+          "true_label": "Offline-Module",
+          "predicted_label": "No-Anomaly"
+        },
+        {
+          "count": 25,
+          "true_label": "Cell-Multi",
+          "predicted_label": "Vegetation"
+        }
+      ],
+      "examples": [
+        {
+          "category": "Missed fault",
+          "image_id": "45",
+          "image_path": "images/45.jpg",
+          "true_label": "Offline-Module",
+          "predicted_label": "No-Anomaly"
+        },
+        {
+          "category": "Normal false alarm",
+          "image_id": "10059",
+          "image_path": "images/10059.jpg",
+          "true_label": "No-Anomaly",
+          "predicted_label": "Offline-Module"
+        },
+        {
+          "category": "Wrong fault type",
+          "image_id": "77",
+          "image_path": "images/77.jpg",
+          "true_label": "Offline-Module",
+          "predicted_label": "Hot-Spot"
+        }
+      ]
+    },
+    {
+      "role": "Highest macro-F1",
+      "run_id": "smallcnn-depth-gentle60-s2112-v1",
+      "metrics": {
+        "count": 2988,
+        "accuracy": 0.7633868808567604,
+        "macro_f1": 0.6011947353233656,
+        "balanced_accuracy": 0.593431403783665,
+        "confusion_matrix": [
+          [
+            180,
+            26,
+            2,
+            0,
+            0,
+            4,
+            0,
+            25,
+            3,
+            10,
+            2,
+            28
+          ],
+          [
+            52,
+            74,
+            26,
+            0,
+            0,
+            1,
+            0,
+            11,
+            1,
+            9,
+            4,
+            15
+          ],
+          [
+            5,
+            24,
+            86,
+            0,
+            0,
+            1,
+            2,
+            3,
+            0,
+            2,
+            9,
+            9
+          ],
+          [
+            2,
+            0,
+            1,
+            194,
+            2,
+            1,
+            0,
+            14,
+            3,
+            2,
+            0,
+            4
+          ],
+          [
+            0,
+            0,
+            0,
+            7,
+            16,
+            0,
+            1,
+            0,
+            1,
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            0,
+            0,
+            0,
+            0,
+            18,
+            3,
+            9,
+            1,
+            2,
+            0,
+            3
+          ],
+          [
+            0,
+            1,
+            0,
+            0,
+            0,
+            8,
+            22,
+            4,
+            0,
+            2,
+            0,
+            0
+          ],
+          [
+            7,
+            3,
+            3,
+            10,
+            1,
+            9,
+            6,
+            1384,
+            31,
+            30,
+            2,
+            10
+          ],
+          [
+            3,
+            0,
+            0,
+            4,
+            1,
+            0,
+            1,
+            49,
+            58,
+            4,
+            0,
+            3
+          ],
+          [
+            9,
+            8,
+            5,
+            0,
+            0,
+            4,
+            1,
+            38,
+            3,
+            84,
+            1,
+            3
+          ],
+          [
+            6,
+            1,
+            5,
+            1,
+            0,
+            0,
+            3,
+            1,
+            0,
+            1,
+            11,
+            2
+          ],
+          [
+            44,
+            15,
+            5,
+            0,
+            0,
+            0,
+            2,
+            16,
+            1,
+            6,
+            2,
+            154
+          ]
+        ],
+        "per_class": {
+          "Cell": {
+            "support": 280,
+            "precision": 0.5825242718446602,
+            "recall": 0.6428571428571429,
+            "f1": 0.6112054329371817
+          },
+          "Cell-Multi": {
+            "support": 193,
+            "precision": 0.4868421052631579,
+            "recall": 0.38341968911917096,
+            "f1": 0.4289855072463768
+          },
+          "Cracking": {
+            "support": 141,
+            "precision": 0.6466165413533834,
+            "recall": 0.6099290780141844,
+            "f1": 0.6277372262773722
+          },
+          "Diode": {
+            "support": 223,
+            "precision": 0.8981481481481481,
+            "recall": 0.8699551569506726,
+            "f1": 0.8838268792710705
+          },
+          "Diode-Multi": {
+            "support": 26,
+            "precision": 0.8,
+            "recall": 0.6153846153846154,
+            "f1": 0.6956521739130435
+          },
+          "Hot-Spot": {
+            "support": 37,
+            "precision": 0.391304347826087,
+            "recall": 0.4864864864864865,
+            "f1": 0.43373493975903615
+          },
+          "Hot-Spot-Multi": {
+            "support": 37,
+            "precision": 0.5365853658536586,
+            "recall": 0.5945945945945946,
+            "f1": 0.5641025641025641
+          },
+          "No-Anomaly": {
+            "support": 1496,
+            "precision": 0.8906048906048906,
+            "recall": 0.9251336898395722,
+            "f1": 0.9075409836065573
+          },
+          "Offline-Module": {
+            "support": 123,
+            "precision": 0.5686274509803921,
+            "recall": 0.4715447154471545,
+            "f1": 0.5155555555555555
+          },
+          "Shadowing": {
+            "support": 156,
+            "precision": 0.5526315789473685,
+            "recall": 0.5384615384615384,
+            "f1": 0.5454545454545455
+          },
+          "Soiling": {
+            "support": 31,
+            "precision": 0.3548387096774194,
+            "recall": 0.3548387096774194,
+            "f1": 0.35483870967741943
+          },
+          "Vegetation": {
+            "support": 245,
+            "precision": 0.6637931034482759,
+            "recall": 0.6285714285714286,
+            "f1": 0.6457023060796646
+          }
+        },
+        "faults_called_normal": 170,
+        "fault_to_normal_rate": 0.11394101876675604,
+        "normal_called_fault": 112,
+        "normal_false_alarm_rate": 0.0748663101604278
+      },
+      "top_confusions": [
+        {
+          "count": 52,
+          "true_label": "Cell-Multi",
+          "predicted_label": "Cell"
+        },
+        {
+          "count": 49,
+          "true_label": "Offline-Module",
+          "predicted_label": "No-Anomaly"
+        },
+        {
+          "count": 44,
+          "true_label": "Vegetation",
+          "predicted_label": "Cell"
+        },
+        {
+          "count": 38,
+          "true_label": "Shadowing",
+          "predicted_label": "No-Anomaly"
+        },
+        {
+          "count": 31,
+          "true_label": "No-Anomaly",
+          "predicted_label": "Offline-Module"
+        },
+        {
+          "count": 30,
+          "true_label": "No-Anomaly",
+          "predicted_label": "Shadowing"
+        },
+        {
+          "count": 28,
+          "true_label": "Cell",
+          "predicted_label": "Vegetation"
+        },
+        {
+          "count": 26,
+          "true_label": "Cell-Multi",
+          "predicted_label": "Cracking"
+        }
+      ],
+      "examples": [
+        {
+          "category": "Missed fault",
+          "image_id": "45",
+          "image_path": "images/45.jpg",
+          "true_label": "Offline-Module",
+          "predicted_label": "No-Anomaly"
+        },
+        {
+          "category": "Normal false alarm",
+          "image_id": "10031",
+          "image_path": "images/10031.jpg",
+          "true_label": "No-Anomaly",
+          "predicted_label": "Shadowing"
+        },
+        {
+          "category": "Wrong fault type",
+          "image_id": "54",
+          "image_path": "images/54.jpg",
+          "true_label": "Offline-Module",
+          "predicted_label": "Vegetation"
+        }
+      ]
+    }
+  ]
+}

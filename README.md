@@ -22,3 +22,31 @@ PYTHONPATH=src .venv/bin/python scripts/train_resnet18.py --plan configs/experim
 ```
 
 The first training command runs a two-batch smoke check. The final command runs one bounded trial and refuses to overwrite an existing run. It saves its checkpoint, metrics and validation predictions under `runs/resnet18-frozen-s2112-cpu-v1/`, which is excluded from Git. The [validation comparison](results/resnet18-frozen-v1-validation.md) contains the shareable results and limitations. The frozen test split remains untouched until independent review.
+
+## CNN training comparison
+
+The [extended CNN comparison](results/cnn-training-comparison-v1.md) records four
+training/validation-only trials: SmallCNN and WideCNN, each at learning rates
+0.001 and 0.0003. The explicit plans allow up to 30 epochs, five epochs of
+early-stopping patience, and 300 seconds per trial. Architectures, class weighting,
+batch size and seed remain fixed. Each saved checkpoint is reloaded to verify its
+validation predictions. Full weights and image-level predictions stay in ignored
+`runs/` folders; shareable metrics and learning curves are under `results/`.
+
+## Optimiser follow-up
+
+The [AdamW/SGD follow-up](results/cnn-optimizers-v1.md) compares six new trials on
+the matched two-layer BatchNorm CNNs, using seed 2112 without seed checks.
+The baseline experiments notebook records the settings, curves, error trade-offs
+and comparison with the earlier deeper models. Test images remain reserved.
+
+## Three-layer SmallCNN follow-up
+
+The [GELU and training-duration follow-up](results/smallcnn-20min-v1.md) records
+activation, longer-training, mild-augmentation and gentler-scheduler trials.
+The highest macro-F1 candidate misses more faults than the previous reference;
+the baseline notebook retains both results and the decision trade-off.
+
+### Consolidated baseline error review
+
+The [baseline error review](results/cnn-error-review-v1.md) compares the two SmallCNN references, their weakest classes and common confusions. The baseline notebook includes their confusion matrices and illustrative validation errors. Higher macro-F1 came with more missed faults; retain both references for the separate ResNet comparison.

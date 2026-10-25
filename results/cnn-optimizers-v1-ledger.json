@@ -1,0 +1,148 @@
+{
+  "started_utc": "2026-10-23T05:52:12.381836+00:00",
+  "status": "complete",
+  "seed": 2112,
+  "test_evaluated": false,
+  "seed_checks_requested": false,
+  "trials": [
+    {
+      "plan": "configs/experiment-plan-smallcnn-optimizer-adamw.json",
+      "run_id": "smallcnn-optimizer-adamw-s2112-v1",
+      "model": "small_cnn",
+      "arm": "adamw",
+      "status": "completed",
+      "started_utc": "2026-10-23T05:52:12.382145+00:00",
+      "finished_utc": "2026-10-23T05:53:14.482526+00:00",
+      "macro_f1": 0.4608891706004264,
+      "accuracy": 0.6646586345381527,
+      "faults_called_normal": 278,
+      "normal_called_fault": 209,
+      "summary": {
+        "checkpoint_predictions_verified": true,
+        "best_epoch": 12,
+        "best_validation_macro_f1": 0.4608891706004264,
+        "majority_validation_macro_f1": 0.05560511448111805,
+        "epochs_completed": 17,
+        "stop_reason": "early_stopping",
+        "elapsed_seconds": 61.343609167,
+        "test_evaluated": false
+      }
+    },
+    {
+      "plan": "configs/experiment-plan-smallcnn-optimizer-sgd01.json",
+      "run_id": "smallcnn-optimizer-sgd01-s2112-v1",
+      "model": "small_cnn",
+      "arm": "sgd01",
+      "status": "completed",
+      "started_utc": "2026-10-23T05:53:14.482838+00:00",
+      "finished_utc": "2026-10-23T05:54:15.670987+00:00",
+      "macro_f1": 0.5009667681409528,
+      "accuracy": 0.6961178045515395,
+      "faults_called_normal": 328,
+      "normal_called_fault": 135,
+      "summary": {
+        "checkpoint_predictions_verified": true,
+        "best_epoch": 12,
+        "best_validation_macro_f1": 0.5009667681409528,
+        "majority_validation_macro_f1": 0.05560511448111805,
+        "epochs_completed": 17,
+        "stop_reason": "early_stopping",
+        "elapsed_seconds": 60.624032791000005,
+        "test_evaluated": false
+      }
+    },
+    {
+      "plan": "configs/experiment-plan-smallcnn-optimizer-sgd03.json",
+      "run_id": "smallcnn-optimizer-sgd03-s2112-v1",
+      "model": "small_cnn",
+      "arm": "sgd03",
+      "status": "completed",
+      "started_utc": "2026-10-23T05:54:15.671334+00:00",
+      "finished_utc": "2026-10-23T05:55:13.270046+00:00",
+      "macro_f1": 0.43117793772101726,
+      "accuracy": 0.6572958500669344,
+      "faults_called_normal": 448,
+      "normal_called_fault": 149,
+      "summary": {
+        "checkpoint_predictions_verified": true,
+        "best_epoch": 11,
+        "best_validation_macro_f1": 0.43117793772101726,
+        "majority_validation_macro_f1": 0.05560511448111805,
+        "epochs_completed": 16,
+        "stop_reason": "early_stopping",
+        "elapsed_seconds": 57.032865917,
+        "test_evaluated": false
+      }
+    },
+    {
+      "plan": "configs/experiment-plan-widecnn-optimizer-adamw.json",
+      "run_id": "widecnn-optimizer-adamw-s2112-v1",
+      "model": "wide_cnn",
+      "arm": "adamw",
+      "status": "completed",
+      "started_utc": "2026-10-23T05:55:13.270398+00:00",
+      "finished_utc": "2026-10-23T05:58:11.361571+00:00",
+      "macro_f1": 0.5179044688701363,
+      "accuracy": 0.678380187416332,
+      "faults_called_normal": 137,
+      "normal_called_fault": 304,
+      "summary": {
+        "checkpoint_predictions_verified": true,
+        "best_epoch": 13,
+        "best_validation_macro_f1": 0.5179044688701363,
+        "majority_validation_macro_f1": 0.05560511448111805,
+        "epochs_completed": 18,
+        "stop_reason": "early_stopping",
+        "elapsed_seconds": 177.526685791,
+        "test_evaluated": false
+      }
+    },
+    {
+      "plan": "configs/experiment-plan-widecnn-optimizer-sgd01.json",
+      "run_id": "widecnn-optimizer-sgd01-s2112-v1",
+      "model": "wide_cnn",
+      "arm": "sgd01",
+      "status": "completed",
+      "started_utc": "2026-10-23T05:58:11.361966+00:00",
+      "finished_utc": "2026-10-23T06:00:18.119885+00:00",
+      "macro_f1": 0.42526780540139014,
+      "accuracy": 0.6472556894243642,
+      "faults_called_normal": 351,
+      "normal_called_fault": 234,
+      "summary": {
+        "checkpoint_predictions_verified": true,
+        "best_epoch": 8,
+        "best_validation_macro_f1": 0.42526780540139014,
+        "majority_validation_macro_f1": 0.05560511448111805,
+        "epochs_completed": 13,
+        "stop_reason": "early_stopping",
+        "elapsed_seconds": 126.083867417,
+        "test_evaluated": false
+      }
+    },
+    {
+      "plan": "configs/experiment-plan-widecnn-optimizer-sgd03.json",
+      "run_id": "widecnn-optimizer-sgd03-s2112-v1",
+      "model": "wide_cnn",
+      "arm": "sgd03",
+      "status": "completed",
+      "started_utc": "2026-10-23T06:00:18.120278+00:00",
+      "finished_utc": "2026-10-23T06:03:15.789038+00:00",
+      "macro_f1": 0.42797414870324113,
+      "accuracy": 0.6686746987951807,
+      "faults_called_normal": 340,
+      "normal_called_fault": 146,
+      "summary": {
+        "checkpoint_predictions_verified": true,
+        "best_epoch": 13,
+        "best_validation_macro_f1": 0.42797414870324113,
+        "majority_validation_macro_f1": 0.05560511448111805,
+        "epochs_completed": 18,
+        "stop_reason": "early_stopping",
+        "elapsed_seconds": 177.024852041,
+        "test_evaluated": false
+      }
+    }
+  ],
+  "finished_utc": "2026-10-23T06:03:15.789450+00:00"
+}

@@ -1,0 +1,162 @@
+{
+  "budget": {
+    "started_utc": "2026-10-23T04:54:52+00:00",
+    "deadline_utc": "2026-10-23T05:39:52+00:00",
+    "max_seconds": 2700,
+    "validation_selection": "macro_f1",
+    "seed_primary": 2112,
+    "seed_confirmation": 42,
+    "test_policy": "No test inference or tuning",
+    "phase_1": "Finish four scheduler/BatchNorm ablations already running",
+    "phase_2": "Compare GELU, an additional convolution, and AdamW with modest decay on each BatchNorm CNN; keep a fixed 30-epoch cap and document changes",
+    "phase_3": "Try SGD with momentum at two planned initial rates if time permits; compare within a stated budget",
+    "phase_4": "Use remaining time for promising combinations and an independent seed, reserving reporting time"
+  },
+  "trials": [
+    {
+      "plan": "configs/experiment-plan-smallcnn-search-bn-gelu.json",
+      "run_id": "smallcnn-search-bn-gelu-s2112-v1",
+      "phase": "single_change",
+      "status": "completed",
+      "started_utc": "2026-10-23T04:59:09.438362+00:00",
+      "external_timeout_seconds": 345,
+      "finished_utc": "2026-10-23T05:00:27.848089+00:00",
+      "summary": {
+        "checkpoint_predictions_verified": true,
+        "best_epoch": 12,
+        "best_validation_macro_f1": 0.5549424418390153,
+        "majority_validation_macro_f1": 0.05560511448111805,
+        "epochs_completed": 17,
+        "stop_reason": "early_stopping",
+        "elapsed_seconds": 77.775392375,
+        "test_evaluated": false
+      },
+      "macro_f1": 0.5549424418390153,
+      "accuracy": 0.7215528781793842,
+      "faults_called_normal": 272,
+      "normal_called_fault": 125
+    },
+    {
+      "plan": "configs/experiment-plan-widecnn-search-bn-gelu.json",
+      "run_id": "widecnn-search-bn-gelu-s2112-v1",
+      "phase": "single_change",
+      "status": "completed",
+      "started_utc": "2026-10-23T05:00:27.848793+00:00",
+      "external_timeout_seconds": 345,
+      "finished_utc": "2026-10-23T05:03:36.017994+00:00",
+      "summary": {
+        "checkpoint_predictions_verified": true,
+        "best_epoch": 8,
+        "best_validation_macro_f1": 0.509546062390504,
+        "majority_validation_macro_f1": 0.05560511448111805,
+        "epochs_completed": 13,
+        "stop_reason": "early_stopping",
+        "elapsed_seconds": 187.428032958,
+        "test_evaluated": false
+      },
+      "macro_f1": 0.509546062390504,
+      "accuracy": 0.6954484605087015,
+      "faults_called_normal": 233,
+      "normal_called_fault": 180
+    },
+    {
+      "plan": "configs/experiment-plan-smallcnn-search-bn-depth.json",
+      "run_id": "smallcnn-search-bn-depth-s2112-v1",
+      "phase": "single_change",
+      "status": "completed",
+      "started_utc": "2026-10-23T05:03:36.020039+00:00",
+      "external_timeout_seconds": 345,
+      "finished_utc": "2026-10-23T05:22:12.054073+00:00",
+      "summary": {
+        "checkpoint_predictions_verified": true,
+        "best_epoch": 29,
+        "best_validation_macro_f1": 0.5963823043973496,
+        "majority_validation_macro_f1": 0.05560511448111805,
+        "epochs_completed": 30,
+        "stop_reason": "max_epochs",
+        "elapsed_seconds": 166.084661209,
+        "test_evaluated": false
+      },
+      "macro_f1": 0.5963823043973496,
+      "accuracy": 0.7412985274431058,
+      "faults_called_normal": 82,
+      "normal_called_fault": 240
+    },
+    {
+      "plan": "configs/experiment-plan-widecnn-search-bn-depth.json",
+      "run_id": "widecnn-search-bn-depth-s2112-v1",
+      "phase": "single_change",
+      "status": "interrupted_checkpoint_recovered_and_verified",
+      "started_utc": "2026-10-23T05:22:12.056094+00:00",
+      "external_timeout_seconds": 309.9,
+      "summary": {
+        "checkpoint_predictions_verified": true,
+        "best_epoch": 13,
+        "best_validation_macro_f1": 0.5499846894248658,
+        "epochs_completed": 13,
+        "stop_reason": "external_guard_interrupted_then_checkpoint_verified",
+        "elapsed_seconds": 289.19396729100004,
+        "test_evaluated": false,
+        "recovery_note": "Training was externally interrupted under the wall-clock budget. Existing checkpoint and saved validation predictions verified afterward; no additional fitting. Training-fit evaluation omitted to respect deadline."
+      },
+      "macro_f1": 0.5499846894248658,
+      "accuracy": 0.7312583668005355,
+      "faults_called_normal": 149,
+      "normal_called_fault": 179
+    },
+    {
+      "plan": "configs/experiment-plan-smallcnn-search-bn-adamw.json",
+      "run_id": "smallcnn-search-bn-adamw-s2112-v1",
+      "phase": "single_change",
+      "status": "not_run_budget_reserved"
+    },
+    {
+      "plan": "configs/experiment-plan-widecnn-search-bn-adamw.json",
+      "run_id": "widecnn-search-bn-adamw-s2112-v1",
+      "phase": "single_change",
+      "status": "not_run_budget_reserved"
+    },
+    {
+      "plan": "configs/experiment-plan-smallcnn-search-bn-sgd01.json",
+      "run_id": "smallcnn-search-bn-sgd01-s2112-v1",
+      "phase": "single_change",
+      "status": "not_run_budget_reserved"
+    },
+    {
+      "plan": "configs/experiment-plan-widecnn-search-bn-sgd01.json",
+      "run_id": "widecnn-search-bn-sgd01-s2112-v1",
+      "phase": "single_change",
+      "status": "not_run_budget_reserved"
+    },
+    {
+      "plan": "configs/experiment-plan-smallcnn-search-bn-sgd03.json",
+      "run_id": "smallcnn-search-bn-sgd03-s2112-v1",
+      "phase": "single_change",
+      "status": "not_run_budget_reserved"
+    },
+    {
+      "plan": "configs/experiment-plan-widecnn-search-bn-sgd03.json",
+      "run_id": "widecnn-search-bn-sgd03-s2112-v1",
+      "phase": "single_change",
+      "status": "not_run_budget_reserved"
+    },
+    {
+      "plan": "configs/experiment-plan-smallcnn-search-confirm-seed42.json",
+      "run_id": "smallcnn-search-bn-depth-s42-v1",
+      "phase": "second_seed",
+      "status": "not_run_budget_reserved"
+    },
+    {
+      "plan": "configs/experiment-plan-widecnn-search-confirm-seed42.json",
+      "run_id": "widecnn-scheduler-s42-v1",
+      "phase": "second_seed",
+      "status": "not_run_budget_reserved"
+    }
+  ],
+  "status": "training_closed_documentation_complete",
+  "test_evaluated": false,
+  "finished_utc": "2026-10-23T05:36:31.094390+00:00",
+  "remaining_seconds": 200.90559315681458,
+  "recovery_note": "Interrupted WideCNN checkpoint verified without further training. This is not a completed planned trial.",
+  "unrun_reason": "UTC wall-clock budget and reporting reserve; no unrun plan has a measured score."
+}
