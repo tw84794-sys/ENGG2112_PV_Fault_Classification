@@ -1,0 +1,5 @@
+Model,Role,Run,Seed,Macro-F1,Accuracy,Balanced accuracy,Faults called normal,Normal false alarms,Best epoch,Epochs completed
+small_cnn,Original control,smallcnn-extended-lr1e-3-s2112-v1,2112,0.422379597431718,0.6412315930388219,0.4293499112359127,343,245,29,30
+small_cnn,Best development candidate,smallcnn-search-bn-depth-s2112-v1,2112,0.5963823043973496,0.7412985274431058,0.6182766722795142,82,240,29,30
+wide_cnn,Original control,widecnn-extended-lr1e-3-s2112-v1,2112,0.511372517009281,0.6914323962516734,0.5182795973508448,258,199,27,30
+wide_cnn,Best development candidate,widecnn-search-bn-depth-s2112-v1,2112,0.5499846894248658,0.7312583668005355,0.5637094506330013,149,179,13,13

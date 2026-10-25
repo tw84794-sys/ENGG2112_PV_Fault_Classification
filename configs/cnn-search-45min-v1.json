@@ -1,0 +1,78 @@
+{
+  "budget": {
+    "started_utc": "2026-10-23T04:54:52+00:00",
+    "deadline_utc": "2026-10-23T05:39:52+00:00",
+    "max_seconds": 2700,
+    "validation_selection": "macro_f1",
+    "seed_primary": 2112,
+    "seed_confirmation": 42,
+    "test_policy": "No test inference or tuning",
+    "phase_1": "Finish four scheduler/BatchNorm ablations already running",
+    "phase_2": "Compare GELU, an additional convolution, and AdamW with modest decay on each BatchNorm CNN; keep a fixed 30-epoch cap and document changes",
+    "phase_3": "Try SGD with momentum at two planned initial rates if time permits; compare within a stated budget",
+    "phase_4": "Use remaining time for promising combinations and an independent seed, reserving reporting time"
+  },
+  "initial_candidates": [
+    {
+      "plan": "configs/experiment-plan-smallcnn-search-bn-gelu.json",
+      "run_id": "smallcnn-search-bn-gelu-s2112-v1",
+      "size": "small",
+      "arm": "bn-gelu"
+    },
+    {
+      "plan": "configs/experiment-plan-smallcnn-search-bn-depth.json",
+      "run_id": "smallcnn-search-bn-depth-s2112-v1",
+      "size": "small",
+      "arm": "bn-depth"
+    },
+    {
+      "plan": "configs/experiment-plan-smallcnn-search-bn-adamw.json",
+      "run_id": "smallcnn-search-bn-adamw-s2112-v1",
+      "size": "small",
+      "arm": "bn-adamw"
+    },
+    {
+      "plan": "configs/experiment-plan-smallcnn-search-bn-sgd01.json",
+      "run_id": "smallcnn-search-bn-sgd01-s2112-v1",
+      "size": "small",
+      "arm": "bn-sgd01"
+    },
+    {
+      "plan": "configs/experiment-plan-smallcnn-search-bn-sgd03.json",
+      "run_id": "smallcnn-search-bn-sgd03-s2112-v1",
+      "size": "small",
+      "arm": "bn-sgd03"
+    },
+    {
+      "plan": "configs/experiment-plan-widecnn-search-bn-gelu.json",
+      "run_id": "widecnn-search-bn-gelu-s2112-v1",
+      "size": "wide",
+      "arm": "bn-gelu"
+    },
+    {
+      "plan": "configs/experiment-plan-widecnn-search-bn-depth.json",
+      "run_id": "widecnn-search-bn-depth-s2112-v1",
+      "size": "wide",
+      "arm": "bn-depth"
+    },
+    {
+      "plan": "configs/experiment-plan-widecnn-search-bn-adamw.json",
+      "run_id": "widecnn-search-bn-adamw-s2112-v1",
+      "size": "wide",
+      "arm": "bn-adamw"
+    },
+    {
+      "plan": "configs/experiment-plan-widecnn-search-bn-sgd01.json",
+      "run_id": "widecnn-search-bn-sgd01-s2112-v1",
+      "size": "wide",
+      "arm": "bn-sgd01"
+    },
+    {
+      "plan": "configs/experiment-plan-widecnn-search-bn-sgd03.json",
+      "run_id": "widecnn-search-bn-sgd03-s2112-v1",
+      "size": "wide",
+      "arm": "bn-sgd03"
+    }
+  ],
+  "notes": "Candidates are not results. The actual completed, interrupted or unrun states are recorded in the result ledger. Confirm strongest candidates with seed 42; stop launching at the deadline, leaving time to document."
+}

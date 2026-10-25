@@ -1,6 +1,6 @@
 # Wider CNN: validation comparison
 
-Both runs used the frozen InfraredSolarModules manifest, seed 2112, train-only square-root inverse-frequency class weights, batch size 64, learning rate 0.001, and validation macro-F1 checkpoint selection. The wider model changes only layer widths (16/32/64 to 64/128/128).
+Both runs used the frozen InfraredSolarModules manifest, seed 2112, train-only square-root inverse-frequency class weights, batch size 64, learning rate 0.001, and validation macro-F1 checkpoint selection. The wider model changes only layer widths (convolution channels 16/32 to 64/128; classifier hidden width 64 to 128).
 
 | Validation measure | SmallCNN V3 | WideCNN V1 |
 |---|---:|---:|

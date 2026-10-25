@@ -51,10 +51,10 @@ def load_plan(plan_path):
         raise ValueError("This trial must use local CPU with no paid compute.")
     if plan["max_trials"] != 1:
         raise ValueError("This plan allows exactly one full trial.")
-    if not 1 <= plan["max_epochs"] <= 15:
-        raise ValueError("Epoch limit must be between 1 and 15.")
-    if not 0 < plan["max_elapsed_seconds"] <= 120:
-        raise ValueError("Time limit must be at most 120 seconds.")
+    if not 1 <= plan["max_epochs"] <= 60:
+        raise ValueError("Epoch limit must be between 1 and 60.")
+    if not 0 < plan["max_elapsed_seconds"] <= 450:
+        raise ValueError("Time limit must be at most 450 seconds.")
     if plan["batch_size"] < 1 or plan["learning_rate"] <= 0:
         raise ValueError("Batch size and learning rate must be positive.")
     if plan["early_stopping_patience"] < 1:
@@ -67,7 +67,36 @@ def load_plan(plan_path):
         "none", "sqrt_inverse_frequency"
     ):
         raise ValueError("Unknown class-weighting method.")
+    if not isinstance(plan.get("batch_norm", False), bool):
+        raise ValueError("batch_norm must be a boolean.")
+    if plan.get("scheduler", "none") not in ("none", "plateau"):
+        raise ValueError("Unknown learning-rate scheduler.")
+    if plan.get("scheduler", "none") == "plateau":
+        scheduler = plan["scheduler_settings"]
+        if not 0 < scheduler["factor"] < 1 or scheduler["patience"] < 0:
+            raise ValueError("Invalid plateau scheduler settings.")
+        if not 0 < scheduler["min_lr"] <= plan["learning_rate"]:
+            raise ValueError("Invalid minimum learning rate.")
+        if scheduler["patience"] + 1 >= plan["early_stopping_patience"]:
+            raise ValueError("Early stopping must allow time after an LR reduction.")
+    if plan.get("activation", "relu") not in ("relu", "gelu"):
+        raise ValueError("Unknown activation.")
+    if not isinstance(plan.get("extra_conv", False), bool):
+        raise ValueError("extra_conv must be a boolean.")
+    if plan.get("optimizer", "adam") not in ("adam", "adamw", "sgd"):
+        raise ValueError("Unknown optimizer.")
+    if plan.get("weight_decay", 0.0) < 0:
+        raise ValueError("Weight decay must be nonnegative.")
+    if plan.get("augmentation", "none") not in ("none", "mild_thermal"):
+        raise ValueError("Unknown training augmentation.")
     return plan
+
+
+def make_training_transform(plan):
+    if plan.get("augmentation", "none") == "none":
+        return None
+    from pv_fault.augmentation import ThermalTrainAugmentation
+    return ThermalTrainAugmentation()
 
 
 def make_loaders(plan, train_transform=None):
@@ -128,6 +157,27 @@ def make_training_class_weights(train_data):
     return weights / weights.mean()
 
 
+def make_optimizer(model, plan):
+    name = plan.get("optimizer", "adam")
+    kwargs = {"lr": plan["learning_rate"], "weight_decay": plan.get("weight_decay", 0.0)}
+    if name == "sgd":
+        return torch.optim.SGD(model.parameters(), momentum=plan.get("momentum", 0.9), **kwargs)
+    if name == "adamw":
+        return torch.optim.AdamW(model.parameters(), **kwargs)
+    return torch.optim.Adam(model.parameters(), **kwargs)
+
+
+def make_scheduler(optimizer, plan):
+    if plan.get("scheduler", "none") == "none":
+        return None
+    settings = plan["scheduler_settings"]
+    return torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, mode="max", factor=settings["factor"],
+        patience=settings["patience"], min_lr=settings["min_lr"],
+        threshold=0.0, threshold_mode="abs",
+    )
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -147,6 +197,7 @@ def main():
         plan_path = ROOT / plan_path
     plan = load_plan(plan_path)
 
+    torch.set_num_threads(plan.get("cpu_threads", 4))
     seed = plan["seed"]
     random.seed(seed)
     np.random.seed(seed)
@@ -162,14 +213,19 @@ def main():
         )
 
     started = time.monotonic()
-    train_data, val_data, train_loader, val_loader = make_loaders(plan)
+    train_data, val_data, train_loader, val_loader = make_loaders(
+        plan, train_transform=make_training_transform(plan)
+    )
     majority_class, majority_metrics = majority_baseline(
         train_data, val_data
     )
 
     model_name = plan.get("model", "small_cnn")
     model_class = {"small_cnn": SmallCNN, "wide_cnn": WideCNN}[model_name]
-    model = model_class(num_classes=len(CLASS_NAMES)).to("cpu")
+    model = model_class(
+        num_classes=len(CLASS_NAMES), batch_norm=plan.get("batch_norm", False),
+        activation=plan.get("activation", "relu"), extra_conv=plan.get("extra_conv", False),
+    ).to("cpu")
     trainable_parameters = sum(
         parameter.numel() for parameter in model.parameters()
         if parameter.requires_grad
@@ -181,9 +237,9 @@ def main():
     )
     criterion = nn.CrossEntropyLoss(weight=class_weights)
     validation_criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(
-        model.parameters(), lr=plan["learning_rate"]
-    )
+    optimizer = make_optimizer(model, plan)
+
+    scheduler = make_scheduler(optimizer, plan)
 
     if not args.full:
         train_started = time.monotonic()
@@ -224,7 +280,12 @@ def main():
         "src/pv_fault/models/baseline.py",
         "src/pv_fault/train.py",
         "src/pv_fault/evaluate.py",
+        "src/pv_fault/augmentation.py",
     )
+    for name in source_files:
+        destination = run_dir / "source_snapshot" / name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes((ROOT / name).read_bytes())
     save_json(run_dir / "provenance.json", {
         "manifest_sha256": plan["manifest_sha256"],
         "plan_sha256": file_hash(plan_path),
@@ -250,6 +311,15 @@ def main():
         "pillow": pillow_version,
         "platform": platform.platform(),
         "device": "cpu",
+        "cpu_threads": torch.get_num_threads(),
+        "model_architecture": str(model),
+        "activation": plan.get("activation", "relu"),
+        "extra_conv": plan.get("extra_conv", False),
+        "optimizer": plan.get("optimizer", "adam"),
+        "weight_decay": plan.get("weight_decay", 0.0),
+        "augmentation": plan.get("augmentation", "none"),
+        "batch_norm": plan.get("batch_norm", False),
+        "scheduler": plan.get("scheduler", "none"),
         "test_evaluated": False,
     })
 
@@ -264,6 +334,7 @@ def main():
             stop_reason = "time_limit_before_epoch"
             break
 
+        learning_rate_used = optimizer.param_groups[0]["lr"]
         train_stats = train_one_epoch(
             model, train_loader, optimizer, criterion, "cpu"
         )
@@ -281,8 +352,12 @@ def main():
         if abs(metrics["accuracy"] - val_stats["accuracy"]) > 1e-9:
             raise ValueError("Validation accuracy and saved predictions disagree.")
 
+        if scheduler is not None:
+            scheduler.step(metrics["macro_f1"])
         elapsed = time.monotonic() - started
         epoch_result = {
+            "learning_rate": learning_rate_used,
+            "next_learning_rate": optimizer.param_groups[0]["lr"],
             "epoch": epoch,
             "train": train_stats,
             "validation_loss": val_stats["loss"],
@@ -304,6 +379,10 @@ def main():
             torch.save({
                 "model_state_dict": model.state_dict(),
                 "model": model_name,
+                "batch_norm": plan.get("batch_norm", False),
+                "scheduler": plan.get("scheduler", "none"),
+                "activation": plan.get("activation", "relu"),
+                "extra_conv": plan.get("extra_conv", False),
                 "trainable_parameters": trainable_parameters,
                 "epoch": epoch,
                 "class_names": CLASS_NAMES,
@@ -323,7 +402,27 @@ def main():
             stop_reason = "early_stopping"
             break
 
+    # Verify that the persisted checkpoint reproduces the selected validation
+    # predictions. Measure training fit with unweighted loss for comparison.
+    checkpoint_verified = False
+    if best_epoch is not None:
+        checkpoint = torch.load(run_dir / "best_model.pt", map_location="cpu", weights_only=True)
+        model.load_state_dict(checkpoint["model_state_dict"])
+        restored_records = collect_validation_predictions(model, val_loader, "cpu")
+        saved_records = json.loads((run_dir / "best_validation_predictions.json").read_text())
+        if restored_records != saved_records:
+            raise ValueError("Reloaded checkpoint predictions differ from saved predictions.")
+        checkpoint_verified = True
+        # Compare selected checkpoints on clean training images, even when
+        # stochastic augmentation was used during fitting.
+        fit_data = (SolarModuleDataset("train", manifest=ROOT / plan["manifest"])
+                    if plan.get("augmentation", "none") != "none" else train_data)
+        fit_loader = DataLoader(fit_data, batch_size=plan["batch_size"], shuffle=False)
+        train_fit = evaluate_one_epoch(model, fit_loader, validation_criterion, "cpu")
+        save_json(run_dir / "selected_training_fit.json", train_fit)
+
     save_json(run_dir / "summary.json", {
+        "checkpoint_predictions_verified": checkpoint_verified,
         "best_epoch": best_epoch,
         "best_validation_macro_f1": best_score if best_epoch else None,
         "majority_validation_macro_f1": majority_metrics["macro_f1"],
