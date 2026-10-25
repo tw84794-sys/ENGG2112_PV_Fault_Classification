@@ -115,6 +115,7 @@ def main():
     if not plan_path.is_absolute():
         plan_path = ROOT / plan_path
     plan = load_plan(plan_path)
+    torch.set_num_threads(plan.get("cpu_threads", 4))
 
     run_dir = ROOT / "runs" / plan["run_id"]
 
@@ -240,6 +241,10 @@ def main():
         "src/pv_fault/train.py",
         "src/pv_fault/evaluate.py",
     )
+    for name in source_files:
+        destination = run_dir / "source_snapshot" / name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes((ROOT / name).read_bytes())
     save_json(run_dir / "provenance.json", {
         "manifest_sha256": plan["manifest_sha256"],
         "parent_checkpoint_sha256": plan["parent_checkpoint_sha256"],
@@ -267,6 +272,7 @@ def main():
         "pillow": pillow_version,
         "platform": platform.platform(),
         "device": "cpu",
+        "cpu_threads": torch.get_num_threads(),
         "test_evaluated": False,
     })
 

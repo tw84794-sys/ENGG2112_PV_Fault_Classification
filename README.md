@@ -54,3 +54,5 @@ The [baseline error review](results/cnn-error-review-v1.md) compares the two Sma
 ### ResNet experiment notebook
 
 [ResNet18 experiments](notebooks/03_resnet18_experiments.ipynb) explains the existing frozen-backbone, layer4 fine-tuning, augmentation and learning-rate progression, then compares it with the optimised SmallCNN references. It reads tracked results by default; reproducing training requires verified pretrained weights and the recorded parent checkpoint.
+
+The [fresh local ResNet reproduction](results/resnet18-reproduction-v1.md) records verified frozen and layer4 runs, their learning curves, and comparison with the current SmallCNN references. Both checkpoints reproduce all saved validation predictions; test inference remains unused.

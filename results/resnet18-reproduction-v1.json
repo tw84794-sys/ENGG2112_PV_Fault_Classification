@@ -1,0 +1,950 @@
+{
+  "documented_utc": "2026-10-25T12:33:00.566826+00:00",
+  "seed": 2112,
+  "test_evaluated": false,
+  "additional_seed_checks_performed": false,
+  "scope": "Fresh original-validation reproductions, distinct from historical runs; class-weighted training, unweighted validation macro-F1 selection.",
+  "experiments": [
+    {
+      "label": "Fresh frozen ResNet18",
+      "run_id": "resnet18-frozen-repro-s2112-v1",
+      "plan": {
+        "stage": "frozen_resnet18_local_reproduction",
+        "dataset": "InfraredSolarModules",
+        "manifest": "data/splits/infrared_solar_modules_v1.csv",
+        "manifest_sha256": "8c6c80cc05943e85d4a03874b1d5d89cb83eaf98e5637560b9ec9a2dcdee1ef8",
+        "run_id": "resnet18-frozen-repro-s2112-v1",
+        "hypothesis": "Reproduce the historical frozen ResNet18 protocol in the current local environment before layer4 fine-tuning.",
+        "comparison": [
+          "resnet18-frozen-s2112-cpu-v1",
+          "resnet18-frozen-repro-s2112-v1"
+        ],
+        "model": "resnet18_frozen",
+        "pretrained_weights": "data/pretrained/resnet18-f37072fd.pth",
+        "pretrained_sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+        "preprocessing": "repeat grayscale to 3 channels; bilinear resize 40x24 to 80x48; ImageNet mean/std",
+        "class_weighting": "sqrt_inverse_frequency",
+        "selection_metric": "validation_macro_f1",
+        "also_report": [
+          "accuracy",
+          "balanced_accuracy",
+          "per_class_recall",
+          "fault_to_normal_rate",
+          "normal_false_alarm_rate"
+        ],
+        "seed": 2112,
+        "device": "cpu",
+        "batch_size": 64,
+        "learning_rate": 0.001,
+        "max_epochs": 5,
+        "early_stopping_patience": 2,
+        "max_elapsed_seconds": 390,
+        "max_trials": 1,
+        "paid_compute_cost": 0,
+        "test_policy": "Do not run predictions or select settings on the test split.",
+        "budget_note": "Measured on local CPU: 128 training images in 0.436 s and 128 validation images in 0.384 s. Scaling to 13,946 train images plus two passes over 2,988 validation images gives roughly 66 s/epoch and 330 s for five epochs; cap at 390 s.",
+        "smoke_measurement": {
+          "train_images": 128,
+          "train_seconds": 0.4360114159062505,
+          "validation_images": 128,
+          "validation_seconds": 0.3837482499657199,
+          "total_seconds_including_setup": 2.497473584022373,
+          "hardware": "local CPU; MPS unavailable in this execution context"
+        },
+        "stopping_rule": "Stop at five epochs, two epochs without validation macro-F1 improvement, or 390 elapsed seconds, whichever comes first.",
+        "cpu_threads": 4,
+        "reproduction_of": "configs/experiment-plan-resnet18.json",
+        "environment_note": "Current local Python/PyTorch versions and CPU timings are recorded; the historical environment is not claimed identical."
+      },
+      "summary": {
+        "best_epoch": 4,
+        "best_validation_macro_f1": 0.4899985331952806,
+        "epochs_completed": 5,
+        "stop_reason": "max_epochs",
+        "elapsed_seconds": 298.039937125,
+        "test_evaluated": false
+      },
+      "metrics": {
+        "count": 2988,
+        "accuracy": 0.6921017402945113,
+        "macro_f1": 0.4899985331952806,
+        "balanced_accuracy": 0.4924727817260264,
+        "confusion_matrix": [
+          [
+            135,
+            21,
+            2,
+            8,
+            0,
+            6,
+            0,
+            58,
+            8,
+            4,
+            8,
+            30
+          ],
+          [
+            49,
+            49,
+            23,
+            5,
+            1,
+            0,
+            6,
+            25,
+            8,
+            2,
+            9,
+            16
+          ],
+          [
+            7,
+            13,
+            90,
+            1,
+            1,
+            0,
+            5,
+            4,
+            1,
+            0,
+            13,
+            6
+          ],
+          [
+            1,
+            3,
+            0,
+            152,
+            6,
+            2,
+            0,
+            48,
+            5,
+            2,
+            0,
+            4
+          ],
+          [
+            0,
+            0,
+            0,
+            9,
+            14,
+            0,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            1,
+            2,
+            0,
+            1,
+            0,
+            6,
+            2,
+            17,
+            1,
+            6,
+            0,
+            1
+          ],
+          [
+            0,
+            3,
+            0,
+            0,
+            0,
+            3,
+            21,
+            7,
+            2,
+            1,
+            0,
+            0
+          ],
+          [
+            17,
+            9,
+            1,
+            26,
+            4,
+            9,
+            12,
+            1340,
+            39,
+            25,
+            2,
+            12
+          ],
+          [
+            4,
+            2,
+            1,
+            3,
+            1,
+            0,
+            3,
+            56,
+            49,
+            2,
+            0,
+            2
+          ],
+          [
+            13,
+            4,
+            4,
+            4,
+            0,
+            1,
+            3,
+            51,
+            4,
+            62,
+            2,
+            8
+          ],
+          [
+            8,
+            0,
+            4,
+            1,
+            0,
+            0,
+            2,
+            3,
+            1,
+            1,
+            10,
+            1
+          ],
+          [
+            42,
+            3,
+            6,
+            2,
+            0,
+            2,
+            5,
+            29,
+            6,
+            4,
+            6,
+            140
+          ]
+        ],
+        "per_class": {
+          "Cell": {
+            "support": 280,
+            "precision": 0.48736462093862815,
+            "recall": 0.48214285714285715,
+            "f1": 0.48473967684021546
+          },
+          "Cell-Multi": {
+            "support": 193,
+            "precision": 0.44954128440366975,
+            "recall": 0.2538860103626943,
+            "f1": 0.3245033112582782
+          },
+          "Cracking": {
+            "support": 141,
+            "precision": 0.6870229007633588,
+            "recall": 0.6382978723404256,
+            "f1": 0.661764705882353
+          },
+          "Diode": {
+            "support": 223,
+            "precision": 0.7169811320754716,
+            "recall": 0.6816143497757847,
+            "f1": 0.6988505747126436
+          },
+          "Diode-Multi": {
+            "support": 26,
+            "precision": 0.5185185185185185,
+            "recall": 0.5384615384615384,
+            "f1": 0.5283018867924528
+          },
+          "Hot-Spot": {
+            "support": 37,
+            "precision": 0.20689655172413793,
+            "recall": 0.16216216216216217,
+            "f1": 0.18181818181818182
+          },
+          "Hot-Spot-Multi": {
+            "support": 37,
+            "precision": 0.35,
+            "recall": 0.5675675675675675,
+            "f1": 0.43298969072164945
+          },
+          "No-Anomaly": {
+            "support": 1496,
+            "precision": 0.8175716900549115,
+            "recall": 0.8957219251336899,
+            "f1": 0.8548644338118023
+          },
+          "Offline-Module": {
+            "support": 123,
+            "precision": 0.392,
+            "recall": 0.3983739837398374,
+            "f1": 0.39516129032258074
+          },
+          "Shadowing": {
+            "support": 156,
+            "precision": 0.5688073394495413,
+            "recall": 0.3974358974358974,
+            "f1": 0.46792452830188674
+          },
+          "Soiling": {
+            "support": 31,
+            "precision": 0.2,
+            "recall": 0.3225806451612903,
+            "f1": 0.24691358024691357
+          },
+          "Vegetation": {
+            "support": 245,
+            "precision": 0.6363636363636364,
+            "recall": 0.5714285714285714,
+            "f1": 0.6021505376344085
+          }
+        },
+        "faults_called_normal": 299,
+        "fault_to_normal_rate": 0.20040214477211796,
+        "normal_called_fault": 156,
+        "normal_false_alarm_rate": 0.10427807486631016
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train": {
+            "loss": 1.7136423925612863,
+            "accuracy": 0.5947942062240069,
+            "count": 13946
+          },
+          "validation_loss": 1.1952975536765185,
+          "validation_accuracy": 0.6542838018741634,
+          "validation_macro_f1": 0.38442048298115705,
+          "fault_to_normal_rate": 0.2714477211796247,
+          "normal_false_alarm_rate": 0.09491978609625669,
+          "elapsed_seconds": 60.509599375
+        },
+        {
+          "epoch": 2,
+          "train": {
+            "loss": 1.4062329007412293,
+            "accuracy": 0.6603327118887136,
+            "count": 13946
+          },
+          "validation_loss": 1.1119621413619005,
+          "validation_accuracy": 0.6760374832663989,
+          "validation_macro_f1": 0.43845770734024897,
+          "fault_to_normal_rate": 0.23994638069705093,
+          "normal_false_alarm_rate": 0.09358288770053476,
+          "elapsed_seconds": 119.626383958
+        },
+        {
+          "epoch": 3,
+          "train": {
+            "loss": 1.3135267641594603,
+            "accuracy": 0.6779721784024093,
+            "count": 13946
+          },
+          "validation_loss": 1.1387696298091128,
+          "validation_accuracy": 0.6603078982597055,
+          "validation_macro_f1": 0.4487837455129941,
+          "fault_to_normal_rate": 0.17761394101876676,
+          "normal_false_alarm_rate": 0.1443850267379679,
+          "elapsed_seconds": 176.895749042
+        },
+        {
+          "epoch": 4,
+          "train": {
+            "loss": 1.255337866686448,
+            "accuracy": 0.6891581815574358,
+            "count": 13946
+          },
+          "validation_loss": 1.053536973005956,
+          "validation_accuracy": 0.6921017402945113,
+          "validation_macro_f1": 0.4899985331952806,
+          "fault_to_normal_rate": 0.20040214477211796,
+          "normal_false_alarm_rate": 0.10427807486631016,
+          "elapsed_seconds": 238.1459185
+        },
+        {
+          "epoch": 5,
+          "train": {
+            "loss": 1.2073285793037474,
+            "accuracy": 0.6995554280797361,
+            "count": 13946
+          },
+          "validation_loss": 1.0548020456051093,
+          "validation_accuracy": 0.6823962516733602,
+          "validation_macro_f1": 0.48501825840870927,
+          "fault_to_normal_rate": 0.16890080428954424,
+          "normal_false_alarm_rate": 0.14037433155080214,
+          "elapsed_seconds": 298.039607167
+        }
+      ],
+      "provenance": {
+        "manifest_sha256": "8c6c80cc05943e85d4a03874b1d5d89cb83eaf98e5637560b9ec9a2dcdee1ef8",
+        "plan_sha256": "87b41ce8ba08a47cbb5b1ec00df50f58dde7aff2829dad87e64c4d3e37e2795a",
+        "source_sha256": {
+          "scripts/train_resnet18.py": "08032c0e0b786f04faa5efccfe5f6834ecd018a57332af020b30245eb5c73a91",
+          "scripts/train_baseline.py": "0793310c4c9de79444a0635f26cef3faec7449c116bdf60124529456f9b4b906",
+          "src/pv_fault/models/resnet.py": "aafec424670dc29035666b9f2700fd3dcff870a0ff0477b85e202cf9f1fcd4c2",
+          "src/pv_fault/data.py": "3b8cfeedffad4737a9160e8a4110d732cfd4c5d814500d5a1a0386bb46dc3a85",
+          "src/pv_fault/train.py": "8eb31bd669f5d33d00fa084f91640032e8c7dae0868e0bd11c6b08ce7a28619f",
+          "src/pv_fault/evaluate.py": "85de5eaa76fcc28f4b19e73cd22314b3c71544f6ca333c1e25d70dda1acb9be2"
+        },
+        "model": "resnet18_frozen",
+        "trainable_parameters": 6156,
+        "class_names": [
+          "Cell",
+          "Cell-Multi",
+          "Cracking",
+          "Diode",
+          "Diode-Multi",
+          "Hot-Spot",
+          "Hot-Spot-Multi",
+          "No-Anomaly",
+          "Offline-Module",
+          "Shadowing",
+          "Soiling",
+          "Vegetation"
+        ],
+        "pretrained_weights_url": "https://download.pytorch.org/models/resnet18-f37072fd.pth",
+        "pretrained_weights_sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+        "pretrained_weight_rights": "TorchVision warns pretrained weights may have dataset-derived terms; commercial deployment rights have not been verified.",
+        "preprocessing": {
+          "input": "grayscale float32 [1,40,24] in [0,1]",
+          "resize": [
+            80,
+            48
+          ],
+          "repeat_channels": 3,
+          "normalization_mean": [
+            0.485,
+            0.456,
+            0.406
+          ],
+          "normalization_std": [
+            0.229,
+            0.224,
+            0.225
+          ]
+        },
+        "class_weighting": "sqrt_inverse_frequency",
+        "train_class_counts": {
+          "Offline-Module": 572,
+          "Diode-Multi": 123,
+          "Diode": 1043,
+          "Shadowing": 731,
+          "Cell-Multi": 898,
+          "Cell": 1310,
+          "Hot-Spot": 174,
+          "Cracking": 655,
+          "Hot-Spot-Multi": 172,
+          "Soiling": 142,
+          "Vegetation": 1146,
+          "No-Anomaly": 6980
+        },
+        "class_weights": [
+          0.5741194486618042,
+          0.6934252977371216,
+          0.8119274377822876,
+          0.6434217095375061,
+          1.8736363649368286,
+          1.5752999782562256,
+          1.5844322443008423,
+          0.2487196922302246,
+          0.8688400983810425,
+          0.7685624957084656,
+          1.7437881231307983,
+          0.6138263940811157
+        ],
+        "train_images": 13946,
+        "validation_images": 2988,
+        "seed": 2112,
+        "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+        "torch": "2.8.0",
+        "torchvision": "0.23.0",
+        "numpy": "2.0.2",
+        "pillow": "11.3.0",
+        "platform": "macOS-26.6.2-arm64-arm-64bit",
+        "device": "cpu",
+        "cpu_threads": 4,
+        "test_evaluated": false
+      },
+      "verification": {
+        "checkpoint_predictions_verified": true,
+        "validation_images": 2988,
+        "best_epoch": 4,
+        "checkpoint_sha256": "ed017354a9258b5f31cc4ea90d371f41e12276c3bc678748e3be93115d03773a",
+        "sources_verified": true,
+        "cpu_threads": 4,
+        "test_evaluated": false
+      }
+    },
+    {
+      "label": "Fresh layer4 ResNet18",
+      "run_id": "resnet18-layer4-repro-s2112-v1",
+      "plan": {
+        "stage": "resnet18_layer4_local_reproduction",
+        "dataset": "InfraredSolarModules",
+        "manifest": "data/splits/infrared_solar_modules_v1.csv",
+        "manifest_sha256": "8c6c80cc05943e85d4a03874b1d5d89cb83eaf98e5637560b9ec9a2dcdee1ef8",
+        "parent_checkpoint": "runs/resnet18-frozen-repro-s2112-v1/best_model.pt",
+        "parent_checkpoint_sha256": "ed017354a9258b5f31cc4ea90d371f41e12276c3bc678748e3be93115d03773a",
+        "pretrained_weights": "data/pretrained/resnet18-f37072fd.pth",
+        "pretrained_sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+        "run_id": "resnet18-layer4-repro-s2112-v1",
+        "hypothesis": "Reproduce the original layer4 fine-tuning protocol from the newly reproduced frozen parent and compare original-validation results with SmallCNN.",
+        "comparison": [
+          "resnet18-frozen-repro-s2112-v1",
+          "resnet18-layer4-repro-s2112-v1"
+        ],
+        "model": "resnet18_layer4",
+        "class_weighting": "sqrt_inverse_frequency",
+        "selection_metric": "validation_macro_f1",
+        "seed": 2112,
+        "device": "cpu",
+        "batch_size": 64,
+        "head_learning_rate": 0.0001,
+        "layer4_learning_rate": 1e-05,
+        "max_epochs": 4,
+        "early_stopping_patience": 2,
+        "max_elapsed_seconds": 480,
+        "max_trials": 1,
+        "paid_compute_cost": 0,
+        "test_policy": "Do not use the test split for training or model selection.",
+        "budget_note": "Use the original four-epoch/480-second cap with an explicit new frozen parent; the current smoke measurement is recorded before full training.",
+        "stopping_rule": "Stop after four epochs, two epochs without validation macro-F1 improvement, or 480 elapsed seconds, whichever comes first.",
+        "cpu_threads": 4,
+        "reproduction_of": "configs/experiment-plan-resnet18-finetune.json",
+        "smoke_measurement": {
+          "trainable_parameters": 8394764,
+          "train_smoke": {
+            "loss": 1.1918250918388367,
+            "accuracy": 0.671875,
+            "count": 128
+          },
+          "train_smoke_seconds": 0.56720025,
+          "validation_smoke": {
+            "loss": 1.5434750318527222,
+            "accuracy": 0.390625,
+            "count": 128
+          },
+          "validation_smoke_seconds": 0.33539512500000024,
+          "total_seconds": 2.315232
+        }
+      },
+      "summary": {
+        "best_epoch": 4,
+        "best_validation_macro_f1": 0.562894401499307,
+        "epochs_completed": 4,
+        "stop_reason": "max_epochs",
+        "elapsed_seconds": 405.38175,
+        "test_evaluated": false
+      },
+      "metrics": {
+        "count": 2988,
+        "accuracy": 0.7319277108433735,
+        "macro_f1": 0.562894401499307,
+        "balanced_accuracy": 0.5783686770495295,
+        "confusion_matrix": [
+          [
+            151,
+            23,
+            4,
+            3,
+            0,
+            5,
+            1,
+            40,
+            6,
+            1,
+            5,
+            41
+          ],
+          [
+            48,
+            66,
+            20,
+            2,
+            0,
+            0,
+            5,
+            16,
+            3,
+            3,
+            10,
+            20
+          ],
+          [
+            4,
+            18,
+            87,
+            1,
+            0,
+            0,
+            7,
+            3,
+            0,
+            1,
+            10,
+            10
+          ],
+          [
+            0,
+            2,
+            0,
+            175,
+            8,
+            2,
+            0,
+            24,
+            8,
+            2,
+            0,
+            2
+          ],
+          [
+            0,
+            1,
+            0,
+            6,
+            16,
+            0,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0,
+            1,
+            1,
+            13,
+            3,
+            9,
+            1,
+            5,
+            0,
+            3
+          ],
+          [
+            0,
+            4,
+            0,
+            0,
+            0,
+            4,
+            23,
+            4,
+            1,
+            1,
+            0,
+            0
+          ],
+          [
+            12,
+            6,
+            0,
+            15,
+            0,
+            13,
+            11,
+            1334,
+            68,
+            23,
+            2,
+            12
+          ],
+          [
+            5,
+            0,
+            0,
+            2,
+            1,
+            1,
+            6,
+            36,
+            68,
+            2,
+            1,
+            1
+          ],
+          [
+            9,
+            7,
+            3,
+            3,
+            0,
+            1,
+            1,
+            33,
+            6,
+            83,
+            0,
+            10
+          ],
+          [
+            4,
+            2,
+            3,
+            0,
+            1,
+            0,
+            4,
+            1,
+            0,
+            1,
+            14,
+            1
+          ],
+          [
+            41,
+            13,
+            8,
+            0,
+            0,
+            1,
+            1,
+            17,
+            3,
+            2,
+            2,
+            157
+          ]
+        ],
+        "per_class": {
+          "Cell": {
+            "support": 280,
+            "precision": 0.551094890510949,
+            "recall": 0.5392857142857143,
+            "f1": 0.5451263537906138
+          },
+          "Cell-Multi": {
+            "support": 193,
+            "precision": 0.46153846153846156,
+            "recall": 0.34196891191709844,
+            "f1": 0.39285714285714285
+          },
+          "Cracking": {
+            "support": 141,
+            "precision": 0.696,
+            "recall": 0.6170212765957447,
+            "f1": 0.6541353383458647
+          },
+          "Diode": {
+            "support": 223,
+            "precision": 0.8413461538461539,
+            "recall": 0.7847533632286996,
+            "f1": 0.8120649651972157
+          },
+          "Diode-Multi": {
+            "support": 26,
+            "precision": 0.5925925925925926,
+            "recall": 0.6153846153846154,
+            "f1": 0.6037735849056604
+          },
+          "Hot-Spot": {
+            "support": 37,
+            "precision": 0.325,
+            "recall": 0.35135135135135137,
+            "f1": 0.33766233766233766
+          },
+          "Hot-Spot-Multi": {
+            "support": 37,
+            "precision": 0.36507936507936506,
+            "recall": 0.6216216216216216,
+            "f1": 0.46
+          },
+          "No-Anomaly": {
+            "support": 1496,
+            "precision": 0.8787878787878788,
+            "recall": 0.8917112299465241,
+            "f1": 0.8852023888520238
+          },
+          "Offline-Module": {
+            "support": 123,
+            "precision": 0.4121212121212121,
+            "recall": 0.5528455284552846,
+            "f1": 0.4722222222222222
+          },
+          "Shadowing": {
+            "support": 156,
+            "precision": 0.6693548387096774,
+            "recall": 0.532051282051282,
+            "f1": 0.5928571428571429
+          },
+          "Soiling": {
+            "support": 31,
+            "precision": 0.3181818181818182,
+            "recall": 0.45161290322580644,
+            "f1": 0.3733333333333333
+          },
+          "Vegetation": {
+            "support": 245,
+            "precision": 0.6108949416342413,
+            "recall": 0.6408163265306123,
+            "f1": 0.6254980079681275
+          }
+        },
+        "faults_called_normal": 184,
+        "fault_to_normal_rate": 0.12332439678284182,
+        "normal_called_fault": 162,
+        "normal_false_alarm_rate": 0.10828877005347594
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train": {
+            "loss": 1.1368237612118564,
+            "accuracy": 0.7082317510397247,
+            "count": 13946
+          },
+          "validation_loss": 0.9443311330624214,
+          "validation_accuracy": 0.7172021419009371,
+          "validation_macro_f1": 0.5291429191023478,
+          "fault_to_normal_rate": 0.1581769436997319,
+          "normal_false_alarm_rate": 0.10762032085561497,
+          "elapsed_seconds": 107.84534129100001
+        },
+        {
+          "epoch": 2,
+          "train": {
+            "loss": 0.975287419095129,
+            "accuracy": 0.7448730818872795,
+            "count": 13946
+          },
+          "validation_loss": 0.9014498707919395,
+          "validation_accuracy": 0.7192101740294511,
+          "validation_macro_f1": 0.5221730937085559,
+          "fault_to_normal_rate": 0.14075067024128687,
+          "normal_false_alarm_rate": 0.1163101604278075,
+          "elapsed_seconds": 217.493363958
+        },
+        {
+          "epoch": 3,
+          "train": {
+            "loss": 0.8573413118046906,
+            "accuracy": 0.7726229743295568,
+            "count": 13946
+          },
+          "validation_loss": 0.8966448036542379,
+          "validation_accuracy": 0.715528781793842,
+          "validation_macro_f1": 0.5359481736360413,
+          "fault_to_normal_rate": 0.10924932975871314,
+          "normal_false_alarm_rate": 0.14171122994652408,
+          "elapsed_seconds": 319.300308625
+        },
+        {
+          "epoch": 4,
+          "train": {
+            "loss": 0.7573217817466126,
+            "accuracy": 0.7953535063817582,
+            "count": 13946
+          },
+          "validation_loss": 0.8326824159427499,
+          "validation_accuracy": 0.7319277108433735,
+          "validation_macro_f1": 0.562894401499307,
+          "fault_to_normal_rate": 0.12332439678284182,
+          "normal_false_alarm_rate": 0.10828877005347594,
+          "elapsed_seconds": 405.317651833
+        }
+      ],
+      "provenance": {
+        "manifest_sha256": "8c6c80cc05943e85d4a03874b1d5d89cb83eaf98e5637560b9ec9a2dcdee1ef8",
+        "parent_checkpoint_sha256": "ed017354a9258b5f31cc4ea90d371f41e12276c3bc678748e3be93115d03773a",
+        "pretrained_sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+        "plan_sha256": "0db86756224200d4ef416db6136c8f7f658aae2509cdcb672fbfca219e64cd3e",
+        "source_sha256": {
+          "scripts/finetune_resnet18.py": "76af50a6067959eddde4353eb4731d1d92e3615a0f3e95eb64e930efb5e6bbb1",
+          "scripts/train_baseline.py": "0793310c4c9de79444a0635f26cef3faec7449c116bdf60124529456f9b4b906",
+          "src/pv_fault/augmentation.py": "284e1d4ab1d8a536a9bb4a8ad6cba2e7ab4886613959fa747aeeee1e1b602423",
+          "src/pv_fault/models/resnet.py": "aafec424670dc29035666b9f2700fd3dcff870a0ff0477b85e202cf9f1fcd4c2",
+          "src/pv_fault/data.py": "3b8cfeedffad4737a9160e8a4110d732cfd4c5d814500d5a1a0386bb46dc3a85",
+          "src/pv_fault/train.py": "8eb31bd669f5d33d00fa084f91640032e8c7dae0868e0bd11c6b08ce7a28619f",
+          "src/pv_fault/evaluate.py": "85de5eaa76fcc28f4b19e73cd22314b3c71544f6ca333c1e25d70dda1acb9be2"
+        },
+        "model": "resnet18_layer4",
+        "trainable_parameters": 8394764,
+        "class_names": [
+          "Cell",
+          "Cell-Multi",
+          "Cracking",
+          "Diode",
+          "Diode-Multi",
+          "Hot-Spot",
+          "Hot-Spot-Multi",
+          "No-Anomaly",
+          "Offline-Module",
+          "Shadowing",
+          "Soiling",
+          "Vegetation"
+        ],
+        "class_weighting": "sqrt_inverse_frequency",
+        "train_augmentation": null,
+        "train_class_counts": {
+          "Offline-Module": 572,
+          "Diode-Multi": 123,
+          "Diode": 1043,
+          "Shadowing": 731,
+          "Cell-Multi": 898,
+          "Cell": 1310,
+          "Hot-Spot": 174,
+          "Cracking": 655,
+          "Hot-Spot-Multi": 172,
+          "Soiling": 142,
+          "Vegetation": 1146,
+          "No-Anomaly": 6980
+        },
+        "class_weights": [
+          0.5741194486618042,
+          0.6934252977371216,
+          0.8119274377822876,
+          0.6434217095375061,
+          1.8736363649368286,
+          1.5752999782562256,
+          1.5844322443008423,
+          0.2487196922302246,
+          0.8688400983810425,
+          0.7685624957084656,
+          1.7437881231307983,
+          0.6138263940811157
+        ],
+        "train_images": 13946,
+        "validation_images": 2988,
+        "seed": 2112,
+        "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+        "torch": "2.8.0",
+        "torchvision": "0.23.0",
+        "numpy": "2.0.2",
+        "pillow": "11.3.0",
+        "platform": "macOS-26.6.2-arm64-arm-64bit",
+        "device": "cpu",
+        "cpu_threads": 4,
+        "test_evaluated": false
+      },
+      "verification": {
+        "checkpoint_predictions_verified": true,
+        "validation_images": 2988,
+        "best_epoch": 4,
+        "checkpoint_sha256": "eb6bb8ac01a3313945c8855a560af22869693bf98eb97f86c4f52b1fe8c7f2a8",
+        "sources_verified": true,
+        "cpu_threads": 4,
+        "test_evaluated": false
+      }
+    }
+  ]
+}
