@@ -1,0 +1,59 @@
+{
+  "protocol": "resnet18-generalisation-v1",
+  "started_utc": "2026-10-27T00:54:56.843148+00:00",
+  "test_evaluated": false,
+  "status": "complete_verified",
+  "trials": [
+    {
+      "arm": "augmentation",
+      "plan": "configs/experiment-plan-resnet18-generalisation-augmentation.json",
+      "run_id": "resnet18-generalisation-augmentation-s2112-v1",
+      "hypothesis": "Test mild horizontal flips and contrast changes with the strongest ten-epoch scheduled protocol.",
+      "status": "complete_verified",
+      "smoke_elapsed_seconds": 3.1276712090000003,
+      "full_elapsed_seconds": 738.7413596250001,
+      "verify_elapsed_seconds": 11.894134417000032
+    },
+    {
+      "arm": "smoothing",
+      "plan": "configs/experiment-plan-resnet18-generalisation-smoothing.json",
+      "run_id": "resnet18-generalisation-smoothing-s2112-v1",
+      "hypothesis": "Test label smoothing 0.05 with all other best-protocol settings held fixed.",
+      "status": "complete_verified",
+      "smoke_elapsed_seconds": 3.247779084000058,
+      "full_elapsed_seconds": 875.2985864579999,
+      "verify_elapsed_seconds": 10.766164250000202
+    },
+    {
+      "arm": "weight075",
+      "plan": "configs/experiment-plan-resnet18-generalisation-weight075.json",
+      "run_id": "resnet18-generalisation-weight075-s2112-v1",
+      "hypothesis": "Increase rare-class emphasis by changing inverse-frequency exponent from 0.5 to 0.75.",
+      "status": "complete_verified",
+      "smoke_elapsed_seconds": 3.2265927079999983,
+      "full_elapsed_seconds": 796.5180895419999,
+      "verify_elapsed_seconds": 10.727081375000125
+    },
+    {
+      "arm": "continue4",
+      "plan": "configs/experiment-plan-resnet18-generalisation-continue4.json",
+      "run_id": "resnet18-generalisation-continue4-s2112-v1",
+      "hypothesis": "Matched continuation control: start at best layer4 weights and use four additional low-rate epochs with a fresh optimiser and scheduler.",
+      "status": "complete_verified",
+      "smoke_elapsed_seconds": 3.243322416999945,
+      "full_elapsed_seconds": 319.84309487500013,
+      "verify_elapsed_seconds": 10.86788266700023
+    },
+    {
+      "arm": "gradual34",
+      "plan": "configs/experiment-plan-resnet18-generalisation-gradual34.json",
+      "run_id": "resnet18-generalisation-gradual34-s2112-v1",
+      "hypothesis": "From the same best layer4 checkpoint, unfreeze layer3 at 1e-6; compare with the identical layer4-only continuation.",
+      "status": "complete_verified",
+      "smoke_elapsed_seconds": 3.3619906250000895,
+      "full_elapsed_seconds": 343.19034058299985,
+      "verify_elapsed_seconds": 10.991862624999612
+    }
+  ],
+  "completed_utc": "2026-10-27T02:19:33.749215+00:00"
+}

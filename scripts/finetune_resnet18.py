@@ -1,4 +1,4 @@
-"""Fine-tune ResNet18 layer 4 using training and validation only."""
+"""Run bounded late-stage ResNet experiments using training and validation only."""
 
 import argparse
 import json
@@ -19,6 +19,7 @@ from torch import nn
 from pv_fault.augmentation import ThermalTrainAugmentation
 from pv_fault.data import CLASS_NAMES
 from pv_fault.finetuning import configure_resnet_finetuning
+from pv_fault.resnet_training import class_weights_from_training, validate_parent_metadata
 from pv_fault.evaluate import (
     classification_metrics,
     collect_validation_predictions,
@@ -32,7 +33,6 @@ from train_baseline import (
     ROOT,
     file_hash,
     make_loaders,
-    make_training_class_weights,
     make_scheduler,
     save_json,
 )
@@ -78,8 +78,16 @@ def load_plan(path):
     if plan.get("weight_decay", 0.0) < 0:
         raise ValueError("Weight decay must be nonnegative.")
 
-    if plan["class_weighting"] != "sqrt_inverse_frequency":
+    weighting = plan["class_weighting"]
+    if weighting not in ("sqrt_inverse_frequency", "power_inverse_frequency"):
         raise ValueError("This comparison uses training-only class weights.")
+    exponent = plan.get("class_weight_exponent", 0.5)
+    if not 0 <= exponent <= 1 or (weighting == "sqrt_inverse_frequency" and exponent != 0.5):
+        raise ValueError("Invalid inverse-frequency exponent.")
+    if not 0 <= plan.get("label_smoothing", 0.0) < 1:
+        raise ValueError("Label smoothing must be in [0, 1).")
+    if plan.get("parent_model", "resnet18_frozen") not in ("resnet18_frozen", "resnet18_layer4"):
+        raise ValueError("Unsupported parent model.")
     if plan["selection_metric"] != "validation_macro_f1":
         raise ValueError("Checkpoint selection must use validation macro-F1.")
 
@@ -180,14 +188,14 @@ def main():
         weights_only=True,
     )
 
-    if parent["model"] != "resnet18_frozen":
-        raise ValueError("Expected a frozen ResNet18 parent checkpoint.")
-    if parent["manifest_sha256"] != plan["manifest_sha256"]:
-        raise ValueError("Parent checkpoint and plan use different splits.")
-    if parent["pretrained_sha256"] != plan["pretrained_sha256"]:
-        raise ValueError("Parent checkpoint used different pretrained weights.")
-    if tuple(parent["class_names"]) != CLASS_NAMES:
-        raise ValueError("Parent checkpoint uses a different class order.")
+    parent_provenance = None
+    if plan.get("parent_model", "resnet18_frozen") == "resnet18_layer4":
+        parent_dir = (ROOT / plan["parent_checkpoint"]).parent
+        parent_provenance = json.loads((parent_dir / "provenance.json").read_text())
+        verification = json.loads((parent_dir / "checkpoint_verification.json").read_text())
+        if not verification["checkpoint_predictions_verified"] or verification["checkpoint_sha256"] != plan["parent_checkpoint_sha256"]:
+            raise ValueError("Warm-start parent must have verified saved validation predictions.")
+    validate_parent_metadata(parent, plan, parent_provenance)
 
     model.load_state_dict(parent["model_state_dict"])
     trainable_stages = tuple(plan.get("trainable_stages", ["layer4"]))
@@ -206,8 +214,8 @@ def main():
 
     scheduler = make_scheduler(optimizer, plan)
 
-    class_weights = make_training_class_weights(train_data)
-    training_loss = nn.CrossEntropyLoss(weight=class_weights)
+    class_weights = class_weights_from_training(train_data, plan.get("class_weight_exponent", 0.5))
+    training_loss = nn.CrossEntropyLoss(weight=class_weights, label_smoothing=plan.get("label_smoothing", 0.0))
     validation_loss = nn.CrossEntropyLoss()
 
     if not args.full:
@@ -256,6 +264,7 @@ def main():
         "scripts/train_baseline.py",
         "src/pv_fault/augmentation.py",
         "src/pv_fault/finetuning.py",
+        "src/pv_fault/resnet_training.py",
         "src/pv_fault/models/resnet.py",
         "src/pv_fault/data.py",
         "src/pv_fault/train.py",
@@ -282,6 +291,10 @@ def main():
         "trainable_stages": list(trainable_stages),
         "parameter_group_names": [g["name"] for g in optimizer.param_groups],
         "class_weighting": plan["class_weighting"],
+        "class_weight_exponent": plan.get("class_weight_exponent", 0.5),
+        "label_smoothing": plan.get("label_smoothing", 0.0),
+        "parent_model": plan.get("parent_model", "resnet18_frozen"),
+        "optimizer_state_restored": False,
         "train_augmentation": augmentation_settings,
         "scheduler": plan.get("scheduler", "none"),
         "scheduler_settings": plan.get("scheduler_settings"),
@@ -376,6 +389,7 @@ def main():
                 "class_names": CLASS_NAMES,
                 "manifest_sha256": plan["manifest_sha256"],
                 "parent_checkpoint_sha256": plan["parent_checkpoint_sha256"],
+                "pretrained_sha256": plan["pretrained_sha256"],
             }, run_dir / "best_model.pt")
             save_json(run_dir / "best_validation_metrics.json", metrics)
             save_json(
