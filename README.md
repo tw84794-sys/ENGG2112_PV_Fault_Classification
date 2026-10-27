@@ -60,3 +60,5 @@ The [fresh local ResNet reproduction](results/resnet18-reproduction-v1.md) recor
 ### ResNet optimisation and compute
 
 The [bounded optimisation and compute record](results/resnet18-hour-v1.md) documents the selected learning rates, longer training, plateau scheduling, AdamW and late-stage adaptation. It compares validation macro-F1, per-class errors, missed faults and false alarms with SmallCNN, alongside recorded run times, phase timings, parameter counts and model-only latency. The [ResNet notebook](notebooks/03_resnet18_experiments.ipynb) contains the complete progression and executed plots. Test inference and additional-seed checks remain deferred.
+
+The [generalisation experiment record](results/resnet18-generalisation-v1.md) compares mild augmentation, label smoothing, stronger rare-class weighting and gradual layer3 adaptation. The notebook records the hypotheses, fixed plans, matched continuation control, per-class results and both incremental and cumulative training costs. These remain validation-selected, single-seed experiments.
