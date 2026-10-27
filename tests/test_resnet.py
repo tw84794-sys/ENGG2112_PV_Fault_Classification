@@ -8,6 +8,8 @@ import torch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT / "scripts"))
+from train_baseline import make_scheduler
 
 from pv_fault.models.resnet import (
     IMAGENET_MEAN, IMAGENET_STD, WEIGHT_SHA256,
@@ -75,6 +77,26 @@ class ResNet18ContractTests(unittest.TestCase):
         self.assertTrue(torch.equal(bn_mean, model.backbone.layer4[0].bn1.running_mean))
         self.assertFalse(torch.equal(late_weight, model.backbone.layer4[0].conv1.weight))
         self.assertFalse(torch.equal(head_weight, model.backbone.fc.weight))
+
+
+    def test_scheduler_reduces_both_finetuning_rates_after_a_plateau(self):
+        layer_parameter = torch.nn.Parameter(torch.ones(1))
+        head_parameter = torch.nn.Parameter(torch.ones(1))
+        optimizer = torch.optim.Adam([
+            {"params": [layer_parameter], "lr": 3e-5},
+            {"params": [head_parameter], "lr": 3e-4},
+        ])
+        scheduler = make_scheduler(optimizer, {
+            "scheduler": "plateau",
+            "scheduler_settings": {"factor": 0.5, "patience": 1, "min_lr": 1e-7},
+        })
+        scheduler.step(0.5)
+        scheduler.step(0.49)
+        self.assertEqual([group["lr"] for group in optimizer.param_groups], [3e-5, 3e-4])
+        scheduler.step(0.49)
+        self.assertEqual([group["lr"] for group in optimizer.param_groups], [1.5e-5, 1.5e-4])
+        scheduler.step(0.6)
+        self.assertEqual([group["lr"] for group in optimizer.param_groups], [1.5e-5, 1.5e-4])
 
 
 if __name__ == "__main__":

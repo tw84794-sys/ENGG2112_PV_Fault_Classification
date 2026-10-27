@@ -1,0 +1,79 @@
+{
+  "stage": "resnet18_hour_adaptive",
+  "dataset": "InfraredSolarModules",
+  "manifest": "data/splits/infrared_solar_modules_v1.csv",
+  "manifest_sha256": "8c6c80cc05943e85d4a03874b1d5d89cb83eaf98e5637560b9ec9a2dcdee1ef8",
+  "parent_checkpoint": "runs/resnet18-frozen-repro-s2112-v1/best_model.pt",
+  "parent_checkpoint_sha256": "ed017354a9258b5f31cc4ea90d371f41e12276c3bc678748e3be93115d03773a",
+  "pretrained_weights": "data/pretrained/resnet18-f37072fd.pth",
+  "pretrained_sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+  "run_id": "resnet18-hour-layer3_layer4-s2112-v1",
+  "hypothesis": "Allow layer3 as well as layer4/head to adapt, with smaller layer3 LR 1e-5 and fixed BatchNorm. Eight-epoch allowance reflects compute cost; compare the complete configuration, not an isolated capacity effect.",
+  "comparison": [
+    "resnet18-optim-plateau10-s2112-v1",
+    "resnet18-hour-layer3_layer4-s2112-v1"
+  ],
+  "model": "resnet18_layer34",
+  "class_weighting": "sqrt_inverse_frequency",
+  "selection_metric": "validation_macro_f1",
+  "seed": 2112,
+  "device": "cpu",
+  "batch_size": 64,
+  "head_learning_rate": 0.0003,
+  "layer4_learning_rate": 3e-05,
+  "max_epochs": 8,
+  "early_stopping_patience": 4,
+  "max_elapsed_seconds": 780,
+  "max_trials": 1,
+  "paid_compute_cost": 0,
+  "test_policy": "Use original train for updates and original val for checkpoint selection; never load original test. No external sUAS data in training or selection.",
+  "budget_note": "Requested one-hour window; 780-second cap checked between epochs, plus an external guard and documentation reserve.",
+  "stopping_rule": "At most 8 epochs, four non-improving validation macro-F1 epochs, or 780 seconds checked between epochs; an external guard protects the overall hour deadline.",
+  "cpu_threads": 4,
+  "protocol_source": "configs/experiment-plan-resnet18-selected.json",
+  "historical_selection_note": "Learning rates were previously selected in the tracked development report. This run reproduces those settings; it does not rerun or independently revalidate the historical CV evidence.",
+  "scheduler": "plateau",
+  "arm": "layer3_layer4",
+  "scheduler_settings": {
+    "factor": 0.5,
+    "patience": 1,
+    "min_lr": 1e-07
+  },
+  "control_run_id": "resnet18-optim-plateau10-s2112-v1",
+  "optimizer": "adam",
+  "weight_decay": 0.0,
+  "trainable_stages": [
+    "layer3",
+    "layer4"
+  ],
+  "inherited_smoke_note": "A new short smoke check is saved below before the full fit.",
+  "layer3_learning_rate": 1e-05,
+  "smoke_measurement": {
+    "trainable_parameters": 10491916,
+    "total_parameters": 11182668,
+    "optimizer": "adam",
+    "weight_decay": 0.0,
+    "trainable_stages": [
+      "layer3",
+      "layer4"
+    ],
+    "parameter_group_names": [
+      "layer3",
+      "layer4",
+      "head"
+    ],
+    "train_smoke": {
+      "loss": 1.1998141407966614,
+      "accuracy": 0.6640625,
+      "count": 128
+    },
+    "train_smoke_seconds": 0.625462792,
+    "validation_smoke": {
+      "loss": 1.703287422657013,
+      "accuracy": 0.34375,
+      "count": 128
+    },
+    "validation_smoke_seconds": 0.40932362499999986,
+    "total_seconds": 2.46090975
+  }
+}

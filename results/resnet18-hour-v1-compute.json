@@ -1,0 +1,162 @@
+{
+  "documented_utc": "2026-10-27T00:02:55.216243+00:00",
+  "test_evaluated": false,
+  "timing_scope": "Reported run wall time includes setup, training, validation and saving. SmallCNN totals also include reload verification and clean training-fit evaluation; ResNet external verification is separate. Historical SmallCNN timings are not a controlled same-session benchmark. Phase timers exist only for adaptive trials and include loader iteration as well as model work.",
+  "frozen_parent_run_seconds": 298.039937125,
+  "pretraining_cost": "ImageNet pretraining cost is not measured or included. The local frozen parent is reused; add its run time when considering a fresh two-stage workflow.",
+  "run_comparison": [
+    {
+      "Model": "ResNet selected6",
+      "Run minutes": 7.58024731875,
+      "Completed epochs": 6,
+      "Selected epoch": 6,
+      "Mean sec/epoch": 75.8024731875,
+      "Trainable params": 8394764,
+      "Total params": 11182668,
+      "CPU threads": 4,
+      "Macro-F1": 0.5964857927469978,
+      "Optimiser updates": 1308,
+      "Training image presentations": 83676
+    },
+    {
+      "Model": "ResNet longer10",
+      "Run minutes": 15.120857907633333,
+      "Completed epochs": 10,
+      "Selected epoch": 10,
+      "Mean sec/epoch": 90.72514744579999,
+      "Trainable params": 8394764,
+      "Total params": 11182668,
+      "CPU threads": 4,
+      "Macro-F1": 0.6158027702953605,
+      "Optimiser updates": 2180,
+      "Training image presentations": 139460
+    },
+    {
+      "Model": "ResNet plateau10",
+      "Run minutes": 15.469068089583335,
+      "Completed epochs": 10,
+      "Selected epoch": 10,
+      "Mean sec/epoch": 92.8144085375,
+      "Trainable params": 8394764,
+      "Total params": 11182668,
+      "CPU threads": 4,
+      "Macro-F1": 0.6260848329355161,
+      "Optimiser updates": 2180,
+      "Training image presentations": 139460
+    },
+    {
+      "Model": "ResNet adamw",
+      "Run minutes": 13.705079289583333,
+      "Completed epochs": 8,
+      "Selected epoch": 7,
+      "Mean sec/epoch": 102.788094671875,
+      "Trainable params": 8394764,
+      "Total params": 11182668,
+      "CPU threads": 4,
+      "Macro-F1": 0.6079543394231195,
+      "Optimiser updates": 1744,
+      "Training image presentations": 111568
+    },
+    {
+      "Model": "ResNet layer3_layer4",
+      "Run minutes": 13.778656592366666,
+      "Completed epochs": 8,
+      "Selected epoch": 8,
+      "Mean sec/epoch": 103.33992444274999,
+      "Trainable params": 10491916,
+      "Total params": 11182668,
+      "CPU threads": 4,
+      "Macro-F1": 0.6086858963292198,
+      "Optimiser updates": 1744,
+      "Training image presentations": 111568
+    },
+    {
+      "Model": "SmallCNN fewer missed faults",
+      "Run minutes": 2.7680776868166665,
+      "Completed epochs": 30,
+      "Selected epoch": 29,
+      "Mean sec/epoch": 5.536155373633333,
+      "Trainable params": 47820,
+      "Total params": 47820,
+      "CPU threads": 4,
+      "Macro-F1": 0.5963823043973496,
+      "Optimiser updates": 6540,
+      "Training image presentations": 418380
+    },
+    {
+      "Model": "SmallCNN highest macro-F1",
+      "Run minutes": 2.0717054326333333,
+      "Completed epochs": 28,
+      "Selected epoch": 23,
+      "Mean sec/epoch": 4.4393687842142855,
+      "Trainable params": 47820,
+      "Total params": 47820,
+      "CPU threads": 4,
+      "Macro-F1": 0.6011947353233656,
+      "Optimiser updates": 6104,
+      "Training image presentations": 390488
+    }
+  ],
+  "adaptive_phase_timings": [
+    {
+      "Model": "ResNet adamw",
+      "Measured training seconds": 630.9734303760001,
+      "Validation loss-pass seconds": 91.14026816700004,
+      "Validation prediction-pass seconds": 98.13046074999993,
+      "Other run seconds": 2.0605980819999132,
+      "External verification seconds": 13.380884250000008
+    },
+    {
+      "Model": "ResNet layer3_layer4",
+      "Measured training seconds": 650.4151976249999,
+      "Validation loss-pass seconds": 85.56044808300008,
+      "Validation prediction-pass seconds": 88.63318566599999,
+      "Other run seconds": 2.1105641679999394,
+      "External verification seconds": 12.16603566599997
+    }
+  ],
+  "environment_by_run": [
+    {
+      "run_id": "resnet18-optim-selected6-s2112-v1",
+      "torch": "2.8.0",
+      "platform": "macOS-26.6.2-arm64-arm-64bit",
+      "cpu_threads": 4
+    },
+    {
+      "run_id": "resnet18-optim-longer10-s2112-v1",
+      "torch": "2.8.0",
+      "platform": "macOS-26.6.2-arm64-arm-64bit",
+      "cpu_threads": 4
+    },
+    {
+      "run_id": "resnet18-optim-plateau10-s2112-v1",
+      "torch": "2.8.0",
+      "platform": "macOS-26.6.2-arm64-arm-64bit",
+      "cpu_threads": 4
+    },
+    {
+      "run_id": "resnet18-hour-adamw-s2112-v1",
+      "torch": "2.8.0",
+      "platform": "macOS-26.6.2-arm64-arm-64bit",
+      "cpu_threads": 4
+    },
+    {
+      "run_id": "resnet18-hour-layer3_layer4-s2112-v1",
+      "torch": "2.8.0",
+      "platform": "macOS-26.6.2-arm64-arm-64bit",
+      "cpu_threads": 4
+    },
+    {
+      "run_id": "smallcnn-search-bn-depth-s2112-v1",
+      "torch": "2.8.0",
+      "platform": "macOS-26.6.2-arm64-arm-64bit",
+      "cpu_threads": 4
+    },
+    {
+      "run_id": "smallcnn-depth-gentle60-s2112-v1",
+      "torch": "2.8.0",
+      "platform": "macOS-26.6.2-arm64-arm-64bit",
+      "cpu_threads": 4
+    }
+  ]
+}
