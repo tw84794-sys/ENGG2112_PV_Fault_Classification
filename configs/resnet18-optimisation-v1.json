@@ -1,0 +1,29 @@
+{
+  "status": "planned",
+  "test_evaluated": false,
+  "seed": 2112,
+  "additional_seed_checks_performed": false,
+  "selection_metric": "validation_macro_f1",
+  "dataset_policy": "Frozen train/validation only. No test inference; image-byte verification is allowed.",
+  "planned_trials": [
+    {
+      "arm": "selected6",
+      "plan": "configs/experiment-plan-resnet18-optim-selected6.json",
+      "run_id": "resnet18-optim-selected6-s2112-v1",
+      "status": "planned"
+    },
+    {
+      "arm": "longer10",
+      "plan": "configs/experiment-plan-resnet18-optim-longer10.json",
+      "run_id": "resnet18-optim-longer10-s2112-v1",
+      "status": "planned"
+    },
+    {
+      "arm": "plateau10",
+      "plan": "configs/experiment-plan-resnet18-optim-plateau10.json",
+      "run_id": "resnet18-optim-plateau10-s2112-v1",
+      "status": "planned"
+    }
+  ],
+  "limits": "Three local CPU trials only; caps checked between epochs, checkpoint verification adds overhead."
+}

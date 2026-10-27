@@ -1,0 +1,26 @@
+{
+  "started_utc": "2026-10-26T22:55:05.711918+00:00",
+  "status": "completed_verified",
+  "test_evaluated": false,
+  "trials": [
+    {
+      "arm": "selected6",
+      "plan": "configs/experiment-plan-resnet18-optim-selected6.json",
+      "run_id": "resnet18-optim-selected6-s2112-v1",
+      "status": "completed_verified"
+    },
+    {
+      "arm": "longer10",
+      "plan": "configs/experiment-plan-resnet18-optim-longer10.json",
+      "run_id": "resnet18-optim-longer10-s2112-v1",
+      "status": "completed_verified"
+    },
+    {
+      "arm": "plateau10",
+      "plan": "configs/experiment-plan-resnet18-optim-plateau10.json",
+      "run_id": "resnet18-optim-plateau10-s2112-v1",
+      "status": "completed_verified"
+    }
+  ],
+  "finished_utc": "2026-10-26T23:33:54.539335+00:00"
+}

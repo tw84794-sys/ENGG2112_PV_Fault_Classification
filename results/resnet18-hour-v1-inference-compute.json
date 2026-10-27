@@ -1,0 +1,144 @@
+{
+  "measured_utc": "2026-10-27T00:03:00.680023+00:00",
+  "benchmark_source_sha256": "2211c19f3bc08e9d9af6f0395944b55eb33c9dcc8894fbef67eb08764d62ec59",
+  "cpu_threads": 4,
+  "device": "cpu",
+  "torch": "2.8.0",
+  "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "test_evaluated": false,
+  "scope": "Same synthetic grayscale inputs [N,1,40,24], model-only evaluation; no dataset images, loading or application overhead. Five warm-ups then twenty measurements per batch size. Run after all training.",
+  "memory_scope": "Parameter storage only; excludes buffers, gradients, optimizer state and activations. Not peak RAM, FLOPs or energy.",
+  "models": [
+    {
+      "model": "SmallCNN macro-F1 reference",
+      "run_id": "smallcnn-depth-gentle60-s2112-v1",
+      "total_parameters": 47820,
+      "parameter_storage_bytes": 191280,
+      "checkpoint_sha256": "0b62c6a4492584eac14bbdd1fd8487e5af98773ecc30a9998031e237e9d77d4f",
+      "batches": [
+        {
+          "batch_size": 1,
+          "median_batch_ms": 0.1565835,
+          "p90_batch_ms": 0.16767060000000003,
+          "amortized_median_ms_per_image": 0.1565835,
+          "samples_ms": [
+            0.152833,
+            0.152625,
+            0.166833,
+            0.18925,
+            0.175209,
+            0.15675,
+            0.152,
+            0.16225,
+            0.162333,
+            0.151166,
+            0.15025,
+            0.156417,
+            0.162292,
+            0.165542,
+            0.150917,
+            0.158459,
+            0.159583,
+            0.150334,
+            0.1505,
+            0.153209
+          ]
+        },
+        {
+          "batch_size": 64,
+          "median_batch_ms": 2.661625,
+          "p90_batch_ms": 2.7441836,
+          "amortized_median_ms_per_image": 0.041587890625,
+          "samples_ms": [
+            2.741792,
+            2.58925,
+            2.710166,
+            2.697791,
+            2.594167,
+            2.53325,
+            2.678584,
+            2.684709,
+            2.612,
+            2.765708,
+            2.645,
+            2.664167,
+            2.705041,
+            2.675292,
+            2.505208,
+            2.894792,
+            2.653584,
+            2.29275,
+            2.5685,
+            2.659083
+          ]
+        }
+      ]
+    },
+    {
+      "model": "Best phase ResNet",
+      "run_id": "resnet18-optim-plateau10-s2112-v1",
+      "total_parameters": 11182668,
+      "parameter_storage_bytes": 44730672,
+      "checkpoint_sha256": "22cce3811e77287103f23530b61920b16363e146e7ca760c3dc7dd941c703c00",
+      "batches": [
+        {
+          "batch_size": 1,
+          "median_batch_ms": 2.6226875,
+          "p90_batch_ms": 2.6636878,
+          "amortized_median_ms_per_image": 2.6226875,
+          "samples_ms": [
+            2.626916,
+            2.614875,
+            2.770209,
+            2.659917,
+            2.632541,
+            2.697625,
+            2.6225,
+            2.611041,
+            2.623959,
+            2.61025,
+            2.60175,
+            2.600125,
+            2.641583,
+            2.622875,
+            2.62175,
+            2.631625,
+            2.619959,
+            2.61225,
+            2.627625,
+            2.600958
+          ]
+        },
+        {
+          "batch_size": 64,
+          "median_batch_ms": 181.9782705,
+          "p90_batch_ms": 186.0778756,
+          "amortized_median_ms_per_image": 2.8434104765625,
+          "samples_ms": [
+            154.2835,
+            159.812792,
+            163.544041,
+            170.167416,
+            173.487208,
+            175.728625,
+            180.700208,
+            181.710916,
+            195.315209,
+            183.496334,
+            182.7525,
+            183.626625,
+            185.979459,
+            183.406792,
+            186.963625,
+            183.003458,
+            183.176667,
+            182.245625,
+            181.612291,
+            181.353125
+          ]
+        }
+      ]
+    }
+  ]
+}

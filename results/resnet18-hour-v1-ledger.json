@@ -1,0 +1,38 @@
+{
+  "started_utc": "2026-10-26T23:34:26.566193+00:00",
+  "deadline_utc": "2026-10-27T00:13:11+00:00",
+  "status": "training_closed",
+  "test_evaluated": false,
+  "initial_control_run_id": "resnet18-optim-plateau10-s2112-v1",
+  "trials": [
+    {
+      "candidate": "adamw",
+      "status": "completed_verified",
+      "plan": "configs/experiment-plan-resnet18-hour-adamw.json",
+      "run_id": "resnet18-hour-adamw-s2112-v1",
+      "control_run_id": "resnet18-optim-plateau10-s2112-v1",
+      "started_utc": "2026-10-26T23:34:29.790525+00:00",
+      "training_process_seconds": 824.029513042,
+      "verification_process_seconds": 13.380884250000008,
+      "finished_utc": "2026-10-26T23:48:27.231391+00:00",
+      "macro_f1": 0.6079543394231195
+    },
+    {
+      "candidate": "layer3_layer4",
+      "status": "completed_verified",
+      "plan": "configs/experiment-plan-resnet18-hour-layer3_layer4.json",
+      "run_id": "resnet18-hour-layer3_layer4-s2112-v1",
+      "control_run_id": "resnet18-optim-plateau10-s2112-v1",
+      "started_utc": "2026-10-26T23:48:30.754495+00:00",
+      "training_process_seconds": 828.4688653750001,
+      "verification_process_seconds": 12.16603566599997,
+      "finished_utc": "2026-10-27T00:02:31.395381+00:00",
+      "macro_f1": 0.6086858963292198
+    },
+    {
+      "candidate": "mild_augmentation",
+      "status": "not_run_budget_priority"
+    }
+  ],
+  "finished_utc": "2026-10-27T00:02:31.395890+00:00"
+}

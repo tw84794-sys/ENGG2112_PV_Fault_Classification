@@ -15,8 +15,9 @@ import torch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from pv_fault.data import CLASS_NAMES
+from pv_fault.finetuning import configure_resnet_finetuning
 from pv_fault.evaluate import classification_metrics, collect_validation_predictions
-from pv_fault.models.resnet import ResNet18Thermal, enable_layer4_finetuning
+from pv_fault.models.resnet import ResNet18Thermal
 from train_baseline import make_loaders
 
 
@@ -38,16 +39,23 @@ def main():
         raise ValueError("Expected training/validation-only development evidence.")
     if file_hash(ROOT / plan["manifest"]) != plan["manifest_sha256"]:
         raise ValueError("Manifest checksum differs from the plan.")
+    # Archived training sources stay hash-checked even when entry points evolve.
+    # Only live dependencies used to restore/evaluate the model must also match.
     for name, expected in provenance["source_sha256"].items():
         snapshot = run_dir / "source_snapshot" / name
-        if file_hash(snapshot) != expected or file_hash(ROOT / name) != expected:
-            raise ValueError(f"Source snapshot/current source differs: {name}")
+        if file_hash(snapshot) != expected:
+            raise ValueError(f"Source snapshot differs: {name}")
+        inference_sources = {"src/pv_fault/models/resnet.py", "src/pv_fault/data.py",
+                             "src/pv_fault/evaluate.py", "scripts/train_baseline.py",
+                             "src/pv_fault/finetuning.py"}
+        if name in inference_sources and file_hash(ROOT / name) != expected:
+            raise ValueError(f"Current inference dependency differs: {name}")
     if "parent_checkpoint" in plan and file_hash(ROOT / plan["parent_checkpoint"]) != plan["parent_checkpoint_sha256"]:
         raise ValueError("Parent checkpoint checksum differs from the plan.")
     torch.set_num_threads(plan.get("cpu_threads", 4))
     model = ResNet18Thermal(len(CLASS_NAMES), ROOT / plan["pretrained_weights"], plan["pretrained_sha256"])
-    if plan["model"] == "resnet18_layer4":
-        enable_layer4_finetuning(model)
+    if plan["model"] in ("resnet18_layer4", "resnet18_layer34"):
+        configure_resnet_finetuning(model, tuple(plan.get("trainable_stages", ["layer4"])))
     elif plan["model"] != "resnet18_frozen":
         raise ValueError("Unknown ResNet stage.")
     checkpoint_path = run_dir / "best_model.pt"
@@ -57,6 +65,8 @@ def main():
             raise ValueError(f"Checkpoint metadata differs: {key}")
     if tuple(checkpoint["class_names"]) != CLASS_NAMES or checkpoint["epoch"] != summary["best_epoch"]:
         raise ValueError("Checkpoint class order/selected epoch differs.")
+    if sum(p.numel() for p in model.parameters() if p.requires_grad) != provenance["trainable_parameters"]:
+        raise ValueError("Trainable parameter count differs from provenance.")
     model.load_state_dict(checkpoint["model_state_dict"])
     _, _, _, validation_loader = make_loaders(plan)
     records = collect_validation_predictions(model, validation_loader, "cpu")
@@ -67,8 +77,8 @@ def main():
         raise ValueError("Recomputed validation metrics differ from saved metrics.")
     result = {"checkpoint_predictions_verified": True, "validation_images": len(records),
               "best_epoch": checkpoint["epoch"], "checkpoint_sha256": file_hash(checkpoint_path),
-              "sources_verified": True, "cpu_threads": torch.get_num_threads(),
-              "test_evaluated": False}
+              "sources_verified": True, "current_inference_sources_verified": True, "cpu_threads": torch.get_num_threads(),
+              "verifier_sha256": file_hash(Path(__file__)), "test_evaluated": False}
     (run_dir / "checkpoint_verification.json").write_text(json.dumps(result, indent=2) + "\n")
     print(json.dumps(result, indent=2))
 

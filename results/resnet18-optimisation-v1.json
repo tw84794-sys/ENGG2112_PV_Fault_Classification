@@ -1,0 +1,1821 @@
+{
+  "documented_utc": "2026-10-26T23:34:06.940562+00:00",
+  "test_evaluated": false,
+  "seed": 2112,
+  "additional_seed_checks_performed": false,
+  "selected6_longer10_common_prefix_matches": true,
+  "experiments": [
+    {
+      "arm": "selected6",
+      "run_id": "resnet18-optim-selected6-s2112-v1",
+      "plan": {
+        "stage": "resnet18_local_optimisation",
+        "dataset": "InfraredSolarModules",
+        "manifest": "data/splits/infrared_solar_modules_v1.csv",
+        "manifest_sha256": "8c6c80cc05943e85d4a03874b1d5d89cb83eaf98e5637560b9ec9a2dcdee1ef8",
+        "parent_checkpoint": "runs/resnet18-frozen-repro-s2112-v1/best_model.pt",
+        "parent_checkpoint_sha256": "ed017354a9258b5f31cc4ea90d371f41e12276c3bc678748e3be93115d03773a",
+        "pretrained_weights": "data/pretrained/resnet18-f37072fd.pth",
+        "pretrained_sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+        "run_id": "resnet18-optim-selected6-s2112-v1",
+        "hypothesis": "Reproduce the previously selected head/layer4 learning rates for six epochs.",
+        "comparison": [
+          "resnet18-optim-selected6-s2112-v1",
+          "resnet18-optim-selected6-s2112-v1"
+        ],
+        "model": "resnet18_layer4",
+        "class_weighting": "sqrt_inverse_frequency",
+        "selection_metric": "validation_macro_f1",
+        "seed": 2112,
+        "device": "cpu",
+        "batch_size": 64,
+        "head_learning_rate": 0.0003,
+        "layer4_learning_rate": 3e-05,
+        "max_epochs": 6,
+        "early_stopping_patience": 2,
+        "max_elapsed_seconds": 720,
+        "max_trials": 1,
+        "paid_compute_cost": 0,
+        "test_policy": "Use original train for updates and original val for checkpoint selection; never load original test. No external sUAS data in training or selection.",
+        "budget_note": "Local CPU only, four threads. Previous layer4 epochs took roughly 80-105 seconds; retain an explicit cap and report actual completion.",
+        "stopping_rule": "At most 6 epochs, 2 non-improving validation macro-F1 epochs, or 720 seconds checked between epochs.",
+        "cpu_threads": 4,
+        "protocol_source": "configs/experiment-plan-resnet18-selected.json",
+        "historical_selection_note": "Learning rates were previously selected in the tracked development report. This run reproduces those settings; it does not rerun or independently revalidate the historical CV evidence.",
+        "scheduler": "none",
+        "arm": "selected6"
+      },
+      "metrics": {
+        "count": 2988,
+        "accuracy": 0.7687416331994645,
+        "macro_f1": 0.5964857927469978,
+        "balanced_accuracy": 0.5705385356130057,
+        "confusion_matrix": [
+          [
+            196,
+            21,
+            4,
+            3,
+            0,
+            2,
+            1,
+            30,
+            2,
+            2,
+            8,
+            11
+          ],
+          [
+            69,
+            67,
+            23,
+            1,
+            0,
+            0,
+            1,
+            13,
+            0,
+            2,
+            8,
+            9
+          ],
+          [
+            9,
+            12,
+            95,
+            0,
+            0,
+            3,
+            2,
+            3,
+            0,
+            1,
+            7,
+            9
+          ],
+          [
+            3,
+            0,
+            0,
+            197,
+            0,
+            1,
+            0,
+            21,
+            0,
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0,
+            10,
+            13,
+            0,
+            0,
+            2,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            18,
+            2,
+            13,
+            0,
+            2,
+            0,
+            1
+          ],
+          [
+            1,
+            2,
+            0,
+            0,
+            0,
+            5,
+            18,
+            7,
+            0,
+            3,
+            1,
+            0
+          ],
+          [
+            16,
+            4,
+            1,
+            10,
+            0,
+            11,
+            3,
+            1424,
+            10,
+            11,
+            0,
+            6
+          ],
+          [
+            5,
+            4,
+            0,
+            3,
+            0,
+            1,
+            4,
+            57,
+            47,
+            1,
+            0,
+            1
+          ],
+          [
+            8,
+            8,
+            4,
+            2,
+            0,
+            3,
+            1,
+            41,
+            2,
+            82,
+            0,
+            5
+          ],
+          [
+            8,
+            1,
+            4,
+            1,
+            0,
+            0,
+            3,
+            1,
+            0,
+            0,
+            12,
+            1
+          ],
+          [
+            69,
+            18,
+            6,
+            0,
+            0,
+            0,
+            1,
+            18,
+            0,
+            1,
+            4,
+            128
+          ]
+        ],
+        "per_class": {
+          "Cell": {
+            "support": 280,
+            "precision": 0.5104166666666666,
+            "recall": 0.7,
+            "f1": 0.5903614457831324
+          },
+          "Cell-Multi": {
+            "support": 193,
+            "precision": 0.4855072463768116,
+            "recall": 0.3471502590673575,
+            "f1": 0.404833836858006
+          },
+          "Cracking": {
+            "support": 141,
+            "precision": 0.6934306569343066,
+            "recall": 0.6737588652482269,
+            "f1": 0.683453237410072
+          },
+          "Diode": {
+            "support": 223,
+            "precision": 0.8640350877192983,
+            "recall": 0.8834080717488789,
+            "f1": 0.8736141906873615
+          },
+          "Diode-Multi": {
+            "support": 26,
+            "precision": 1.0,
+            "recall": 0.5,
+            "f1": 0.6666666666666666
+          },
+          "Hot-Spot": {
+            "support": 37,
+            "precision": 0.4090909090909091,
+            "recall": 0.4864864864864865,
+            "f1": 0.44444444444444453
+          },
+          "Hot-Spot-Multi": {
+            "support": 37,
+            "precision": 0.5,
+            "recall": 0.4864864864864865,
+            "f1": 0.4931506849315069
+          },
+          "No-Anomaly": {
+            "support": 1496,
+            "precision": 0.8736196319018404,
+            "recall": 0.9518716577540107,
+            "f1": 0.9110684580934101
+          },
+          "Offline-Module": {
+            "support": 123,
+            "precision": 0.7704918032786885,
+            "recall": 0.3821138211382114,
+            "f1": 0.5108695652173914
+          },
+          "Shadowing": {
+            "support": 156,
+            "precision": 0.7735849056603774,
+            "recall": 0.5256410256410257,
+            "f1": 0.6259541984732825
+          },
+          "Soiling": {
+            "support": 31,
+            "precision": 0.3,
+            "recall": 0.3870967741935484,
+            "f1": 0.3380281690140845
+          },
+          "Vegetation": {
+            "support": 245,
+            "precision": 0.7485380116959064,
+            "recall": 0.5224489795918368,
+            "f1": 0.6153846153846154
+          }
+        },
+        "faults_called_normal": 206,
+        "fault_to_normal_rate": 0.1380697050938338,
+        "normal_called_fault": 72,
+        "normal_false_alarm_rate": 0.0481283422459893
+      },
+      "summary": {
+        "best_epoch": 6,
+        "best_validation_macro_f1": 0.5964857927469978,
+        "epochs_completed": 6,
+        "stop_reason": "max_epochs",
+        "elapsed_seconds": 454.814839125,
+        "test_evaluated": false
+      },
+      "history": [
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 1,
+          "train": {
+            "loss": 1.1432394659811533,
+            "accuracy": 0.7050767245088198,
+            "count": 13946
+          },
+          "validation_loss": 0.9143086970251407,
+          "validation_accuracy": 0.715528781793842,
+          "validation_macro_f1": 0.534186808318372,
+          "fault_to_normal_rate": 0.11796246648793565,
+          "normal_false_alarm_rate": 0.13435828877005349,
+          "elapsed_seconds": 72.643190834
+        },
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 2,
+          "train": {
+            "loss": 0.8637107544285177,
+            "accuracy": 0.7686074860174961,
+            "count": 13946
+          },
+          "validation_loss": 0.8033404929171923,
+          "validation_accuracy": 0.7436412315930389,
+          "validation_macro_f1": 0.5473584786118866,
+          "fault_to_normal_rate": 0.1601876675603217,
+          "normal_false_alarm_rate": 0.06751336898395723,
+          "elapsed_seconds": 146.086910625
+        },
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 3,
+          "train": {
+            "loss": 0.6847988641639873,
+            "accuracy": 0.8069697404273627,
+            "count": 13946
+          },
+          "validation_loss": 0.8575023665645196,
+          "validation_accuracy": 0.7205488621151271,
+          "validation_macro_f1": 0.5605246774683107,
+          "fault_to_normal_rate": 0.07707774798927614,
+          "normal_false_alarm_rate": 0.17580213903743316,
+          "elapsed_seconds": 220.40289275
+        },
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 4,
+          "train": {
+            "loss": 0.5265728242681441,
+            "accuracy": 0.8516420478990392,
+            "count": 13946
+          },
+          "validation_loss": 0.7564376691578223,
+          "validation_accuracy": 0.7637215528781793,
+          "validation_macro_f1": 0.5899659696525965,
+          "fault_to_normal_rate": 0.11394101876675604,
+          "normal_false_alarm_rate": 0.07419786096256685,
+          "elapsed_seconds": 294.8910215
+        },
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 5,
+          "train": {
+            "loss": 0.41257663375247794,
+            "accuracy": 0.8848415316219704,
+            "count": 13946
+          },
+          "validation_loss": 0.7402451206721774,
+          "validation_accuracy": 0.7710843373493976,
+          "validation_macro_f1": 0.5878895388002315,
+          "fault_to_normal_rate": 0.12064343163538874,
+          "normal_false_alarm_rate": 0.058823529411764705,
+          "elapsed_seconds": 377.14462708400004
+        },
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 6,
+          "train": {
+            "loss": 0.3081849378457665,
+            "accuracy": 0.9181844256417611,
+            "count": 13946
+          },
+          "validation_loss": 0.7865349891354919,
+          "validation_accuracy": 0.7687416331994645,
+          "validation_macro_f1": 0.5964857927469978,
+          "fault_to_normal_rate": 0.1380697050938338,
+          "normal_false_alarm_rate": 0.0481283422459893,
+          "elapsed_seconds": 454.751912167
+        }
+      ],
+      "provenance": {
+        "manifest_sha256": "8c6c80cc05943e85d4a03874b1d5d89cb83eaf98e5637560b9ec9a2dcdee1ef8",
+        "parent_checkpoint_sha256": "ed017354a9258b5f31cc4ea90d371f41e12276c3bc678748e3be93115d03773a",
+        "pretrained_sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+        "plan_sha256": "d4299a4f423c7c05eb5d19f7264728524eb94f68bbbcf26160eba6112fe571c0",
+        "source_sha256": {
+          "scripts/finetune_resnet18.py": "dbf5f6b5d1b84b2f5935f03629fc6c64a93d6b93d19da4d8e700a746e2a7431f",
+          "scripts/train_baseline.py": "0793310c4c9de79444a0635f26cef3faec7449c116bdf60124529456f9b4b906",
+          "src/pv_fault/augmentation.py": "284e1d4ab1d8a536a9bb4a8ad6cba2e7ab4886613959fa747aeeee1e1b602423",
+          "src/pv_fault/models/resnet.py": "aafec424670dc29035666b9f2700fd3dcff870a0ff0477b85e202cf9f1fcd4c2",
+          "src/pv_fault/data.py": "3b8cfeedffad4737a9160e8a4110d732cfd4c5d814500d5a1a0386bb46dc3a85",
+          "src/pv_fault/train.py": "8eb31bd669f5d33d00fa084f91640032e8c7dae0868e0bd11c6b08ce7a28619f",
+          "src/pv_fault/evaluate.py": "85de5eaa76fcc28f4b19e73cd22314b3c71544f6ca333c1e25d70dda1acb9be2"
+        },
+        "model": "resnet18_layer4",
+        "trainable_parameters": 8394764,
+        "class_names": [
+          "Cell",
+          "Cell-Multi",
+          "Cracking",
+          "Diode",
+          "Diode-Multi",
+          "Hot-Spot",
+          "Hot-Spot-Multi",
+          "No-Anomaly",
+          "Offline-Module",
+          "Shadowing",
+          "Soiling",
+          "Vegetation"
+        ],
+        "class_weighting": "sqrt_inverse_frequency",
+        "train_augmentation": null,
+        "scheduler": "none",
+        "scheduler_settings": null,
+        "train_class_counts": {
+          "Offline-Module": 572,
+          "Diode-Multi": 123,
+          "Diode": 1043,
+          "Shadowing": 731,
+          "Cell-Multi": 898,
+          "Cell": 1310,
+          "Hot-Spot": 174,
+          "Cracking": 655,
+          "Hot-Spot-Multi": 172,
+          "Soiling": 142,
+          "Vegetation": 1146,
+          "No-Anomaly": 6980
+        },
+        "class_weights": [
+          0.5741194486618042,
+          0.6934252977371216,
+          0.8119274377822876,
+          0.6434217095375061,
+          1.8736363649368286,
+          1.5752999782562256,
+          1.5844322443008423,
+          0.2487196922302246,
+          0.8688400983810425,
+          0.7685624957084656,
+          1.7437881231307983,
+          0.6138263940811157
+        ],
+        "train_images": 13946,
+        "validation_images": 2988,
+        "seed": 2112,
+        "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+        "torch": "2.8.0",
+        "torchvision": "0.23.0",
+        "numpy": "2.0.2",
+        "pillow": "11.3.0",
+        "platform": "macOS-26.6.2-arm64-arm-64bit",
+        "device": "cpu",
+        "cpu_threads": 4,
+        "test_evaluated": false
+      },
+      "verification": {
+        "checkpoint_predictions_verified": true,
+        "validation_images": 2988,
+        "best_epoch": 6,
+        "checkpoint_sha256": "c8b1d860079835be46511a60b1f129397f8158b6b51990573b31d97e358f76fd",
+        "sources_verified": true,
+        "cpu_threads": 4,
+        "test_evaluated": false
+      },
+      "lr_reduction_epochs": [],
+      "compute": {
+        "elapsed_run_seconds": 454.814839125,
+        "completed_epochs": 6,
+        "mean_run_seconds_per_epoch": 75.8024731875,
+        "train_image_presentations": 83676,
+        "optimizer_updates": 1308,
+        "cpu_threads": 4,
+        "trainable_parameters": 8394764,
+        "timing_scope": "Run wall time includes setup, validation and checkpoint saving; excludes separate reload verification.",
+        "separate_training_phase_seconds": null
+      }
+    },
+    {
+      "arm": "longer10",
+      "run_id": "resnet18-optim-longer10-s2112-v1",
+      "plan": {
+        "stage": "resnet18_local_optimisation",
+        "dataset": "InfraredSolarModules",
+        "manifest": "data/splits/infrared_solar_modules_v1.csv",
+        "manifest_sha256": "8c6c80cc05943e85d4a03874b1d5d89cb83eaf98e5637560b9ec9a2dcdee1ef8",
+        "parent_checkpoint": "runs/resnet18-frozen-repro-s2112-v1/best_model.pt",
+        "parent_checkpoint_sha256": "ed017354a9258b5f31cc4ea90d371f41e12276c3bc678748e3be93115d03773a",
+        "pretrained_weights": "data/pretrained/resnet18-f37072fd.pth",
+        "pretrained_sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+        "run_id": "resnet18-optim-longer10-s2112-v1",
+        "hypothesis": "Test a longer allowance at the selected rates; patience increases from two to four so extra learning is possible.",
+        "comparison": [
+          "resnet18-optim-selected6-s2112-v1",
+          "resnet18-optim-longer10-s2112-v1"
+        ],
+        "model": "resnet18_layer4",
+        "class_weighting": "sqrt_inverse_frequency",
+        "selection_metric": "validation_macro_f1",
+        "seed": 2112,
+        "device": "cpu",
+        "batch_size": 64,
+        "head_learning_rate": 0.0003,
+        "layer4_learning_rate": 3e-05,
+        "max_epochs": 10,
+        "early_stopping_patience": 4,
+        "max_elapsed_seconds": 1200,
+        "max_trials": 1,
+        "paid_compute_cost": 0,
+        "test_policy": "Use original train for updates and original val for checkpoint selection; never load original test. No external sUAS data in training or selection.",
+        "budget_note": "Local CPU only, four threads. Previous layer4 epochs took roughly 80-105 seconds; retain an explicit cap and report actual completion.",
+        "stopping_rule": "At most 10 epochs, 4 non-improving validation macro-F1 epochs, or 1200 seconds checked between epochs.",
+        "cpu_threads": 4,
+        "protocol_source": "configs/experiment-plan-resnet18-selected.json",
+        "historical_selection_note": "Learning rates were previously selected in the tracked development report. This run reproduces those settings; it does not rerun or independently revalidate the historical CV evidence.",
+        "scheduler": "none",
+        "arm": "longer10"
+      },
+      "metrics": {
+        "count": 2988,
+        "accuracy": 0.7838018741633199,
+        "macro_f1": 0.6158027702953605,
+        "balanced_accuracy": 0.5815646867896965,
+        "confusion_matrix": [
+          [
+            168,
+            18,
+            2,
+            1,
+            0,
+            1,
+            0,
+            46,
+            4,
+            5,
+            4,
+            31
+          ],
+          [
+            51,
+            69,
+            20,
+            0,
+            0,
+            0,
+            2,
+            14,
+            2,
+            5,
+            6,
+            24
+          ],
+          [
+            14,
+            19,
+            83,
+            0,
+            0,
+            4,
+            1,
+            3,
+            0,
+            0,
+            6,
+            11
+          ],
+          [
+            1,
+            0,
+            0,
+            184,
+            3,
+            1,
+            0,
+            27,
+            3,
+            2,
+            0,
+            2
+          ],
+          [
+            0,
+            1,
+            1,
+            6,
+            16,
+            0,
+            0,
+            2,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            15,
+            2,
+            15,
+            0,
+            2,
+            0,
+            2
+          ],
+          [
+            0,
+            3,
+            2,
+            0,
+            0,
+            7,
+            14,
+            8,
+            0,
+            3,
+            0,
+            0
+          ],
+          [
+            2,
+            5,
+            2,
+            3,
+            0,
+            4,
+            1,
+            1444,
+            19,
+            9,
+            0,
+            7
+          ],
+          [
+            3,
+            0,
+            0,
+            1,
+            0,
+            0,
+            2,
+            41,
+            71,
+            1,
+            0,
+            4
+          ],
+          [
+            3,
+            5,
+            3,
+            0,
+            0,
+            1,
+            0,
+            39,
+            4,
+            95,
+            0,
+            6
+          ],
+          [
+            7,
+            1,
+            4,
+            1,
+            0,
+            1,
+            2,
+            2,
+            0,
+            0,
+            11,
+            2
+          ],
+          [
+            33,
+            10,
+            6,
+            0,
+            0,
+            1,
+            0,
+            20,
+            1,
+            1,
+            1,
+            172
+          ]
+        ],
+        "per_class": {
+          "Cell": {
+            "support": 280,
+            "precision": 0.5957446808510638,
+            "recall": 0.6,
+            "f1": 0.5978647686832739
+          },
+          "Cell-Multi": {
+            "support": 193,
+            "precision": 0.5267175572519084,
+            "recall": 0.35751295336787564,
+            "f1": 0.42592592592592593
+          },
+          "Cracking": {
+            "support": 141,
+            "precision": 0.6747967479674797,
+            "recall": 0.5886524822695035,
+            "f1": 0.6287878787878787
+          },
+          "Diode": {
+            "support": 223,
+            "precision": 0.934010152284264,
+            "recall": 0.8251121076233184,
+            "f1": 0.8761904761904762
+          },
+          "Diode-Multi": {
+            "support": 26,
+            "precision": 0.8421052631578947,
+            "recall": 0.6153846153846154,
+            "f1": 0.7111111111111111
+          },
+          "Hot-Spot": {
+            "support": 37,
+            "precision": 0.42857142857142855,
+            "recall": 0.40540540540540543,
+            "f1": 0.4166666666666667
+          },
+          "Hot-Spot-Multi": {
+            "support": 37,
+            "precision": 0.5833333333333334,
+            "recall": 0.3783783783783784,
+            "f1": 0.45901639344262296
+          },
+          "No-Anomaly": {
+            "support": 1496,
+            "precision": 0.8693558097531607,
+            "recall": 0.9652406417112299,
+            "f1": 0.9147925245486221
+          },
+          "Offline-Module": {
+            "support": 123,
+            "precision": 0.6826923076923077,
+            "recall": 0.5772357723577236,
+            "f1": 0.6255506607929515
+          },
+          "Shadowing": {
+            "support": 156,
+            "precision": 0.7723577235772358,
+            "recall": 0.6089743589743589,
+            "f1": 0.6810035842293907
+          },
+          "Soiling": {
+            "support": 31,
+            "precision": 0.39285714285714285,
+            "recall": 0.3548387096774194,
+            "f1": 0.3728813559322034
+          },
+          "Vegetation": {
+            "support": 245,
+            "precision": 0.6590038314176245,
+            "recall": 0.7020408163265306,
+            "f1": 0.6798418972332017
+          }
+        },
+        "faults_called_normal": 217,
+        "fault_to_normal_rate": 0.14544235924932977,
+        "normal_called_fault": 52,
+        "normal_false_alarm_rate": 0.034759358288770054
+      },
+      "summary": {
+        "best_epoch": 10,
+        "best_validation_macro_f1": 0.6158027702953605,
+        "epochs_completed": 10,
+        "stop_reason": "max_epochs",
+        "elapsed_seconds": 907.251474458,
+        "test_evaluated": false
+      },
+      "history": [
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 1,
+          "train": {
+            "loss": 1.1432394659811533,
+            "accuracy": 0.7050767245088198,
+            "count": 13946
+          },
+          "validation_loss": 0.9143086970251407,
+          "validation_accuracy": 0.715528781793842,
+          "validation_macro_f1": 0.534186808318372,
+          "fault_to_normal_rate": 0.11796246648793565,
+          "normal_false_alarm_rate": 0.13435828877005349,
+          "elapsed_seconds": 82.83540266600001
+        },
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 2,
+          "train": {
+            "loss": 0.8637107544285177,
+            "accuracy": 0.7686074860174961,
+            "count": 13946
+          },
+          "validation_loss": 0.8033404929171923,
+          "validation_accuracy": 0.7436412315930389,
+          "validation_macro_f1": 0.5473584786118866,
+          "fault_to_normal_rate": 0.1601876675603217,
+          "normal_false_alarm_rate": 0.06751336898395723,
+          "elapsed_seconds": 164.337922791
+        },
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 3,
+          "train": {
+            "loss": 0.6847988641639873,
+            "accuracy": 0.8069697404273627,
+            "count": 13946
+          },
+          "validation_loss": 0.8575023665645196,
+          "validation_accuracy": 0.7205488621151271,
+          "validation_macro_f1": 0.5605246774683107,
+          "fault_to_normal_rate": 0.07707774798927614,
+          "normal_false_alarm_rate": 0.17580213903743316,
+          "elapsed_seconds": 246.290790125
+        },
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 4,
+          "train": {
+            "loss": 0.5265728242681441,
+            "accuracy": 0.8516420478990392,
+            "count": 13946
+          },
+          "validation_loss": 0.7564376691578223,
+          "validation_accuracy": 0.7637215528781793,
+          "validation_macro_f1": 0.5899659696525965,
+          "fault_to_normal_rate": 0.11394101876675604,
+          "normal_false_alarm_rate": 0.07419786096256685,
+          "elapsed_seconds": 343.825096083
+        },
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 5,
+          "train": {
+            "loss": 0.41257663375247794,
+            "accuracy": 0.8848415316219704,
+            "count": 13946
+          },
+          "validation_loss": 0.7402451206721774,
+          "validation_accuracy": 0.7710843373493976,
+          "validation_macro_f1": 0.5878895388002315,
+          "fault_to_normal_rate": 0.12064343163538874,
+          "normal_false_alarm_rate": 0.058823529411764705,
+          "elapsed_seconds": 439.128387
+        },
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 6,
+          "train": {
+            "loss": 0.3081849378457665,
+            "accuracy": 0.9181844256417611,
+            "count": 13946
+          },
+          "validation_loss": 0.7865349891354919,
+          "validation_accuracy": 0.7687416331994645,
+          "validation_macro_f1": 0.5964857927469978,
+          "fault_to_normal_rate": 0.1380697050938338,
+          "normal_false_alarm_rate": 0.0481283422459893,
+          "elapsed_seconds": 528.7207808329999
+        },
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 7,
+          "train": {
+            "loss": 0.23188517390442223,
+            "accuracy": 0.9369711745303313,
+            "count": 13946
+          },
+          "validation_loss": 0.7959406690864039,
+          "validation_accuracy": 0.7690763052208835,
+          "validation_macro_f1": 0.6142222000299418,
+          "fault_to_normal_rate": 0.09718498659517426,
+          "normal_false_alarm_rate": 0.0962566844919786,
+          "elapsed_seconds": 621.301929458
+        },
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 8,
+          "train": {
+            "loss": 0.17238359391543986,
+            "accuracy": 0.956474974903198,
+            "count": 13946
+          },
+          "validation_loss": 0.790946132088282,
+          "validation_accuracy": 0.7781124497991968,
+          "validation_macro_f1": 0.5998080957490665,
+          "fault_to_normal_rate": 0.1333780160857909,
+          "normal_false_alarm_rate": 0.0427807486631016,
+          "elapsed_seconds": 720.697304583
+        },
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 9,
+          "train": {
+            "loss": 0.133306618776158,
+            "accuracy": 0.9663702853864907,
+            "count": 13946
+          },
+          "validation_loss": 0.8518161002691171,
+          "validation_accuracy": 0.7653949129852744,
+          "validation_macro_f1": 0.5814722966386227,
+          "fault_to_normal_rate": 0.10723860589812333,
+          "normal_false_alarm_rate": 0.0748663101604278,
+          "elapsed_seconds": 814.388306708
+        },
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 10,
+          "train": {
+            "loss": 0.09799364516686525,
+            "accuracy": 0.9793489172522587,
+            "count": 13946
+          },
+          "validation_loss": 0.8624201637993216,
+          "validation_accuracy": 0.7838018741633199,
+          "validation_macro_f1": 0.6158027702953605,
+          "fault_to_normal_rate": 0.14544235924932977,
+          "normal_false_alarm_rate": 0.034759358288770054,
+          "elapsed_seconds": 907.17289575
+        }
+      ],
+      "provenance": {
+        "manifest_sha256": "8c6c80cc05943e85d4a03874b1d5d89cb83eaf98e5637560b9ec9a2dcdee1ef8",
+        "parent_checkpoint_sha256": "ed017354a9258b5f31cc4ea90d371f41e12276c3bc678748e3be93115d03773a",
+        "pretrained_sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+        "plan_sha256": "6d448ec6d021eec96dba3dcd388221c092d65bd585137719296e96764e28bdbf",
+        "source_sha256": {
+          "scripts/finetune_resnet18.py": "dbf5f6b5d1b84b2f5935f03629fc6c64a93d6b93d19da4d8e700a746e2a7431f",
+          "scripts/train_baseline.py": "0793310c4c9de79444a0635f26cef3faec7449c116bdf60124529456f9b4b906",
+          "src/pv_fault/augmentation.py": "284e1d4ab1d8a536a9bb4a8ad6cba2e7ab4886613959fa747aeeee1e1b602423",
+          "src/pv_fault/models/resnet.py": "aafec424670dc29035666b9f2700fd3dcff870a0ff0477b85e202cf9f1fcd4c2",
+          "src/pv_fault/data.py": "3b8cfeedffad4737a9160e8a4110d732cfd4c5d814500d5a1a0386bb46dc3a85",
+          "src/pv_fault/train.py": "8eb31bd669f5d33d00fa084f91640032e8c7dae0868e0bd11c6b08ce7a28619f",
+          "src/pv_fault/evaluate.py": "85de5eaa76fcc28f4b19e73cd22314b3c71544f6ca333c1e25d70dda1acb9be2"
+        },
+        "model": "resnet18_layer4",
+        "trainable_parameters": 8394764,
+        "class_names": [
+          "Cell",
+          "Cell-Multi",
+          "Cracking",
+          "Diode",
+          "Diode-Multi",
+          "Hot-Spot",
+          "Hot-Spot-Multi",
+          "No-Anomaly",
+          "Offline-Module",
+          "Shadowing",
+          "Soiling",
+          "Vegetation"
+        ],
+        "class_weighting": "sqrt_inverse_frequency",
+        "train_augmentation": null,
+        "scheduler": "none",
+        "scheduler_settings": null,
+        "train_class_counts": {
+          "Offline-Module": 572,
+          "Diode-Multi": 123,
+          "Diode": 1043,
+          "Shadowing": 731,
+          "Cell-Multi": 898,
+          "Cell": 1310,
+          "Hot-Spot": 174,
+          "Cracking": 655,
+          "Hot-Spot-Multi": 172,
+          "Soiling": 142,
+          "Vegetation": 1146,
+          "No-Anomaly": 6980
+        },
+        "class_weights": [
+          0.5741194486618042,
+          0.6934252977371216,
+          0.8119274377822876,
+          0.6434217095375061,
+          1.8736363649368286,
+          1.5752999782562256,
+          1.5844322443008423,
+          0.2487196922302246,
+          0.8688400983810425,
+          0.7685624957084656,
+          1.7437881231307983,
+          0.6138263940811157
+        ],
+        "train_images": 13946,
+        "validation_images": 2988,
+        "seed": 2112,
+        "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+        "torch": "2.8.0",
+        "torchvision": "0.23.0",
+        "numpy": "2.0.2",
+        "pillow": "11.3.0",
+        "platform": "macOS-26.6.2-arm64-arm-64bit",
+        "device": "cpu",
+        "cpu_threads": 4,
+        "test_evaluated": false
+      },
+      "verification": {
+        "checkpoint_predictions_verified": true,
+        "validation_images": 2988,
+        "best_epoch": 10,
+        "checkpoint_sha256": "dc3a8aebe9178a81e7d171fc4594e10ac78d4cbb12e589904a5780cc5adbdf3d",
+        "sources_verified": true,
+        "cpu_threads": 4,
+        "test_evaluated": false
+      },
+      "lr_reduction_epochs": [],
+      "compute": {
+        "elapsed_run_seconds": 907.251474458,
+        "completed_epochs": 10,
+        "mean_run_seconds_per_epoch": 90.72514744579999,
+        "train_image_presentations": 139460,
+        "optimizer_updates": 2180,
+        "cpu_threads": 4,
+        "trainable_parameters": 8394764,
+        "timing_scope": "Run wall time includes setup, validation and checkpoint saving; excludes separate reload verification.",
+        "separate_training_phase_seconds": null
+      }
+    },
+    {
+      "arm": "plateau10",
+      "run_id": "resnet18-optim-plateau10-s2112-v1",
+      "plan": {
+        "stage": "resnet18_local_optimisation",
+        "dataset": "InfraredSolarModules",
+        "manifest": "data/splits/infrared_solar_modules_v1.csv",
+        "manifest_sha256": "8c6c80cc05943e85d4a03874b1d5d89cb83eaf98e5637560b9ec9a2dcdee1ef8",
+        "parent_checkpoint": "runs/resnet18-frozen-repro-s2112-v1/best_model.pt",
+        "parent_checkpoint_sha256": "ed017354a9258b5f31cc4ea90d371f41e12276c3bc678748e3be93115d03773a",
+        "pretrained_weights": "data/pretrained/resnet18-f37072fd.pth",
+        "pretrained_sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+        "run_id": "resnet18-optim-plateau10-s2112-v1",
+        "hypothesis": "Test plateau scheduling relative to the matching ten-epoch constant-rate arm; all other settings remain fixed.",
+        "comparison": [
+          "resnet18-optim-selected6-s2112-v1",
+          "resnet18-optim-plateau10-s2112-v1"
+        ],
+        "model": "resnet18_layer4",
+        "class_weighting": "sqrt_inverse_frequency",
+        "selection_metric": "validation_macro_f1",
+        "seed": 2112,
+        "device": "cpu",
+        "batch_size": 64,
+        "head_learning_rate": 0.0003,
+        "layer4_learning_rate": 3e-05,
+        "max_epochs": 10,
+        "early_stopping_patience": 4,
+        "max_elapsed_seconds": 1200,
+        "max_trials": 1,
+        "paid_compute_cost": 0,
+        "test_policy": "Use original train for updates and original val for checkpoint selection; never load original test. No external sUAS data in training or selection.",
+        "budget_note": "Local CPU only, four threads. Previous layer4 epochs took roughly 80-105 seconds; retain an explicit cap and report actual completion.",
+        "stopping_rule": "At most 10 epochs, 4 non-improving validation macro-F1 epochs, or 1200 seconds checked between epochs.",
+        "cpu_threads": 4,
+        "protocol_source": "configs/experiment-plan-resnet18-selected.json",
+        "historical_selection_note": "Learning rates were previously selected in the tracked development report. This run reproduces those settings; it does not rerun or independently revalidate the historical CV evidence.",
+        "scheduler": "plateau",
+        "arm": "plateau10",
+        "scheduler_settings": {
+          "factor": 0.5,
+          "patience": 1,
+          "min_lr": 1e-07
+        }
+      },
+      "metrics": {
+        "count": 2988,
+        "accuracy": 0.7908299866131191,
+        "macro_f1": 0.6260848329355161,
+        "balanced_accuracy": 0.5966442133725048,
+        "confusion_matrix": [
+          [
+            157,
+            30,
+            3,
+            2,
+            0,
+            1,
+            0,
+            45,
+            5,
+            6,
+            5,
+            26
+          ],
+          [
+            45,
+            82,
+            20,
+            0,
+            0,
+            0,
+            2,
+            12,
+            2,
+            9,
+            5,
+            16
+          ],
+          [
+            7,
+            22,
+            92,
+            0,
+            0,
+            3,
+            2,
+            3,
+            0,
+            0,
+            2,
+            10
+          ],
+          [
+            1,
+            0,
+            0,
+            197,
+            2,
+            1,
+            0,
+            19,
+            1,
+            1,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            8,
+            16,
+            0,
+            0,
+            2,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1,
+            1,
+            0,
+            15,
+            3,
+            12,
+            0,
+            3,
+            0,
+            2
+          ],
+          [
+            0,
+            2,
+            1,
+            1,
+            0,
+            6,
+            15,
+            9,
+            0,
+            3,
+            0,
+            0
+          ],
+          [
+            3,
+            5,
+            2,
+            8,
+            0,
+            4,
+            2,
+            1441,
+            19,
+            8,
+            0,
+            4
+          ],
+          [
+            2,
+            0,
+            0,
+            1,
+            1,
+            0,
+            4,
+            40,
+            74,
+            1,
+            0,
+            0
+          ],
+          [
+            2,
+            6,
+            3,
+            5,
+            0,
+            1,
+            0,
+            35,
+            4,
+            94,
+            0,
+            6
+          ],
+          [
+            6,
+            2,
+            5,
+            1,
+            0,
+            0,
+            3,
+            2,
+            0,
+            0,
+            11,
+            1
+          ],
+          [
+            33,
+            13,
+            5,
+            1,
+            0,
+            0,
+            1,
+            17,
+            2,
+            2,
+            2,
+            169
+          ]
+        ],
+        "per_class": {
+          "Cell": {
+            "support": 280,
+            "precision": 0.61328125,
+            "recall": 0.5607142857142857,
+            "f1": 0.585820895522388
+          },
+          "Cell-Multi": {
+            "support": 193,
+            "precision": 0.5061728395061729,
+            "recall": 0.42487046632124353,
+            "f1": 0.46197183098591554
+          },
+          "Cracking": {
+            "support": 141,
+            "precision": 0.696969696969697,
+            "recall": 0.6524822695035462,
+            "f1": 0.673992673992674
+          },
+          "Diode": {
+            "support": 223,
+            "precision": 0.8755555555555555,
+            "recall": 0.8834080717488789,
+            "f1": 0.8794642857142857
+          },
+          "Diode-Multi": {
+            "support": 26,
+            "precision": 0.8421052631578947,
+            "recall": 0.6153846153846154,
+            "f1": 0.7111111111111111
+          },
+          "Hot-Spot": {
+            "support": 37,
+            "precision": 0.4838709677419355,
+            "recall": 0.40540540540540543,
+            "f1": 0.4411764705882353
+          },
+          "Hot-Spot-Multi": {
+            "support": 37,
+            "precision": 0.46875,
+            "recall": 0.40540540540540543,
+            "f1": 0.43478260869565216
+          },
+          "No-Anomaly": {
+            "support": 1496,
+            "precision": 0.8802687843616371,
+            "recall": 0.9632352941176471,
+            "f1": 0.9198850941589531
+          },
+          "Offline-Module": {
+            "support": 123,
+            "precision": 0.6915887850467289,
+            "recall": 0.6016260162601627,
+            "f1": 0.6434782608695653
+          },
+          "Shadowing": {
+            "support": 156,
+            "precision": 0.7401574803149606,
+            "recall": 0.6025641025641025,
+            "f1": 0.6643109540636042
+          },
+          "Soiling": {
+            "support": 31,
+            "precision": 0.44,
+            "recall": 0.3548387096774194,
+            "f1": 0.3928571428571428
+          },
+          "Vegetation": {
+            "support": 245,
+            "precision": 0.7191489361702128,
+            "recall": 0.689795918367347,
+            "f1": 0.7041666666666667
+          }
+        },
+        "faults_called_normal": 196,
+        "fault_to_normal_rate": 0.13136729222520108,
+        "normal_called_fault": 55,
+        "normal_false_alarm_rate": 0.03676470588235294
+      },
+      "summary": {
+        "best_epoch": 10,
+        "best_validation_macro_f1": 0.6260848329355161,
+        "epochs_completed": 10,
+        "stop_reason": "max_epochs",
+        "elapsed_seconds": 928.144085375,
+        "test_evaluated": false
+      },
+      "history": [
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 1,
+          "train": {
+            "loss": 1.1432394659811533,
+            "accuracy": 0.7050767245088198,
+            "count": 13946
+          },
+          "validation_loss": 0.9143086970251407,
+          "validation_accuracy": 0.715528781793842,
+          "validation_macro_f1": 0.534186808318372,
+          "fault_to_normal_rate": 0.11796246648793565,
+          "normal_false_alarm_rate": 0.13435828877005349,
+          "elapsed_seconds": 96.78174504200001
+        },
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 2,
+          "train": {
+            "loss": 0.8637107544285177,
+            "accuracy": 0.7686074860174961,
+            "count": 13946
+          },
+          "validation_loss": 0.8033404929171923,
+          "validation_accuracy": 0.7436412315930389,
+          "validation_macro_f1": 0.5473584786118866,
+          "fault_to_normal_rate": 0.1601876675603217,
+          "normal_false_alarm_rate": 0.06751336898395723,
+          "elapsed_seconds": 189.28848408300001
+        },
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 3,
+          "train": {
+            "loss": 0.6847988641639873,
+            "accuracy": 0.8069697404273627,
+            "count": 13946
+          },
+          "validation_loss": 0.8575023665645196,
+          "validation_accuracy": 0.7205488621151271,
+          "validation_macro_f1": 0.5605246774683107,
+          "fault_to_normal_rate": 0.07707774798927614,
+          "normal_false_alarm_rate": 0.17580213903743316,
+          "elapsed_seconds": 290.696793792
+        },
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 4,
+          "train": {
+            "loss": 0.5265728242681441,
+            "accuracy": 0.8516420478990392,
+            "count": 13946
+          },
+          "validation_loss": 0.7564376691578223,
+          "validation_accuracy": 0.7637215528781793,
+          "validation_macro_f1": 0.5899659696525965,
+          "fault_to_normal_rate": 0.11394101876675604,
+          "normal_false_alarm_rate": 0.07419786096256685,
+          "elapsed_seconds": 383.2319655
+        },
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 5,
+          "train": {
+            "loss": 0.41257663375247794,
+            "accuracy": 0.8848415316219704,
+            "count": 13946
+          },
+          "validation_loss": 0.7402451206721774,
+          "validation_accuracy": 0.7710843373493976,
+          "validation_macro_f1": 0.5878895388002315,
+          "fault_to_normal_rate": 0.12064343163538874,
+          "normal_false_alarm_rate": 0.058823529411764705,
+          "elapsed_seconds": 473.749236833
+        },
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 6,
+          "train": {
+            "loss": 0.3081849378457665,
+            "accuracy": 0.9181844256417611,
+            "count": 13946
+          },
+          "validation_loss": 0.7865349891354919,
+          "validation_accuracy": 0.7687416331994645,
+          "validation_macro_f1": 0.5964857927469978,
+          "fault_to_normal_rate": 0.1380697050938338,
+          "normal_false_alarm_rate": 0.0481283422459893,
+          "elapsed_seconds": 562.533545667
+        },
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 7,
+          "train": {
+            "loss": 0.23188517390442223,
+            "accuracy": 0.9369711745303313,
+            "count": 13946
+          },
+          "validation_loss": 0.7959406690864039,
+          "validation_accuracy": 0.7690763052208835,
+          "validation_macro_f1": 0.6142222000299418,
+          "fault_to_normal_rate": 0.09718498659517426,
+          "normal_false_alarm_rate": 0.0962566844919786,
+          "elapsed_seconds": 652.964689958
+        },
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "epoch": 8,
+          "train": {
+            "loss": 0.17238359391543986,
+            "accuracy": 0.956474974903198,
+            "count": 13946
+          },
+          "validation_loss": 0.790946132088282,
+          "validation_accuracy": 0.7781124497991968,
+          "validation_macro_f1": 0.5998080957490665,
+          "fault_to_normal_rate": 0.1333780160857909,
+          "normal_false_alarm_rate": 0.0427807486631016,
+          "elapsed_seconds": 744.12582375
+        },
+        {
+          "learning_rates": [
+            3e-05,
+            0.0003
+          ],
+          "next_learning_rates": [
+            1.5e-05,
+            0.00015
+          ],
+          "epoch": 9,
+          "train": {
+            "loss": 0.133306618776158,
+            "accuracy": 0.9663702853864907,
+            "count": 13946
+          },
+          "validation_loss": 0.8518161002691171,
+          "validation_accuracy": 0.7653949129852744,
+          "validation_macro_f1": 0.5814722966386227,
+          "fault_to_normal_rate": 0.10723860589812333,
+          "normal_false_alarm_rate": 0.0748663101604278,
+          "elapsed_seconds": 837.56001025
+        },
+        {
+          "learning_rates": [
+            1.5e-05,
+            0.00015
+          ],
+          "next_learning_rates": [
+            1.5e-05,
+            0.00015
+          ],
+          "epoch": 10,
+          "train": {
+            "loss": 0.07188482828856062,
+            "accuracy": 0.9878101247669583,
+            "count": 13946
+          },
+          "validation_loss": 0.8506430888590882,
+          "validation_accuracy": 0.7908299866131191,
+          "validation_macro_f1": 0.6260848329355161,
+          "fault_to_normal_rate": 0.13136729222520108,
+          "normal_false_alarm_rate": 0.03676470588235294,
+          "elapsed_seconds": 928.064518458
+        }
+      ],
+      "provenance": {
+        "manifest_sha256": "8c6c80cc05943e85d4a03874b1d5d89cb83eaf98e5637560b9ec9a2dcdee1ef8",
+        "parent_checkpoint_sha256": "ed017354a9258b5f31cc4ea90d371f41e12276c3bc678748e3be93115d03773a",
+        "pretrained_sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+        "plan_sha256": "fec8dba4d081254b58562e49292a9d140d91fbebcada260eb1d6bc7204f51e34",
+        "source_sha256": {
+          "scripts/finetune_resnet18.py": "dbf5f6b5d1b84b2f5935f03629fc6c64a93d6b93d19da4d8e700a746e2a7431f",
+          "scripts/train_baseline.py": "0793310c4c9de79444a0635f26cef3faec7449c116bdf60124529456f9b4b906",
+          "src/pv_fault/augmentation.py": "284e1d4ab1d8a536a9bb4a8ad6cba2e7ab4886613959fa747aeeee1e1b602423",
+          "src/pv_fault/models/resnet.py": "aafec424670dc29035666b9f2700fd3dcff870a0ff0477b85e202cf9f1fcd4c2",
+          "src/pv_fault/data.py": "3b8cfeedffad4737a9160e8a4110d732cfd4c5d814500d5a1a0386bb46dc3a85",
+          "src/pv_fault/train.py": "8eb31bd669f5d33d00fa084f91640032e8c7dae0868e0bd11c6b08ce7a28619f",
+          "src/pv_fault/evaluate.py": "85de5eaa76fcc28f4b19e73cd22314b3c71544f6ca333c1e25d70dda1acb9be2"
+        },
+        "model": "resnet18_layer4",
+        "trainable_parameters": 8394764,
+        "class_names": [
+          "Cell",
+          "Cell-Multi",
+          "Cracking",
+          "Diode",
+          "Diode-Multi",
+          "Hot-Spot",
+          "Hot-Spot-Multi",
+          "No-Anomaly",
+          "Offline-Module",
+          "Shadowing",
+          "Soiling",
+          "Vegetation"
+        ],
+        "class_weighting": "sqrt_inverse_frequency",
+        "train_augmentation": null,
+        "scheduler": "plateau",
+        "scheduler_settings": {
+          "factor": 0.5,
+          "patience": 1,
+          "min_lr": 1e-07
+        },
+        "train_class_counts": {
+          "Offline-Module": 572,
+          "Diode-Multi": 123,
+          "Diode": 1043,
+          "Shadowing": 731,
+          "Cell-Multi": 898,
+          "Cell": 1310,
+          "Hot-Spot": 174,
+          "Cracking": 655,
+          "Hot-Spot-Multi": 172,
+          "Soiling": 142,
+          "Vegetation": 1146,
+          "No-Anomaly": 6980
+        },
+        "class_weights": [
+          0.5741194486618042,
+          0.6934252977371216,
+          0.8119274377822876,
+          0.6434217095375061,
+          1.8736363649368286,
+          1.5752999782562256,
+          1.5844322443008423,
+          0.2487196922302246,
+          0.8688400983810425,
+          0.7685624957084656,
+          1.7437881231307983,
+          0.6138263940811157
+        ],
+        "train_images": 13946,
+        "validation_images": 2988,
+        "seed": 2112,
+        "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+        "torch": "2.8.0",
+        "torchvision": "0.23.0",
+        "numpy": "2.0.2",
+        "pillow": "11.3.0",
+        "platform": "macOS-26.6.2-arm64-arm-64bit",
+        "device": "cpu",
+        "cpu_threads": 4,
+        "test_evaluated": false
+      },
+      "verification": {
+        "checkpoint_predictions_verified": true,
+        "validation_images": 2988,
+        "best_epoch": 10,
+        "checkpoint_sha256": "22cce3811e77287103f23530b61920b16363e146e7ca760c3dc7dd941c703c00",
+        "sources_verified": true,
+        "cpu_threads": 4,
+        "test_evaluated": false
+      },
+      "lr_reduction_epochs": [
+        9
+      ],
+      "compute": {
+        "elapsed_run_seconds": 928.144085375,
+        "completed_epochs": 10,
+        "mean_run_seconds_per_epoch": 92.8144085375,
+        "train_image_presentations": 139460,
+        "optimizer_updates": 2180,
+        "cpu_threads": 4,
+        "trainable_parameters": 8394764,
+        "timing_scope": "Run wall time includes setup, validation and checkpoint saving; excludes separate reload verification.",
+        "separate_training_phase_seconds": null
+      }
+    }
+  ],
+  "ledger": {
+    "started_utc": "2026-10-26T22:55:05.711918+00:00",
+    "status": "completed_verified",
+    "test_evaluated": false,
+    "trials": [
+      {
+        "arm": "selected6",
+        "plan": "configs/experiment-plan-resnet18-optim-selected6.json",
+        "run_id": "resnet18-optim-selected6-s2112-v1",
+        "status": "completed_verified"
+      },
+      {
+        "arm": "longer10",
+        "plan": "configs/experiment-plan-resnet18-optim-longer10.json",
+        "run_id": "resnet18-optim-longer10-s2112-v1",
+        "status": "completed_verified"
+      },
+      {
+        "arm": "plateau10",
+        "plan": "configs/experiment-plan-resnet18-optim-plateau10.json",
+        "run_id": "resnet18-optim-plateau10-s2112-v1",
+        "status": "completed_verified"
+      }
+    ],
+    "finished_utc": "2026-10-26T23:33:54.539335+00:00"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "started_utc": "2026-10-26T23:13:11+00:00",
+  "deadline_utc": "2026-10-27T00:13:11+00:00",
+  "user_request": "Continue ResNet improvement work for the next hour, documenting decisions in the notebook.",
+  "status": "training_closed_documented",
+  "test_evaluated": false,
+  "seed": 2112,
+  "additional_seed_checks_performed": false,
+  "initial_work": "Complete the ongoing selected6, longer10 and plateau10 comparisons first.",
+  "adaptive_candidates": [
+    {
+      "candidate": "layer3_layer4",
+      "hypothesis": "Adapting one earlier residual stage may learn thermal features missing from the fixed ImageNet representation. Keep BatchNorm and earlier stages frozen; use a smaller layer3 rate.",
+      "status": "candidate_not_run"
+    },
+    {
+      "candidate": "adamw",
+      "hypothesis": "Decoupled weight decay may improve generalisation as training accuracy becomes much higher than validation accuracy.",
+      "status": "candidate_not_run"
+    },
+    {
+      "candidate": "mild_augmentation",
+      "hypothesis": "Training-only flip/contrast changes may regularise the higher-rate, longer ResNet protocol.",
+      "status": "candidate_not_run"
+    }
+  ],
+  "selection_policy": "Choose feasible next arms after observing the first comparisons; record exact plans before fitting. Compare macro-F1, balanced accuracy, per-class scores and both fault/normal error counts.",
+  "time_policy": "Do not start a full trial unless its cap plus checkpoint verification fits before the deadline with documentation reserve. Stop fitting by the deadline; report incomplete or skipped arms honestly.",
+  "seed_policy": "Additional-seed checks remain deferred in this optimisation phase.",
+  "compute_reporting": {
+    "requested_by_user": true,
+    "historical_comparison": [
+      "elapsed run seconds",
+      "completed and selected epochs",
+      "average run seconds per epoch",
+      "trainable and total parameters",
+      "CPU threads and environment"
+    ],
+    "future_trials": [
+      "separate measured training and validation phase seconds"
+    ],
+    "limits": "Run duration includes setup, validation and saving. Historical SmallCNN timing is not a controlled same-session benchmark. Do not infer FLOPs, energy or exact CPU-core seconds from parameter counts or wall time."
+  },
+  "training_finished_utc": "2026-10-27T00:02:31.395890+00:00"
+}
