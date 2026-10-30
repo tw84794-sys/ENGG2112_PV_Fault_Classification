@@ -1,0 +1,26 @@
+{
+  "protocol": "resnet18-spatial-v1",
+  "reference_run": "resnet18-generalisation-augmentation-s2112-v1",
+  "reference_macro_f1": 0.6281050966289974,
+  "planned_trials": [
+    {
+      "arm": "stride1",
+      "plan": "configs/experiment-plan-resnet18-spatial-stride1.json",
+      "run_id": "resnet18-spatial-stride1-s2112-v1",
+      "hypothesis": "Reduce first-convolution stride from 2 to 1, preserving higher spatial resolution without changing kernel weights."
+    },
+    {
+      "arm": "no_maxpool",
+      "plan": "configs/experiment-plan-resnet18-spatial-no_maxpool.json",
+      "run_id": "resnet18-spatial-no_maxpool-s2112-v1",
+      "hypothesis": "Remove the initial max pool while retaining convolution stride 2; test early pooling separately."
+    }
+  ],
+  "seed": 2112,
+  "test_evaluated": false,
+  "decision_rule": "Select verified best validation macro-F1 including the retained augmented reference. Both arms start from the SAME frozen-head checkpoint and receive ten-epoch allowances; no warm starts from augmented weights or adaptive combination.",
+  "controls": "Same weights, frozen-parent head, split, seed, augmentation, optimiser, learning rates, schedule, batch size and frozen BatchNorm. Change exactly one early-downsampling operation.",
+  "scope_note": "This tests applying each architectural change during layer4 adaptation while earlier parameters and BatchNorm statistics remain frozen. The shared head was fitted with the standard stem, which can initially disadvantage modified stems; this does not exhaust retraining with stem-specific head/BN adaptation.",
+  "timing_note": "Approximate user target thirty minutes, with explicit permission to take longer to complete. Sequential CPU four threads, no paid compute. Report full runs, stop reasons and inference measurements; do not infer RAM/FLOPs/energy.",
+  "replication": "Single seed; extra seeds deferred. Test inference reserved."
+}

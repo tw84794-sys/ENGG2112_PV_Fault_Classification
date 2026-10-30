@@ -18,6 +18,7 @@ import torch
 from PIL import Image
 
 from pv_fault.data import CLASS_NAMES
+from pv_fault.resnet_spatial import configure_spatial_variant
 from pv_fault.models.resnet import ResNet18Thermal, WEIGHT_SHA256
 
 
@@ -64,6 +65,7 @@ def main():
     if tuple(checkpoint["class_names"]) != CLASS_NAMES:
         raise ValueError("Checkpoint class order differs from this code.")
     model = ResNet18Thermal(len(CLASS_NAMES), weights_path, WEIGHT_SHA256)
+    configure_spatial_variant(model, checkpoint.get("spatial_variant", "standard"))
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
     torch.set_num_threads(4)

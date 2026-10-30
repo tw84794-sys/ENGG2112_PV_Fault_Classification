@@ -12,12 +12,6 @@ from pv_fault.data import CLASS_NAMES, CLASS_TO_INDEX
 from pv_fault.evaluate import classification_metrics, collect_validation_predictions
 
 
-class PipelineContractTests(unittest.TestCase):
-    @unittest.skip("Pending model and checkpoint implementation")
-    def test_checkpoint_inference_matches_saved_predictions(self):
-        pass
-
-
 class MetricsTests(unittest.TestCase):
     def test_known_predictions(self):
         result = classification_metrics(

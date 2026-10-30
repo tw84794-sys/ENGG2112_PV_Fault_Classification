@@ -17,13 +17,11 @@ from PIL import __version__ as pillow_version
 from torch import nn
 from torch.utils.data import DataLoader
 
+from pv_fault.resnet_training import class_weights_from_training
 from pv_fault.data import CLASS_NAMES, CLASS_TO_INDEX, SolarModuleDataset
-from pv_fault.evaluate import (
-    classification_metrics,
-    collect_validation_predictions,
-)
+from pv_fault.evaluate import classification_metrics
 from pv_fault.models.baseline import SmallCNN, WideCNN
-from pv_fault.train import train_one_epoch, evaluate_one_epoch
+from pv_fault.train import fit, save_json, train_one_epoch, evaluate_one_epoch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -32,13 +30,6 @@ PLAN_PATH = ROOT / "configs/experiment-plan.json"
 
 def file_hash(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
-def save_json(path, value):
-    path.write_text(
-        json.dumps(value, indent=2, allow_nan=False) + "\n",
-        encoding="utf-8",
-    )
 
 
 def load_plan(plan_path):
@@ -142,21 +133,6 @@ def majority_baseline(train_data, val_data):
     return CLASS_NAMES[majority_index], metrics
 
 
-def make_training_class_weights(train_data):
-    if train_data.split != "train":
-        raise ValueError("Class weights must come from training data.")
-
-    counts = Counter(row["label"] for row in train_data.rows)
-    if any(counts[name] == 0 for name in CLASS_NAMES):
-        raise ValueError("Every class needs training examples.")
-
-    weights = torch.tensor(
-        [counts[name] ** -0.5 for name in CLASS_NAMES],
-        dtype=torch.float32,
-    )
-    return weights / weights.mean()
-
-
 def make_optimizer(model, plan):
     name = plan.get("optimizer", "adam")
     kwargs = {"lr": plan["learning_rate"], "weight_decay": plan.get("weight_decay", 0.0)}
@@ -231,7 +207,7 @@ def main():
         if parameter.requires_grad
     )
     class_weights = (
-        make_training_class_weights(train_data)
+        class_weights_from_training(train_data)
         if plan.get("class_weighting", "none") == "sqrt_inverse_frequency"
         else None
     )
@@ -278,6 +254,7 @@ def main():
         "scripts/train_baseline.py",
         "src/pv_fault/data.py",
         "src/pv_fault/models/baseline.py",
+        "src/pv_fault/resnet_training.py",
         "src/pv_fault/train.py",
         "src/pv_fault/evaluate.py",
         "src/pv_fault/augmentation.py",
@@ -323,114 +300,26 @@ def main():
         "test_evaluated": False,
     })
 
-    history = []
-    best_score = -1.0
-    best_epoch = None
-    epochs_without_improvement = 0
-    stop_reason = "max_epochs"
-
-    for epoch in range(1, plan["max_epochs"] + 1):
-        if time.monotonic() - started >= plan["max_elapsed_seconds"]:
-            stop_reason = "time_limit_before_epoch"
-            break
-
-        learning_rate_used = optimizer.param_groups[0]["lr"]
-        train_stats = train_one_epoch(
-            model, train_loader, optimizer, criterion, "cpu"
-        )
-        val_stats = evaluate_one_epoch(
-            model, val_loader, validation_criterion, "cpu"
-        )
-        records = collect_validation_predictions(
-            model, val_loader, "cpu"
-        )
-        metrics = classification_metrics(
-            [row["true_index"] for row in records],
-            [row["predicted_index"] for row in records],
-        )
-
-        if abs(metrics["accuracy"] - val_stats["accuracy"]) > 1e-9:
-            raise ValueError("Validation accuracy and saved predictions disagree.")
-
-        if scheduler is not None:
-            scheduler.step(metrics["macro_f1"])
-        elapsed = time.monotonic() - started
-        epoch_result = {
-            "learning_rate": learning_rate_used,
-            "next_learning_rate": optimizer.param_groups[0]["lr"],
-            "epoch": epoch,
-            "train": train_stats,
-            "validation_loss": val_stats["loss"],
-            "validation_accuracy": metrics["accuracy"],
-            "validation_macro_f1": metrics["macro_f1"],
-            "fault_to_normal_rate": metrics["fault_to_normal_rate"],
-            "normal_false_alarm_rate": metrics["normal_false_alarm_rate"],
-            "elapsed_seconds": elapsed,
-        }
-        history.append(epoch_result)
-        save_json(run_dir / "history.json", history)
-        print(json.dumps(epoch_result))
-
-        if metrics["macro_f1"] > best_score:
-            best_score = metrics["macro_f1"]
-            best_epoch = epoch
-            epochs_without_improvement = 0
-
-            torch.save({
-                "model_state_dict": model.state_dict(),
-                "model": model_name,
-                "batch_norm": plan.get("batch_norm", False),
-                "scheduler": plan.get("scheduler", "none"),
-                "activation": plan.get("activation", "relu"),
-                "extra_conv": plan.get("extra_conv", False),
-                "trainable_parameters": trainable_parameters,
-                "epoch": epoch,
-                "class_names": CLASS_NAMES,
-                "manifest_sha256": plan["manifest_sha256"],
-            }, run_dir / "best_model.pt")
-            save_json(run_dir / "best_validation_metrics.json", metrics)
-            save_json(
-                run_dir / "best_validation_predictions.json", records
-            )
-        else:
-            epochs_without_improvement += 1
-
-        if elapsed >= plan["max_elapsed_seconds"]:
-            stop_reason = "time_limit_after_epoch"
-            break
-        if epochs_without_improvement >= plan["early_stopping_patience"]:
-            stop_reason = "early_stopping"
-            break
-
-    # Verify that the persisted checkpoint reproduces the selected validation
-    # predictions. Measure training fit with unweighted loss for comparison.
-    checkpoint_verified = False
-    if best_epoch is not None:
-        checkpoint = torch.load(run_dir / "best_model.pt", map_location="cpu", weights_only=True)
-        model.load_state_dict(checkpoint["model_state_dict"])
-        restored_records = collect_validation_predictions(model, val_loader, "cpu")
-        saved_records = json.loads((run_dir / "best_validation_predictions.json").read_text())
-        if restored_records != saved_records:
-            raise ValueError("Reloaded checkpoint predictions differ from saved predictions.")
-        checkpoint_verified = True
-        # Compare selected checkpoints on clean training images, even when
-        # stochastic augmentation was used during fitting.
-        fit_data = (SolarModuleDataset("train", manifest=ROOT / plan["manifest"])
-                    if plan.get("augmentation", "none") != "none" else train_data)
+    checkpoint_metadata = {
+        "model": plan.get("model", "small_cnn"),
+        "manifest_sha256": plan["manifest_sha256"],
+        "trainable_parameters": trainable_parameters,
+        "batch_norm": plan.get("batch_norm", False),
+        "activation": plan.get("activation", "relu"),
+        "extra_conv": plan.get("extra_conv", False),
+        **{key: plan[key] for key in ("scheduler", "parent_checkpoint_sha256",
+                                    "pretrained_sha256", "spatial_variant") if key in plan},
+    }
+    summary = fit(model, train_loader, val_loader, optimizer, criterion,
+                  validation_criterion, plan, run_dir, checkpoint_metadata,
+                  started, scheduler=scheduler)
+    if summary["best_epoch"] is not None:
+        fit_data = SolarModuleDataset("train", manifest=ROOT / plan["manifest"])
         fit_loader = DataLoader(fit_data, batch_size=plan["batch_size"], shuffle=False)
-        train_fit = evaluate_one_epoch(model, fit_loader, validation_criterion, "cpu")
-        save_json(run_dir / "selected_training_fit.json", train_fit)
-
-    save_json(run_dir / "summary.json", {
-        "checkpoint_predictions_verified": checkpoint_verified,
-        "best_epoch": best_epoch,
-        "best_validation_macro_f1": best_score if best_epoch else None,
-        "majority_validation_macro_f1": majority_metrics["macro_f1"],
-        "epochs_completed": len(history),
-        "stop_reason": stop_reason,
-        "elapsed_seconds": time.monotonic() - started,
-        "test_evaluated": False,
-    })
+        save_json(run_dir / "selected_training_fit.json",
+                  evaluate_one_epoch(model, fit_loader, validation_criterion, "cpu"))
+    summary["majority_validation_macro_f1"] = majority_metrics["macro_f1"]
+    save_json(run_dir / "summary.json", summary)
     print(f"Saved run to {run_dir}")
 
 

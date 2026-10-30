@@ -11,9 +11,10 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 from train_baseline import make_scheduler
 
+from pv_fault.finetuning import configure_resnet_finetuning
 from pv_fault.models.resnet import (
     IMAGENET_MEAN, IMAGENET_STD, WEIGHT_SHA256,
-    ResNet18Thermal, preprocess_thermal, enable_layer4_finetuning,
+    ResNet18Thermal, preprocess_thermal,
 )
 
 
@@ -52,7 +53,7 @@ class ResNet18ContractTests(unittest.TestCase):
         if not weights.is_file():
             self.skipTest("Pretrained weights are not downloaded locally")
         model = ResNet18Thermal(12, weights, WEIGHT_SHA256)
-        enable_layer4_finetuning(model)
+        configure_resnet_finetuning(model)
         model.train()
         self.assertFalse(any(module.training for module in model.modules()
                              if isinstance(module, torch.nn.BatchNorm2d)))

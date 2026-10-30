@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from pv_fault.data import CLASS_NAMES
 from pv_fault.finetuning import configure_resnet_finetuning
+from pv_fault.resnet_spatial import configure_spatial_variant
 from pv_fault.evaluate import classification_metrics, collect_validation_predictions
 from pv_fault.models.resnet import ResNet18Thermal
 from train_baseline import make_loaders
@@ -40,16 +41,20 @@ def main():
     if file_hash(ROOT / plan["manifest"]) != plan["manifest_sha256"]:
         raise ValueError("Manifest checksum differs from the plan.")
     # Archived training sources stay hash-checked even when entry points evolve.
-    # Only live dependencies used to restore/evaluate the model must also match.
+    # Refactored live sources are recorded separately; every saved probability must still match.
+    current_sources = {}
+    changed_sources = []
     for name, expected in provenance["source_sha256"].items():
         snapshot = run_dir / "source_snapshot" / name
         if file_hash(snapshot) != expected:
             raise ValueError(f"Source snapshot differs: {name}")
         inference_sources = {"src/pv_fault/models/resnet.py", "src/pv_fault/data.py",
                              "src/pv_fault/evaluate.py", "scripts/train_baseline.py",
-                             "src/pv_fault/finetuning.py"}
-        if name in inference_sources and file_hash(ROOT / name) != expected:
-            raise ValueError(f"Current inference dependency differs: {name}")
+                             "src/pv_fault/finetuning.py", "src/pv_fault/resnet_spatial.py"}
+        if name in inference_sources:
+            current_sources[name] = file_hash(ROOT / name)
+            if current_sources[name] != expected:
+                changed_sources.append(name)
     if "parent_checkpoint" in plan and file_hash(ROOT / plan["parent_checkpoint"]) != plan["parent_checkpoint_sha256"]:
         raise ValueError("Parent checkpoint checksum differs from the plan.")
     torch.set_num_threads(plan.get("cpu_threads", 4))
@@ -67,6 +72,10 @@ def main():
         raise ValueError("Checkpoint class order/selected epoch differs.")
     if sum(p.numel() for p in model.parameters() if p.requires_grad) != provenance["trainable_parameters"]:
         raise ValueError("Trainable parameter count differs from provenance.")
+    variant = plan.get("spatial_variant", "standard")
+    if checkpoint.get("spatial_variant", "standard") != variant or provenance.get("spatial_variant", "standard") != variant:
+        raise ValueError("Checkpoint/provenance spatial variant differs from plan.")
+    configure_spatial_variant(model, variant)
     model.load_state_dict(checkpoint["model_state_dict"])
     _, _, _, validation_loader = make_loaders(plan)
     records = collect_validation_predictions(model, validation_loader, "cpu")
@@ -77,8 +86,10 @@ def main():
         raise ValueError("Recomputed validation metrics differ from saved metrics.")
     result = {"checkpoint_predictions_verified": True, "validation_images": len(records),
               "best_epoch": checkpoint["epoch"], "checkpoint_sha256": file_hash(checkpoint_path),
-              "sources_verified": True, "current_inference_sources_verified": True, "cpu_threads": torch.get_num_threads(),
-              "verifier_sha256": file_hash(Path(__file__)), "test_evaluated": False}
+              "sources_verified": True, "current_inference_sources_match_archive": not changed_sources,
+              "current_inference_source_sha256": current_sources,
+              "refactored_inference_sources": changed_sources, "cpu_threads": torch.get_num_threads(),
+              "verifier_sha256": file_hash(Path(__file__)), "spatial_variant": variant, "test_evaluated": False}
     (run_dir / "checkpoint_verification.json").write_text(json.dumps(result, indent=2) + "\n")
     print(json.dumps(result, indent=2))
 

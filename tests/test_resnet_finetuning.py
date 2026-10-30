@@ -9,7 +9,7 @@ from torch import nn
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from pv_fault.finetuning import configure_resnet_finetuning
-from pv_fault.models.resnet import ResNet18Thermal, enable_layer4_finetuning
+from pv_fault.models.resnet import ResNet18Thermal
 
 
 class LateStageTests(unittest.TestCase):
@@ -19,12 +19,14 @@ class LateStageTests(unittest.TestCase):
             self.skipTest("Pretrained weights are not downloaded locally")
         return ResNet18Thermal(12, weights)
 
-    def test_layer4_matches_existing_trainable_flags(self):
+    def test_layer4_trains_only_non_batchnorm_layer4_and_head(self):
         model = self.make_model()
-        enable_layer4_finetuning(model)
-        expected = {name: p.requires_grad for name, p in model.named_parameters()}
         configure_resnet_finetuning(model)
-        self.assertEqual(expected, {name: p.requires_grad for name, p in model.named_parameters()})
+        trainable = {name for name, p in model.named_parameters() if p.requires_grad}
+        self.assertTrue(trainable)
+        self.assertTrue(all(name.startswith(("backbone.layer4.", "backbone.fc.")) for name in trainable))
+        self.assertFalse(any(p.requires_grad for module in model.modules()
+                             if isinstance(module, nn.BatchNorm2d) for p in module.parameters()))
 
     def test_layer3_and_layer4_receive_gradients_with_earlier_layers_frozen(self):
         model = self.make_model()

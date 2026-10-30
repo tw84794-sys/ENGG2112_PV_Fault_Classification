@@ -20,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from pv_fault.models.baseline import SmallCNN
 from pv_fault.models.resnet import ResNet18Thermal
+from pv_fault.resnet_spatial import configure_spatial_variant
 
 
 def file_hash(path):
@@ -58,8 +59,13 @@ def main():
     small.load_state_dict(torch.load(small_run / "best_model.pt", map_location="cpu",
                                     weights_only=True)["model_state_dict"])
     resnet = ResNet18Thermal(12, ROOT / "data/pretrained/resnet18-f37072fd.pth")
-    resnet.load_state_dict(torch.load(resnet_run / "best_model.pt", map_location="cpu",
-                                     weights_only=True)["model_state_dict"])
+    plan = json.loads((resnet_run / "experiment-plan.json").read_text())
+    checkpoint = torch.load(resnet_run / "best_model.pt", map_location="cpu", weights_only=True)
+    variant = plan.get("spatial_variant", "standard")
+    if checkpoint.get("spatial_variant", "standard") != variant:
+        raise ValueError("Checkpoint spatial variant differs from its plan.")
+    configure_spatial_variant(resnet, variant)
+    resnet.load_state_dict(checkpoint["model_state_dict"])
     inputs = {size: torch.rand(size, 1, 40, 24) for size in (1, 64)}
     records = []
     for label, model, folder in (
@@ -69,6 +75,7 @@ def main():
         model.eval()
         record = {
             "model": label, "run_id": folder.name,
+            "spatial_variant": variant if model is resnet else None,
             "total_parameters": sum(p.numel() for p in model.parameters()),
             "parameter_storage_bytes": sum(p.numel() * p.element_size() for p in model.parameters()),
             "checkpoint_sha256": file_hash(folder / "best_model.pt"),

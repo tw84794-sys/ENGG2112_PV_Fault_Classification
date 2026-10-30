@@ -21,7 +21,8 @@ class LoaderTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
-        (self.root / "images").mkdir()
+        (self.root / "raw/images").mkdir(parents=True)
+        (self.root / "processed/near_clean").mkdir(parents=True)
         self.manifest = self.root / "split.csv"
         self.rows = []
         metadata = {}
@@ -29,11 +30,11 @@ class LoaderTests(unittest.TestCase):
             for label in CLASS_NAMES:
                 image_id = str(len(self.rows))
                 path = f"images/{image_id}.png"
-                Image.new("L", (24, 40), 128).save(self.root / path)
+                Image.new("L", (24, 40), 128).save(self.root / "raw" / path)
                 metadata[image_id] = {"image_filepath": path, "anomaly_class": label}
                 self.rows.append(dict(image_id=image_id, image_path=path,
                                       label=label, group_id=image_id, split=split))
-        (self.root / "module_metadata.json").write_text(json.dumps(metadata))
+        (self.root / "processed/near_clean/module_metadata.json").write_text(json.dumps(metadata))
         self.write_manifest()
 
     def write_manifest(self):
@@ -43,7 +44,7 @@ class LoaderTests(unittest.TestCase):
             writer.writerows(self.rows)
         summary = {"images": len(self.rows)}
         for path, key in ((self.manifest, "manifest_sha256"),
-                          (self.root / "module_metadata.json", "metadata_sha256")):
+                          (self.root / "processed/near_clean/module_metadata.json", "metadata_sha256")):
             summary[key] = hashlib.sha256(path.read_bytes()).hexdigest()
         self.manifest.with_suffix(".json").write_text(json.dumps(summary))
 
@@ -74,7 +75,7 @@ class LoaderTests(unittest.TestCase):
             self.dataset()
 
     def test_rejects_rgb_instead_of_silently_converting(self):
-        Image.new("RGB", (24, 40)).save(self.root / self.rows[0]["image_path"])
+        Image.new("RGB", (24, 40)).save(self.root / "raw" / self.rows[0]["image_path"])
         with self.assertRaisesRegex(ValueError, "Expected grayscale"):
             self.dataset()[0]
 

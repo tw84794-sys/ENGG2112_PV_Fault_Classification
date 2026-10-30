@@ -72,19 +72,3 @@ class ResNet18Thermal(nn.Module):
     def forward(self, images):
         adapted = preprocess_thermal(images, self.mean, self.std)
         return self.backbone(adapted)
-
-def enable_layer4_finetuning(model: ResNet18Thermal) -> None:
-    """Train the final residual block and classifier, keeping BatchNorm frozen."""
-    for parameter in model.backbone.parameters():
-        parameter.requires_grad_(False)
-
-    for parameter in model.backbone.layer4.parameters():
-        parameter.requires_grad_(True)
-
-    for module in model.backbone.layer4.modules():
-        if isinstance(module, nn.BatchNorm2d):
-            for parameter in module.parameters():
-                parameter.requires_grad_(False)
-
-    for parameter in model.backbone.fc.parameters():
-            parameter.requires_grad_(True)

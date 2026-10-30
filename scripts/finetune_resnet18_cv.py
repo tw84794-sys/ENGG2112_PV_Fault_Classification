@@ -21,10 +21,12 @@ from PIL import __version__ as pillow_version
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 
+from pv_fault.resnet_training import class_weights_from_training
 from pv_fault.data import CLASS_NAMES, SolarModuleDataset
 from pv_fault.evaluate import classification_metrics, collect_validation_predictions
-from pv_fault.models.resnet import ResNet18Thermal, WEIGHT_SHA256, enable_layer4_finetuning
-from pv_fault.train import train_one_epoch
+from pv_fault.finetuning import configure_resnet_finetuning
+from pv_fault.models.resnet import ResNet18Thermal, WEIGHT_SHA256
+from pv_fault.train import train_one_epoch, fit
 
 
 def digest(path):
@@ -150,16 +152,6 @@ def loaders(base, fold_indices, fold, batch_size, seed):
     return training, validation, train_loader, val_loader
 
 
-def class_weights(training):
-    counts = Counter(row["label"] for row in training.rows)
-    if set(counts) != set(CLASS_NAMES):
-        raise ValueError("Fold training is missing a class.")
-    weights = torch.tensor(
-        [counts[name] ** -0.5 for name in CLASS_NAMES], dtype=torch.float32
-    )
-    return weights / weights.mean()
-
-
 def metrics_for(model, loader, max_batches=None):
     predictions = collect_validation_predictions(
         model, loader, "cpu", max_batches=max_batches
@@ -209,7 +201,7 @@ def smoke(root, plan, plan_path, base, fold_indices, smoke_path):
         base, fold_indices, fold, plan["batch_size"], seed
     )
     model = new_model(root, plan)
-    criterion = nn.CrossEntropyLoss(weight=class_weights(training))
+    criterion = nn.CrossEntropyLoss(weight=class_weights_from_training(training))
 
     start = time.monotonic()
     train_one_epoch(
@@ -221,7 +213,7 @@ def smoke(root, plan, plan_path, base, fold_indices, smoke_path):
     metrics_for(model, val_loader, max_batches=2)
     frozen_val_seconds = time.monotonic() - start
 
-    enable_layer4_finetuning(model)
+    configure_resnet_finetuning(model)
     start = time.monotonic()
     train_one_epoch(
         model, train_loader, fine_optimizer(model, plan["fine_tuning"]["arms"][0]),
@@ -261,38 +253,14 @@ def smoke(root, plan, plan_path, base, fold_indices, smoke_path):
 
 def fit_stage(model, train_loader, val_loader, optimizer, criterion,
               max_epochs, patience, started, time_cap, output_dir, identity):
-    best = -1.0
-    stale = 0
-    history = []
-    for epoch in range(1, max_epochs + 1):
-        if time.monotonic() - started >= time_cap:
-            raise TimeoutError("CV time cap reached; partial artifacts remain.")
-        stats = train_one_epoch(model, train_loader, optimizer, criterion, "cpu")
-        metrics, predictions = metrics_for(model, val_loader)
-        record = {
-            "epoch": epoch, "train": stats,
-            "validation_macro_f1": metrics["macro_f1"],
-            "validation_accuracy": metrics["accuracy"],
-            "fault_to_normal_rate": metrics["fault_to_normal_rate"],
-            "normal_false_alarm_rate": metrics["normal_false_alarm_rate"],
-            "elapsed_seconds": time.monotonic() - started,
-        }
-        history.append(record)
-        save_json(output_dir / "history.json", history)
-        print(json.dumps({"stage": identity, **record}), flush=True)
-        if metrics["macro_f1"] > best:
-            best = metrics["macro_f1"]
-            stale = 0
-            torch.save(model.state_dict(), output_dir / "best_model.pt")
-            save_json(output_dir / "best_metrics.json", metrics)
-            save_json(output_dir / "best_predictions.json", predictions)
-        else:
-            stale += 1
-        if stale >= patience:
-            break
-    if best < 0:
-        raise RuntimeError(f"No completed epoch for {identity}.")
-    return json.loads((output_dir / "best_metrics.json").read_text())
+    summary = fit(model, train_loader, val_loader, optimizer, criterion,
+                  nn.CrossEntropyLoss(),
+                  {"max_epochs": max_epochs, "early_stopping_patience": patience,
+                   "max_elapsed_seconds": time_cap}, output_dir,
+                  {"stage": identity}, started)
+    if summary["best_epoch"] is None:
+        raise TimeoutError(f"No completed epoch for {identity}; partial artifacts remain.")
+    return json.loads((output_dir / "best_validation_metrics.json").read_text())
 
 
 def full(root, plan, plan_path, base, fold_indices, smoke_path):
@@ -320,6 +288,7 @@ def full(root, plan, plan_path, base, fold_indices, smoke_path):
             name: digest(root / name) for name in (
                 "src/pv_fault/data.py", "src/pv_fault/train.py",
                 "src/pv_fault/evaluate.py", "src/pv_fault/models/resnet.py",
+                "src/pv_fault/resnet_training.py", "src/pv_fault/finetuning.py",
             )
         },
         "python_version": sys.version,
@@ -341,14 +310,14 @@ def full(root, plan, plan_path, base, fold_indices, smoke_path):
         training, validation, train_loader, val_loader = loaders(
             base, fold_indices, fold, plan["batch_size"], fold_seed
         )
-        criterion = nn.CrossEntropyLoss(weight=class_weights(training))
+        criterion = nn.CrossEntropyLoss(weight=class_weights_from_training(training))
         fold_dir = run_dir / f"fold-{fold}"
         fold_dir.mkdir()
         save_json(fold_dir / "fold-data.json", {
             "train_images": len(training),
             "validation_images": len(validation),
             "train_class_counts": dict(Counter(r["label"] for r in training.rows)),
-            "class_weights": class_weights(training).tolist(),
+            "class_weights": class_weights_from_training(training).tolist(),
         })
 
         # Every fold starts from ImageNet, never the old full-train checkpoint.
@@ -365,14 +334,14 @@ def full(root, plan, plan_path, base, fold_indices, smoke_path):
         )
         parent_state = torch.load(
             parent_dir / "best_model.pt", map_location="cpu", weights_only=True
-        )
+        )["model_state_dict"]
         del parent
         for arm in plan["fine_tuning"]["arms"]:
             seed_all(fold_seed)
             train_loader.generator.manual_seed(fold_seed)
             model = new_model(root, plan)
             model.load_state_dict(parent_state)
-            enable_layer4_finetuning(model)
+            configure_resnet_finetuning(model)
             arm_dir = fold_dir / arm["name"]
             arm_dir.mkdir()
             metrics = fit_stage(

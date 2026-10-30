@@ -1,0 +1,361 @@
+{
+  "models": [
+    {
+      "model": "standard",
+      "run_id": "resnet18-generalisation-augmentation-s2112-v1",
+      "geometry": {
+        "conv1": [
+          64,
+          40,
+          24
+        ],
+        "maxpool": [
+          64,
+          20,
+          12
+        ],
+        "layer1": [
+          64,
+          20,
+          12
+        ],
+        "layer4": [
+          512,
+          3,
+          2
+        ],
+        "avgpool": [
+          512,
+          1,
+          1
+        ]
+      },
+      "checkpoint_sha256": "eded6fbc75af2fd1107d2a4e0fd89fa55605b1a679a3c87d666bb321299865f3",
+      "total_parameters": 11182668,
+      "parameter_storage_bytes": 44730672,
+      "batches": [
+        {
+          "batch_size": 1,
+          "median_batch_ms": 2.6101875000000003,
+          "p90_batch_ms": 2.6811381,
+          "amortized_median_ms_per_image": 2.6101875000000003,
+          "samples_ms": [
+            2.732334,
+            2.7165,
+            2.677209,
+            2.63475,
+            2.606833,
+            2.585583,
+            2.605333,
+            2.646542,
+            2.603875,
+            2.607625,
+            2.597542,
+            2.61275,
+            2.615167,
+            2.638416,
+            2.6015,
+            2.60225,
+            2.615125,
+            2.599375,
+            2.594458,
+            2.648
+          ]
+        },
+        {
+          "batch_size": 64,
+          "median_batch_ms": 224.01797900000003,
+          "p90_batch_ms": 235.76665060000002,
+          "amortized_median_ms_per_image": 3.5002809218750004,
+          "samples_ms": [
+            221.591375,
+            221.949375,
+            222.636375,
+            238.130875,
+            240.090083,
+            235.503959,
+            230.230791,
+            226.967417,
+            223.300833,
+            224.735125,
+            227.204541,
+            221.655792,
+            225.60375,
+            228.579333,
+            217.757875,
+            225.343333,
+            216.118667,
+            210.144833,
+            207.745834,
+            208.455541
+          ]
+        }
+      ]
+    },
+    {
+      "model": "stride1",
+      "run_id": "resnet18-spatial-stride1-s2112-v1",
+      "geometry": {
+        "conv1": [
+          64,
+          80,
+          48
+        ],
+        "maxpool": [
+          64,
+          40,
+          24
+        ],
+        "layer1": [
+          64,
+          40,
+          24
+        ],
+        "layer4": [
+          512,
+          5,
+          3
+        ],
+        "avgpool": [
+          512,
+          1,
+          1
+        ]
+      },
+      "checkpoint_sha256": "fa6f3ad6975816b0b1aa9a6f10f73e56b04c7129bb0107a227ff62161acae59b",
+      "total_parameters": 11182668,
+      "parameter_storage_bytes": 44730672,
+      "batches": [
+        {
+          "batch_size": 1,
+          "median_batch_ms": 4.3825205,
+          "p90_batch_ms": 4.5958164,
+          "amortized_median_ms_per_image": 4.3825205,
+          "samples_ms": [
+            4.601292,
+            4.652375,
+            4.588834,
+            4.557375,
+            4.568334,
+            4.595208,
+            4.557166,
+            4.567416,
+            4.548958,
+            4.474333,
+            4.269208,
+            4.234292,
+            4.290708,
+            4.238542,
+            4.25675,
+            4.223084,
+            4.250292,
+            4.238042,
+            4.264917,
+            4.22625
+          ]
+        },
+        {
+          "batch_size": 64,
+          "median_batch_ms": 357.4163125,
+          "p90_batch_ms": 362.7020167,
+          "amortized_median_ms_per_image": 5.5846298828125,
+          "samples_ms": [
+            358.6935,
+            355.558083,
+            362.2145,
+            366.977292,
+            365.713792,
+            362.367375,
+            359.117,
+            360.137458,
+            357.786834,
+            357.748625,
+            356.713333,
+            358.528625,
+            357.084,
+            355.533167,
+            355.001084,
+            349.165958,
+            351.545042,
+            350.017791,
+            351.350875,
+            353.563375
+          ]
+        }
+      ]
+    },
+    {
+      "model": "no_maxpool",
+      "run_id": "resnet18-spatial-no_maxpool-s2112-v1",
+      "geometry": {
+        "conv1": [
+          64,
+          40,
+          24
+        ],
+        "maxpool": [
+          64,
+          40,
+          24
+        ],
+        "layer1": [
+          64,
+          40,
+          24
+        ],
+        "layer4": [
+          512,
+          5,
+          3
+        ],
+        "avgpool": [
+          512,
+          1,
+          1
+        ]
+      },
+      "checkpoint_sha256": "32a8cc3a5330ef8ec96621acf02cae52d71ab95ebba1d69560701f8b9d1d8091",
+      "total_parameters": 11182668,
+      "parameter_storage_bytes": 44730672,
+      "batches": [
+        {
+          "batch_size": 1,
+          "median_batch_ms": 4.203333,
+          "p90_batch_ms": 4.300175,
+          "amortized_median_ms_per_image": 4.203333,
+          "samples_ms": [
+            4.252625,
+            4.249209,
+            4.242834,
+            4.195333,
+            4.211875,
+            4.211333,
+            4.298,
+            4.333292,
+            4.31975,
+            4.279209,
+            4.235083,
+            4.076208,
+            3.981375,
+            3.966834,
+            3.933375,
+            3.9365,
+            3.936958,
+            3.977041,
+            3.959458,
+            3.9155
+          ]
+        },
+        {
+          "batch_size": 64,
+          "median_batch_ms": 326.831229,
+          "p90_batch_ms": 329.7061914,
+          "amortized_median_ms_per_image": 5.106737953125,
+          "samples_ms": [
+            328.788542,
+            326.311916,
+            328.260542,
+            325.913542,
+            326.957833,
+            327.9965,
+            329.635708,
+            327.811291,
+            330.340542,
+            324.538292,
+            326.1755,
+            326.704625,
+            325.104125,
+            326.311042,
+            328.43825,
+            324.44925,
+            326.358042,
+            325.350542,
+            339.962917,
+            327.643667
+          ]
+        }
+      ]
+    },
+    {
+      "model": "SmallCNN",
+      "run_id": "smallcnn-depth-gentle60-s2112-v1",
+      "geometry": {},
+      "checkpoint_sha256": "0b62c6a4492584eac14bbdd1fd8487e5af98773ecc30a9998031e237e9d77d4f",
+      "total_parameters": 47820,
+      "parameter_storage_bytes": 191280,
+      "batches": [
+        {
+          "batch_size": 1,
+          "median_batch_ms": 0.358646,
+          "p90_batch_ms": 0.3957413,
+          "amortized_median_ms_per_image": 0.358646,
+          "samples_ms": [
+            0.374291,
+            0.405041,
+            0.4245,
+            0.394708,
+            0.364125,
+            0.363625,
+            0.358083,
+            0.367958,
+            0.355458,
+            0.36175,
+            0.363375,
+            0.345625,
+            0.348583,
+            0.357709,
+            0.359209,
+            0.345125,
+            0.340625,
+            0.345333,
+            0.344375,
+            0.357917
+          ]
+        },
+        {
+          "batch_size": 64,
+          "median_batch_ms": 3.75425,
+          "p90_batch_ms": 3.9403753,
+          "amortized_median_ms_per_image": 0.05866015625,
+          "samples_ms": [
+            3.9895,
+            3.89025,
+            3.428417,
+            3.626708,
+            3.612333,
+            3.934917,
+            3.900042,
+            3.881167,
+            3.411,
+            4.084042,
+            3.879333,
+            3.691166,
+            3.832084,
+            3.757375,
+            3.024792,
+            3.083667,
+            3.901292,
+            3.297041,
+            3.751125,
+            3.433292
+          ]
+        }
+      ]
+    }
+  ],
+  "measured_utc": "2026-10-27T07:56:04.909483+00:00",
+  "cpu_threads": 4,
+  "device": "cpu",
+  "torch": "2.8.0",
+  "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "test_evaluated": false,
+  "source_sha256": {
+    "scripts/benchmark_resnet_spatial.py": "13832c3dff43448734ef045eeb29f864472623676ae49e9eafaf9865db6b701d",
+    "scripts/benchmark_cnn_resnet.py": "33d6254246c050bb22c64cce738045d959431d4f659131f9ebf695d1839b7f47",
+    "src/pv_fault/resnet_spatial.py": "1fecce26949c29ec25373412800ac9fffc95c3ddcf788f829cdf00b24ece833e",
+    "src/pv_fault/models/resnet.py": "aafec424670dc29035666b9f2700fd3dcff870a0ff0477b85e202cf9f1fcd4c2",
+    "src/pv_fault/models/baseline.py": "c266fb244dfdca8fde00f73dcc7063bee62d823e6673715f9ac82896df5bb98f"
+  },
+  "scope": "Actual checkpoint weights, same synthetic grayscale inputs [N,1,40,24]. Five warmups then twenty timed model-only CPU forwards per batch size; after both fits finish. No dataset images or application/image-loading overhead. Parameter storage excludes buffers, gradients, optimiser state and activations; it is not peak RAM, FLOPs or energy."
+}
