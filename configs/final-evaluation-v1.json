@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "frozen_utc": "2026-10-30T02:40:07.075353+00:00",
+  "selection_split": "val",
+  "evaluation_split": "test",
+  "class_names": [
+    "Cell",
+    "Cell-Multi",
+    "Cracking",
+    "Diode",
+    "Diode-Multi",
+    "Hot-Spot",
+    "Hot-Spot-Multi",
+    "No-Anomaly",
+    "Offline-Module",
+    "Shadowing",
+    "Soiling",
+    "Vegetation"
+  ],
+  "dataset": {
+    "seed": 2112,
+    "test_fraction_target": 0.15,
+    "val_fraction_target": 0.15,
+    "images": 19922,
+    "groups": 19741,
+    "source": "https://github.com/RaptorMaps/InfraredSolarModules",
+    "split_limit": "Duplicate-aware stratified benchmark; no panel, site, or capture IDs are available, so unseen-site generalization is not established.",
+    "metadata_sha256": "b3b32c9a070ae8831df2cd4e942182345326600c1ba7d497fb5740b2b09d9c67",
+    "groups_sha256": "deb26421cd702dcd34377c6146447e7e7daeb268dafd54c16f4ac1cf769fdab0",
+    "image_tree_sha256": "e4b2e67ff99f9c7741737201ff56cd1d731160a8bbfe5ba2f591b8408d025dd9",
+    "manifest_sha256": "8c6c80cc05943e85d4a03874b1d5d89cb83eaf98e5637560b9ec9a2dcdee1ef8"
+  },
+  "sources": {
+    "scripts/evaluate_final.py": "46b09fc3802927f8ae6d39677b243dc95dac912fba38b84fb4965a8e18d72f54",
+    "scripts/create_split.py": "978456c35698f477251598b12898092d153d51f66d7d0b908895038440248710",
+    "src/pv_fault/data.py": "fa1b17a1e22a023bc6ae72a1d842b187235c7294acc44d03a642aae331e47ce7",
+    "src/pv_fault/evaluate.py": "32f3954e1fd0c460e9df5930b020b46c99d896fc203513ab94559dd2cbf50f2c",
+    "src/pv_fault/final_evaluation.py": "64cce2457649ded7f59e1fa641a13f7b2e56c5e55af9e986ccf443955a2f21f2",
+    "src/pv_fault/train.py": "9e413aeb5fcb2d868e54d0bec69a361abc8f0f9331dd020485164a08c106bec5",
+    "src/pv_fault/models/baseline.py": "1ebac420e48ce69ec8771f284dfcaa71eefafd822919b3a81a578c6045bdb5c3",
+    "src/pv_fault/models/resnet.py": "0660af8aaf5d53f725312d1a2546ed407433545afebab694e6c6f0f58d5cdf03",
+    "src/pv_fault/resnet_spatial.py": "1fecce26949c29ec25373412800ac9fffc95c3ddcf788f829cdf00b24ece833e",
+    "src/pv_fault/plots.py": "85ea8a40bc30d3f871e54579fab7a9dc5c09038b930437caca9b0dd2bddc31df"
+  },
+  "cpu_threads": 4,
+  "batch_size": 64,
+  "models": [
+    {
+      "name": "SmallCNN",
+      "run_id": "smallcnn-depth-gentle60-s2112-v1",
+      "files": {
+        "runs/smallcnn-depth-gentle60-s2112-v1/experiment-plan.json": "a0b1539811958fb8e3bb440fa9ae7aecb17254d959f230f272e7e80ff5349b1c",
+        "runs/smallcnn-depth-gentle60-s2112-v1/provenance.json": "8962f90662d39bed69f8f3a1261123eebe3617486a82bd5f88383c94c0c1fdfe",
+        "runs/smallcnn-depth-gentle60-s2112-v1/summary.json": "fdc0b878ef9248d0de698299755210248adc69fc99672f09e17c2176cf19a087",
+        "runs/smallcnn-depth-gentle60-s2112-v1/best_model.pt": "0b62c6a4492584eac14bbdd1fd8487e5af98773ecc30a9998031e237e9d77d4f",
+        "runs/smallcnn-depth-gentle60-s2112-v1/best_validation_predictions.json": "3001199bfee0f327316140d59d2bd36d42622ea902b8698cc8d75cf480cc6a76",
+        "runs/smallcnn-depth-gentle60-s2112-v1/best_validation_metrics.json": "adf347a2071be923cb64b594a8cccac6b61ec7a30d29cab16a4295b288b198c9"
+      },
+      "screening": {
+        "threshold": 0.5559541881084442,
+        "validation": {
+          "threshold": 0.5559541881084442,
+          "fault_count": 1492,
+          "normal_count": 1496,
+          "missed_faults": 149,
+          "normal_false_alarms": 135,
+          "recall": 0.9001340482573726,
+          "false_alarm_rate": 0.09024064171122995
+        },
+        "targets_met": true
+      },
+      "validation_macro_f1": 0.6011947353233656
+    },
+    {
+      "name": "ResNet18",
+      "run_id": "resnet18-generalisation-augmentation-s2112-v1",
+      "files": {
+        "runs/resnet18-generalisation-augmentation-s2112-v1/experiment-plan.json": "35e37054219f6ee637dd1d509234aa9c68504bebd852c71a00cf04595f6eadac",
+        "runs/resnet18-generalisation-augmentation-s2112-v1/provenance.json": "83baf062c2d9f4ad0a5d1487637ac1cc1f00322e43f5a4e9d3076772ac78a500",
+        "runs/resnet18-generalisation-augmentation-s2112-v1/summary.json": "fb28337253c90d1573375540b1c6015a36716ac359d56e362d7c891d6ee5f866",
+        "runs/resnet18-generalisation-augmentation-s2112-v1/best_model.pt": "eded6fbc75af2fd1107d2a4e0fd89fa55605b1a679a3c87d666bb321299865f3",
+        "runs/resnet18-generalisation-augmentation-s2112-v1/best_validation_predictions.json": "af573c6835e5591a9f3936b3f7a071f7dba4f87de86384290379a86ccd78cd41",
+        "runs/resnet18-generalisation-augmentation-s2112-v1/best_validation_metrics.json": "fccaaee0900803379a918fc35657edb1a8b7566a2361afa12316252127a14fc6",
+        "data/pretrained/resnet18-f37072fd.pth": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+        "runs/resnet18-frozen-repro-s2112-v1/best_model.pt": "ed017354a9258b5f31cc4ea90d371f41e12276c3bc678748e3be93115d03773a"
+      },
+      "screening": {
+        "threshold": 0.3929239511489868,
+        "validation": {
+          "threshold": 0.3929239511489868,
+          "fault_count": 1492,
+          "normal_count": 1496,
+          "missed_faults": 149,
+          "normal_false_alarms": 98,
+          "recall": 0.9001340482573726,
+          "false_alarm_rate": 0.06550802139037433
+        },
+        "targets_met": true
+      },
+      "validation_macro_f1": 0.6281050966289974
+    }
+  ],
+  "environment": {
+    "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+    "torch": "2.8.0",
+    "torchvision": "0.23.0",
+    "numpy": "2.0.2",
+    "Pillow": "11.3.0"
+  },
+  "majority_class": "No-Anomaly",
+  "multiclass_policy": "Highest class score (argmax), unchanged by screening.",
+  "screening_policy": "Flag anomaly when 1 - P(No-Anomaly) >= the frozen model-specific threshold.",
+  "threshold_rule": "Highest validation threshold with at least 90% anomaly recall; this minimises false alarms. Report whether false alarms also remain at most 20%.",
+  "screening_targets": {
+    "min_recall": 0.9,
+    "max_false_alarm_rate": 0.2
+  },
+  "bootstrap": {
+    "resamples": 1000,
+    "seed": 2112,
+    "confidence": 0.95
+  },
+  "limit": "Group intervals use detected related-image groups, not verified sites. Test results will not select models, thresholds or settings."
+}

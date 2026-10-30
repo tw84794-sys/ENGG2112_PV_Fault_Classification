@@ -84,11 +84,11 @@ def classification_metrics(y_true, y_pred, class_names=CLASS_NAMES):
     }
 
 @torch.inference_mode()
-def collect_validation_predictions(model, loader, device, max_batches=None, criterion=None):
-    if getattr(loader.dataset, "split", None) != "val":
-        raise ValueError("Expected the validation loader.")
+def collect_predictions(model, loader, device, *, split, max_batches=None, criterion=None):
+    if split not in ("val", "test") or getattr(loader.dataset, "split", None) != split:
+        raise ValueError(f"Expected the {'validation' if split == 'val' else split} loader.")
     if not isinstance(loader.sampler, SequentialSampler):
-        raise ValueError("Validation loader must keep manifest order.")
+        raise ValueError("Evaluation loader must keep manifest order.")
     if max_batches is not None and max_batches < 1:
         raise ValueError("max_batches must be positive.")
 
@@ -129,11 +129,16 @@ def collect_validation_predictions(model, loader, device, max_batches=None, crit
         row_offset += len(labels)
 
     if not records:
-        raise ValueError("No validation predictions collected.")
+        raise ValueError("No evaluation predictions collected.")
     if max_batches is None and len(records) != len(loader.dataset):
-        raise ValueError("Validation predictions do not cover every image.")
+        raise ValueError("Evaluation predictions do not cover every image.")
 
     if criterion is None:
         return records
     return records, {"loss": total_loss / len(records),
                      "accuracy": total_correct / len(records), "count": len(records)}
+
+
+def collect_validation_predictions(model, loader, device, max_batches=None, criterion=None):
+    """Training callers remain restricted to validation, including after final testing."""
+    return collect_predictions(model, loader, device, split="val", max_batches=max_batches, criterion=criterion)

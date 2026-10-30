@@ -1,0 +1,914 @@
+{
+  "protocol_sha256": "b0e1c1fdee9be29fb79919fbf23bc8b15da18833f12dd3ecadcbf398786ce21d",
+  "evaluation_commit": "3ef4040e232ff8e5945c5989153f48401a8a5949",
+  "completed_utc": "2026-10-30T02:41:52.063330+00:00",
+  "split": "test",
+  "test_evaluated": true,
+  "images": 2988,
+  "models": {
+    "Majority baseline": {
+      "multiclass": {
+        "count": 2988,
+        "accuracy": 0.500669344042838,
+        "macro_f1": 0.05560511448111805,
+        "balanced_accuracy": 0.08333333333333333,
+        "confusion_matrix": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            280,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            193,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            141,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            223,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            26,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            37,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            37,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1496,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            123,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            156,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            31,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            245,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "per_class": {
+          "Cell": {
+            "support": 280,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "Cell-Multi": {
+            "support": 193,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "Cracking": {
+            "support": 141,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "Diode": {
+            "support": 223,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "Diode-Multi": {
+            "support": 26,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "Hot-Spot": {
+            "support": 37,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "Hot-Spot-Multi": {
+            "support": 37,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "No-Anomaly": {
+            "support": 1496,
+            "precision": 0.500669344042838,
+            "recall": 1.0,
+            "f1": 0.6672613737734167
+          },
+          "Offline-Module": {
+            "support": 123,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "Shadowing": {
+            "support": 156,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "Soiling": {
+            "support": 31,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "Vegetation": {
+            "support": 245,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          }
+        },
+        "faults_called_normal": 1492,
+        "fault_to_normal_rate": 1.0,
+        "normal_called_fault": 0,
+        "normal_false_alarm_rate": 0.0
+      },
+      "screening": {
+        "threshold": 0.5,
+        "fault_count": 1492,
+        "normal_count": 1496,
+        "missed_faults": 1492,
+        "normal_false_alarms": 0,
+        "recall": 0.0,
+        "false_alarm_rate": 0.0
+      },
+      "screening_targets_met": false,
+      "intervals": {
+        "method": "percentile bootstrap of recorded related-image groups",
+        "groups": 2807,
+        "resamples": 1000,
+        "seed": 2112,
+        "confidence": 0.95,
+        "bounds": {
+          "accuracy": {
+            "lower": 0.47673719670181686,
+            "upper": 0.5257464880988015,
+            "valid_resamples": 1000
+          },
+          "macro_f1": {
+            "lower": 0.05380524001300297,
+            "upper": 0.05743052026233952,
+            "valid_resamples": 1000
+          },
+          "balanced_accuracy": {
+            "lower": 0.08333333333333333,
+            "upper": 0.08333333333333333,
+            "valid_resamples": 1000
+          },
+          "screening_recall": {
+            "lower": 0.0,
+            "upper": 0.0,
+            "valid_resamples": 1000
+          },
+          "screening_false_alarm_rate": {
+            "lower": 0.0,
+            "upper": 0.0,
+            "valid_resamples": 1000
+          }
+        }
+      },
+      "predictions_sha256": "4ac795484076653160ad99e89b1d40145158cc791b66bcad79c4f2f0622abfda"
+    },
+    "SmallCNN": {
+      "multiclass": {
+        "count": 2988,
+        "accuracy": 0.7650602409638554,
+        "macro_f1": 0.5957078785759475,
+        "balanced_accuracy": 0.5854208249993319,
+        "confusion_matrix": [
+          [
+            171,
+            28,
+            4,
+            0,
+            0,
+            1,
+            0,
+            26,
+            0,
+            8,
+            2,
+            40
+          ],
+          [
+            53,
+            64,
+            22,
+            1,
+            1,
+            2,
+            1,
+            11,
+            0,
+            11,
+            6,
+            21
+          ],
+          [
+            9,
+            20,
+            92,
+            0,
+            0,
+            0,
+            5,
+            3,
+            0,
+            2,
+            3,
+            7
+          ],
+          [
+            0,
+            2,
+            0,
+            200,
+            1,
+            0,
+            0,
+            14,
+            3,
+            1,
+            0,
+            2
+          ],
+          [
+            1,
+            0,
+            0,
+            1,
+            20,
+            0,
+            0,
+            2,
+            1,
+            0,
+            0,
+            1
+          ],
+          [
+            2,
+            0,
+            0,
+            0,
+            1,
+            18,
+            3,
+            12,
+            0,
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            1,
+            0,
+            0,
+            4,
+            21,
+            6,
+            2,
+            0,
+            1,
+            1
+          ],
+          [
+            13,
+            2,
+            0,
+            4,
+            0,
+            7,
+            8,
+            1411,
+            20,
+            28,
+            0,
+            3
+          ],
+          [
+            2,
+            0,
+            0,
+            2,
+            2,
+            1,
+            0,
+            60,
+            55,
+            1,
+            0,
+            0
+          ],
+          [
+            8,
+            6,
+            4,
+            2,
+            0,
+            2,
+            4,
+            41,
+            1,
+            84,
+            3,
+            1
+          ],
+          [
+            5,
+            2,
+            3,
+            0,
+            0,
+            1,
+            5,
+            2,
+            2,
+            2,
+            6,
+            3
+          ],
+          [
+            44,
+            20,
+            6,
+            2,
+            0,
+            1,
+            2,
+            16,
+            4,
+            5,
+            1,
+            144
+          ]
+        ],
+        "per_class": {
+          "Cell": {
+            "support": 280,
+            "precision": 0.5533980582524272,
+            "recall": 0.6107142857142858,
+            "f1": 0.5806451612903226
+          },
+          "Cell-Multi": {
+            "support": 193,
+            "precision": 0.4444444444444444,
+            "recall": 0.3316062176165803,
+            "f1": 0.37982195845697325
+          },
+          "Cracking": {
+            "support": 141,
+            "precision": 0.696969696969697,
+            "recall": 0.6524822695035462,
+            "f1": 0.673992673992674
+          },
+          "Diode": {
+            "support": 223,
+            "precision": 0.9433962264150944,
+            "recall": 0.8968609865470852,
+            "f1": 0.9195402298850575
+          },
+          "Diode-Multi": {
+            "support": 26,
+            "precision": 0.8,
+            "recall": 0.7692307692307693,
+            "f1": 0.7843137254901961
+          },
+          "Hot-Spot": {
+            "support": 37,
+            "precision": 0.4864864864864865,
+            "recall": 0.4864864864864865,
+            "f1": 0.4864864864864865
+          },
+          "Hot-Spot-Multi": {
+            "support": 37,
+            "precision": 0.42857142857142855,
+            "recall": 0.5675675675675675,
+            "f1": 0.4883720930232558
+          },
+          "No-Anomaly": {
+            "support": 1496,
+            "precision": 0.8796758104738155,
+            "recall": 0.9431818181818182,
+            "f1": 0.9103225806451614
+          },
+          "Offline-Module": {
+            "support": 123,
+            "precision": 0.625,
+            "recall": 0.44715447154471544,
+            "f1": 0.5213270142180094
+          },
+          "Shadowing": {
+            "support": 156,
+            "precision": 0.5874125874125874,
+            "recall": 0.5384615384615384,
+            "f1": 0.5618729096989966
+          },
+          "Soiling": {
+            "support": 31,
+            "precision": 0.2727272727272727,
+            "recall": 0.1935483870967742,
+            "f1": 0.22641509433962262
+          },
+          "Vegetation": {
+            "support": 245,
+            "precision": 0.6457399103139013,
+            "recall": 0.5877551020408164,
+            "f1": 0.6153846153846154
+          }
+        },
+        "faults_called_normal": 193,
+        "fault_to_normal_rate": 0.12935656836461126,
+        "normal_called_fault": 85,
+        "normal_false_alarm_rate": 0.056818181818181816
+      },
+      "screening": {
+        "threshold": 0.5559541881084442,
+        "fault_count": 1492,
+        "normal_count": 1496,
+        "missed_faults": 154,
+        "normal_false_alarms": 114,
+        "recall": 0.8967828418230563,
+        "false_alarm_rate": 0.07620320855614973
+      },
+      "screening_targets_met": false,
+      "intervals": {
+        "method": "percentile bootstrap of recorded related-image groups",
+        "groups": 2807,
+        "resamples": 1000,
+        "seed": 2112,
+        "confidence": 0.95,
+        "bounds": {
+          "accuracy": {
+            "lower": 0.7479619565217391,
+            "upper": 0.7822466492410456,
+            "valid_resamples": 1000
+          },
+          "macro_f1": {
+            "lower": 0.5659604581308643,
+            "upper": 0.6237482505772665,
+            "valid_resamples": 1000
+          },
+          "balanced_accuracy": {
+            "lower": 0.5542396026226833,
+            "upper": 0.6156406847453249,
+            "valid_resamples": 1000
+          },
+          "screening_recall": {
+            "lower": 0.881412121143221,
+            "upper": 0.9113041614205705,
+            "valid_resamples": 1000
+          },
+          "screening_false_alarm_rate": {
+            "lower": 0.06158031659530298,
+            "upper": 0.0915953058074174,
+            "valid_resamples": 1000
+          }
+        }
+      },
+      "predictions_sha256": "decaf980e605e5fd638fc845bc35b35925ca8babb9629fad4b8c8e0bc0be8a52"
+    },
+    "ResNet18": {
+      "multiclass": {
+        "count": 2988,
+        "accuracy": 0.7884872824631861,
+        "macro_f1": 0.6231699404451664,
+        "balanced_accuracy": 0.6018015565757137,
+        "confusion_matrix": [
+          [
+            166,
+            28,
+            2,
+            1,
+            0,
+            3,
+            0,
+            39,
+            3,
+            7,
+            4,
+            27
+          ],
+          [
+            42,
+            72,
+            17,
+            1,
+            0,
+            4,
+            0,
+            15,
+            2,
+            8,
+            6,
+            26
+          ],
+          [
+            13,
+            17,
+            88,
+            0,
+            0,
+            0,
+            7,
+            2,
+            1,
+            3,
+            6,
+            4
+          ],
+          [
+            0,
+            2,
+            0,
+            206,
+            1,
+            0,
+            0,
+            12,
+            0,
+            1,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            1,
+            3,
+            17,
+            0,
+            0,
+            4,
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            0,
+            0,
+            0,
+            0,
+            15,
+            3,
+            16,
+            1,
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            0,
+            0,
+            0,
+            4,
+            24,
+            6,
+            0,
+            1,
+            1,
+            0
+          ],
+          [
+            6,
+            2,
+            1,
+            5,
+            0,
+            12,
+            2,
+            1453,
+            3,
+            9,
+            0,
+            3
+          ],
+          [
+            2,
+            0,
+            0,
+            2,
+            2,
+            1,
+            0,
+            51,
+            61,
+            3,
+            0,
+            1
+          ],
+          [
+            4,
+            5,
+            2,
+            0,
+            0,
+            3,
+            4,
+            41,
+            1,
+            92,
+            1,
+            3
+          ],
+          [
+            3,
+            3,
+            3,
+            0,
+            0,
+            0,
+            5,
+            3,
+            0,
+            2,
+            10,
+            2
+          ],
+          [
+            37,
+            17,
+            8,
+            1,
+            0,
+            1,
+            0,
+            21,
+            1,
+            2,
+            5,
+            152
+          ]
+        ],
+        "per_class": {
+          "Cell": {
+            "support": 280,
+            "precision": 0.6036363636363636,
+            "recall": 0.5928571428571429,
+            "f1": 0.5981981981981982
+          },
+          "Cell-Multi": {
+            "support": 193,
+            "precision": 0.4931506849315068,
+            "recall": 0.37305699481865284,
+            "f1": 0.42477876106194684
+          },
+          "Cracking": {
+            "support": 141,
+            "precision": 0.7213114754098361,
+            "recall": 0.624113475177305,
+            "f1": 0.6692015209125476
+          },
+          "Diode": {
+            "support": 223,
+            "precision": 0.9406392694063926,
+            "recall": 0.9237668161434978,
+            "f1": 0.9321266968325791
+          },
+          "Diode-Multi": {
+            "support": 26,
+            "precision": 0.85,
+            "recall": 0.6538461538461539,
+            "f1": 0.7391304347826088
+          },
+          "Hot-Spot": {
+            "support": 37,
+            "precision": 0.3488372093023256,
+            "recall": 0.40540540540540543,
+            "f1": 0.375
+          },
+          "Hot-Spot-Multi": {
+            "support": 37,
+            "precision": 0.5333333333333333,
+            "recall": 0.6486486486486487,
+            "f1": 0.5853658536585367
+          },
+          "No-Anomaly": {
+            "support": 1496,
+            "precision": 0.8737221888153939,
+            "recall": 0.9712566844919787,
+            "f1": 0.9199113643558089
+          },
+          "Offline-Module": {
+            "support": 123,
+            "precision": 0.8356164383561644,
+            "recall": 0.4959349593495935,
+            "f1": 0.6224489795918368
+          },
+          "Shadowing": {
+            "support": 156,
+            "precision": 0.7131782945736435,
+            "recall": 0.5897435897435898,
+            "f1": 0.6456140350877193
+          },
+          "Soiling": {
+            "support": 31,
+            "precision": 0.30303030303030304,
+            "recall": 0.3225806451612903,
+            "f1": 0.3125
+          },
+          "Vegetation": {
+            "support": 245,
+            "precision": 0.6909090909090909,
+            "recall": 0.6204081632653061,
+            "f1": 0.6537634408602151
+          }
+        },
+        "faults_called_normal": 210,
+        "fault_to_normal_rate": 0.14075067024128687,
+        "normal_called_fault": 43,
+        "normal_false_alarm_rate": 0.02874331550802139
+      },
+      "screening": {
+        "threshold": 0.3929239511489868,
+        "fault_count": 1492,
+        "normal_count": 1496,
+        "missed_faults": 157,
+        "normal_false_alarms": 71,
+        "recall": 0.8947721179624665,
+        "false_alarm_rate": 0.047459893048128345
+      },
+      "screening_targets_met": false,
+      "intervals": {
+        "method": "percentile bootstrap of recorded related-image groups",
+        "groups": 2807,
+        "resamples": 1000,
+        "seed": 2112,
+        "confidence": 0.95,
+        "bounds": {
+          "accuracy": {
+            "lower": 0.7724066040979349,
+            "upper": 0.8035135042290176,
+            "valid_resamples": 1000
+          },
+          "macro_f1": {
+            "lower": 0.593872913965479,
+            "upper": 0.6514964497866396,
+            "valid_resamples": 1000
+          },
+          "balanced_accuracy": {
+            "lower": 0.5697275398688428,
+            "upper": 0.6336250237167095,
+            "valid_resamples": 1000
+          },
+          "screening_recall": {
+            "lower": 0.8784920560747663,
+            "upper": 0.9083640383198232,
+            "valid_resamples": 1000
+          },
+          "screening_false_alarm_rate": {
+            "lower": 0.03621133596470942,
+            "upper": 0.059104084663440706,
+            "valid_resamples": 1000
+          }
+        }
+      },
+      "predictions_sha256": "e177984cb1ddebc6dbbe4973f9b926ee17c7723b5b6ec56b8c6ea63bc194661f"
+    }
+  },
+  "limitations": "Group intervals use detected related-image groups, not verified sites. Test results will not select models, thresholds or settings."
+}
