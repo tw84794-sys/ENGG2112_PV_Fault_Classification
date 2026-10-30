@@ -1,0 +1,210 @@
+{
+  "split": "val",
+  "test_evaluated": false,
+  "training_performed": false,
+  "protocol_sha256": "b0e1c1fdee9be29fb79919fbf23bc8b15da18833f12dd3ecadcbf398786ce21d",
+  "model": {
+    "name": "ResNet18",
+    "run_id": "resnet18-generalisation-augmentation-s2112-v1",
+    "files": {
+      "runs/resnet18-generalisation-augmentation-s2112-v1/experiment-plan.json": "35e37054219f6ee637dd1d509234aa9c68504bebd852c71a00cf04595f6eadac",
+      "runs/resnet18-generalisation-augmentation-s2112-v1/provenance.json": "83baf062c2d9f4ad0a5d1487637ac1cc1f00322e43f5a4e9d3076772ac78a500",
+      "runs/resnet18-generalisation-augmentation-s2112-v1/summary.json": "fb28337253c90d1573375540b1c6015a36716ac359d56e362d7c891d6ee5f866",
+      "runs/resnet18-generalisation-augmentation-s2112-v1/best_model.pt": "eded6fbc75af2fd1107d2a4e0fd89fa55605b1a679a3c87d666bb321299865f3",
+      "runs/resnet18-generalisation-augmentation-s2112-v1/best_validation_predictions.json": "af573c6835e5591a9f3936b3f7a071f7dba4f87de86384290379a86ccd78cd41",
+      "runs/resnet18-generalisation-augmentation-s2112-v1/best_validation_metrics.json": "fccaaee0900803379a918fc35657edb1a8b7566a2361afa12316252127a14fc6",
+      "data/pretrained/resnet18-f37072fd.pth": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+      "runs/resnet18-frozen-repro-s2112-v1/best_model.pt": "ed017354a9258b5f31cc4ea90d371f41e12276c3bc678748e3be93115d03773a"
+    },
+    "screening": {
+      "threshold": 0.3929239511489868,
+      "validation": {
+        "threshold": 0.3929239511489868,
+        "fault_count": 1492,
+        "normal_count": 1496,
+        "missed_faults": 149,
+        "normal_false_alarms": 98,
+        "recall": 0.9001340482573726,
+        "false_alarm_rate": 0.06550802139037433
+      },
+      "targets_met": true
+    },
+    "validation_macro_f1": 0.6281050966289974
+  },
+  "images_per_condition": 2988,
+  "screening_threshold": 0.3929239511489868,
+  "batch_size": 64,
+  "cpu_threads": 4,
+  "environment": {
+    "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+    "torch": "2.8.0",
+    "torchvision": "0.23.0",
+    "numpy": "2.0.2",
+    "Pillow": "11.3.0"
+  },
+  "code_commit": "116aaab8abab218c6783ff863f7e05172c605ad8",
+  "source_sha256": {
+    "scripts/check_validation_robustness.py": "833a22608d8baaecf114ed7212d87e71ba69dff23f07edbd60ff36d1c52dfaec",
+    "scripts/evaluate_final.py": "46b09fc3802927f8ae6d39677b243dc95dac912fba38b84fb4965a8e18d72f54",
+    "scripts/create_split.py": "978456c35698f477251598b12898092d153d51f66d7d0b908895038440248710",
+    "src/pv_fault/data.py": "fa1b17a1e22a023bc6ae72a1d842b187235c7294acc44d03a642aae331e47ce7",
+    "src/pv_fault/evaluate.py": "32f3954e1fd0c460e9df5930b020b46c99d896fc203513ab94559dd2cbf50f2c",
+    "src/pv_fault/final_evaluation.py": "64cce2457649ded7f59e1fa641a13f7b2e56c5e55af9e986ccf443955a2f21f2",
+    "src/pv_fault/train.py": "9e413aeb5fcb2d868e54d0bec69a361abc8f0f9331dd020485164a08c106bec5",
+    "src/pv_fault/models/baseline.py": "1ebac420e48ce69ec8771f284dfcaa71eefafd822919b3a81a578c6045bdb5c3",
+    "src/pv_fault/models/resnet.py": "0660af8aaf5d53f725312d1a2546ed407433545afebab694e6c6f0f58d5cdf03",
+    "src/pv_fault/resnet_spatial.py": "1fecce26949c29ec25373412800ac9fffc95c3ddcf788f829cdf00b24ece833e",
+    "src/pv_fault/plots.py": "85ea8a40bc30d3f871e54579fab7a9dc5c09038b930437caca9b0dd2bddc31df"
+  },
+  "conditions": {
+    "original": "Unchanged 40 \u00d7 24 crop",
+    "shift_left": "Shift left 2 pixels; replicate edges",
+    "shift_right": "Shift right 2 pixels; replicate edges",
+    "shift_up": "Shift up 2 pixels; replicate edges",
+    "shift_down": "Shift down 2 pixels; replicate edges",
+    "rotate_minus5": "Rotate \u22125\u00b0; bilinear; replicate-edge padding",
+    "rotate_plus5": "Rotate +5\u00b0; bilinear; replicate-edge padding",
+    "blur": "Gaussian blur: 3 \u00d7 3 kernel, sigma 0.75 pixels",
+    "half_resolution": "40 \u00d7 24 \u2192 20 \u00d7 12 \u2192 40 \u00d7 24; bilinear, antialiased"
+  },
+  "results": [
+    {
+      "condition": "original",
+      "accuracy": 0.786479250334672,
+      "macro_f1": 0.6281050966289974,
+      "screening": {
+        "threshold": 0.3929239511489868,
+        "fault_count": 1492,
+        "normal_count": 1496,
+        "missed_faults": 149,
+        "normal_false_alarms": 98,
+        "recall": 0.9001340482573726,
+        "false_alarm_rate": 0.06550802139037433
+      },
+      "predictions_sha256": "af573c6835e5591a9f3936b3f7a071f7dba4f87de86384290379a86ccd78cd41"
+    },
+    {
+      "condition": "shift_left",
+      "accuracy": 0.7727576974564926,
+      "macro_f1": 0.5924848630784423,
+      "screening": {
+        "threshold": 0.3929239511489868,
+        "fault_count": 1492,
+        "normal_count": 1496,
+        "missed_faults": 167,
+        "normal_false_alarms": 103,
+        "recall": 0.8880697050938338,
+        "false_alarm_rate": 0.06885026737967914
+      },
+      "predictions_sha256": "8866c0ce19112cf00d9d85976dfda6acc7696061e41ed0274cab7ac94c76b5f5"
+    },
+    {
+      "condition": "shift_right",
+      "accuracy": 0.7349397590361446,
+      "macro_f1": 0.5549684499834391,
+      "screening": {
+        "threshold": 0.3929239511489868,
+        "fault_count": 1492,
+        "normal_count": 1496,
+        "missed_faults": 168,
+        "normal_false_alarms": 182,
+        "recall": 0.8873994638069705,
+        "false_alarm_rate": 0.12165775401069519
+      },
+      "predictions_sha256": "881601e76ad7d5f342c02474f281b8e139b4db2677dab21e0b6da7d829dfbf33"
+    },
+    {
+      "condition": "shift_up",
+      "accuracy": 0.7573627844712182,
+      "macro_f1": 0.5764963493392274,
+      "screening": {
+        "threshold": 0.3929239511489868,
+        "fault_count": 1492,
+        "normal_count": 1496,
+        "missed_faults": 230,
+        "normal_false_alarms": 70,
+        "recall": 0.8458445040214477,
+        "false_alarm_rate": 0.04679144385026738
+      },
+      "predictions_sha256": "fe83699f9cd6c9b3d22648c800be44f51edb1c039fadbba8129c933c66e85af4"
+    },
+    {
+      "condition": "shift_down",
+      "accuracy": 0.751004016064257,
+      "macro_f1": 0.5595470134298651,
+      "screening": {
+        "threshold": 0.3929239511489868,
+        "fault_count": 1492,
+        "normal_count": 1496,
+        "missed_faults": 209,
+        "normal_false_alarms": 100,
+        "recall": 0.8599195710455764,
+        "false_alarm_rate": 0.06684491978609626
+      },
+      "predictions_sha256": "9b6163b4ecb19fb93a19ea5f2d126bb2e26646ca251ceadc9231e0d89666bdef"
+    },
+    {
+      "condition": "rotate_minus5",
+      "accuracy": 0.7550200803212851,
+      "macro_f1": 0.567087781630286,
+      "screening": {
+        "threshold": 0.3929239511489868,
+        "fault_count": 1492,
+        "normal_count": 1496,
+        "missed_faults": 138,
+        "normal_false_alarms": 163,
+        "recall": 0.9075067024128687,
+        "false_alarm_rate": 0.1089572192513369
+      },
+      "predictions_sha256": "99b7bdaadb2b35f1341b1fb2301d406d36f545f959748a8728ea30e604b21aa7"
+    },
+    {
+      "condition": "rotate_plus5",
+      "accuracy": 0.7620481927710844,
+      "macro_f1": 0.5669427713206633,
+      "screening": {
+        "threshold": 0.3929239511489868,
+        "fault_count": 1492,
+        "normal_count": 1496,
+        "missed_faults": 156,
+        "normal_false_alarms": 117,
+        "recall": 0.8954423592493298,
+        "false_alarm_rate": 0.07820855614973261
+      },
+      "predictions_sha256": "bbea895708346c0a6f89eb2b2690550399d11cf254d4fceadb7bfb5eb10fac46"
+    },
+    {
+      "condition": "blur",
+      "accuracy": 0.7674029451137885,
+      "macro_f1": 0.5963851652849298,
+      "screening": {
+        "threshold": 0.3929239511489868,
+        "fault_count": 1492,
+        "normal_count": 1496,
+        "missed_faults": 147,
+        "normal_false_alarms": 124,
+        "recall": 0.9014745308310992,
+        "false_alarm_rate": 0.08288770053475936
+      },
+      "predictions_sha256": "309dc45418a16d2c4847a24b2719b4bfc5f5f9424e0507900ae6d3eb53bd6a54"
+    },
+    {
+      "condition": "half_resolution",
+      "accuracy": 0.7161981258366801,
+      "macro_f1": 0.5035775810337092,
+      "screening": {
+        "threshold": 0.3929239511489868,
+        "fault_count": 1492,
+        "normal_count": 1496,
+        "missed_faults": 248,
+        "normal_false_alarms": 132,
+        "recall": 0.8337801608579088,
+        "false_alarm_rate": 0.08823529411764706
+      },
+      "predictions_sha256": "a30054ced14dd853febac68b17be9dd8a46e7109328f47d4c294e33da1c52145"
+    }
+  ],
+  "limitations": "Exploratory synthetic validation stress test after final evaluation; not model selection. Each disturbance is applied independently at one declared severity. Edge replication invents border pixels; shifts remove some original content. No real camera, detection, segmentation or site generalisation is established.",
+  "original_predictions_verified": true,
+  "elapsed_seconds": 201.065123209
+}
