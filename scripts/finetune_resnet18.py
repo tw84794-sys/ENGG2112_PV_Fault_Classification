@@ -20,21 +20,17 @@ from pv_fault.augmentation import ThermalTrainAugmentation
 from pv_fault.data import CLASS_NAMES
 from pv_fault.finetuning import configure_resnet_finetuning
 from pv_fault.resnet_training import class_weights_from_training, validate_parent_metadata
-from pv_fault.evaluate import (
-    classification_metrics,
-    collect_validation_predictions,
-)
+from pv_fault.resnet_spatial import configure_spatial_variant, VARIANTS
 from pv_fault.models.resnet import (
     ResNet18Thermal,
     WEIGHT_SHA256,
 )
-from pv_fault.train import evaluate_one_epoch, train_one_epoch
+from pv_fault.train import fit, save_json, evaluate_one_epoch, train_one_epoch
 from train_baseline import (
     ROOT,
     file_hash,
     make_loaders,
     make_scheduler,
-    save_json,
 )
 
 
@@ -59,8 +55,14 @@ def load_plan(path):
         raise ValueError("This plan allows one local, unpaid full trial.")
     if not 1 <= plan["max_epochs"] <= 12:
         raise ValueError("The epoch limit must be between 1 and 12.")
-    if not 0 < plan["max_elapsed_seconds"] <= 1200:
-        raise ValueError("The time limit must be at most 1200 seconds.")
+    variant = plan.get("spatial_variant", "standard")
+    if variant not in VARIANTS:
+        raise ValueError("Unknown ResNet spatial variant.")
+    time_cap = 3600 if variant != "standard" else 1200
+    if not 0 < plan["max_elapsed_seconds"] <= time_cap:
+        raise ValueError(f"The time limit must be at most {time_cap} seconds.")
+    if variant != "standard" and plan.get("parent_model", "resnet18_frozen") != "resnet18_frozen":
+        raise ValueError("Spatial experiments must start from the common frozen parent.")
     if plan["early_stopping_patience"] < 1:
         raise ValueError("Early-stopping patience must be positive.")
     if plan["batch_size"] < 1:
@@ -102,6 +104,21 @@ def load_plan(path):
         if settings["patience"] + 1 >= plan["early_stopping_patience"]:
             raise ValueError("Early stopping must allow an epoch after LR reduction.")
 
+    if "cv_summary" in plan:
+        cv_path = ROOT / plan["cv_summary"]
+        if file_hash(cv_path) != plan["cv_summary_sha256"]:
+            raise ValueError("The cross-validation summary has changed.")
+        cv = json.loads(cv_path.read_text())
+        if cv["test_evaluated"] or cv["fold_images"] != [4649, 4649, 4648]:
+            raise ValueError("Unexpected cross-validation evidence.")
+        if cv["aggregate"]["paper_informed_lr"]["macro_f1"]["mean"] <= cv["aggregate"]["current_lr"]["macro_f1"]["mean"]:
+            raise ValueError("The chosen learning rate did not win cross-validation.")
+        if (plan["head_learning_rate"], plan["layer4_learning_rate"]) != (0.0003, 0.00003):
+            raise ValueError("Learning rates differ from the CV-selected arm.")
+        if (plan["model"] != "resnet18_layer4" or plan["max_epochs"] > 6
+                or plan["max_elapsed_seconds"] > 720 or plan["class_weighting"] != "sqrt_inverse_frequency"):
+            raise ValueError("CV-selected plan exceeds its original protocol.")
+
     augmentation = plan.get("train_augmentation")
     if augmentation is not None:
         expected_keys = {
@@ -127,7 +144,7 @@ def load_plan(path):
     return plan
 
 
-def main():
+def main(default_plan=PLAN_PATH):
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--full",
@@ -137,7 +154,7 @@ def main():
     parser.add_argument(
         "--plan",
         type=Path,
-        default=PLAN_PATH,
+        default=default_plan,
         help="Plan JSON; defaults to the original layer-4 plan.",
     )
     args = parser.parse_args()
@@ -198,6 +215,7 @@ def main():
     validate_parent_metadata(parent, plan, parent_provenance)
 
     model.load_state_dict(parent["model_state_dict"])
+    configure_spatial_variant(model, plan.get("spatial_variant", "standard"))
     trainable_stages = tuple(plan.get("trainable_stages", ["layer4"]))
     configure_resnet_finetuning(model, trainable_stages)
 
@@ -243,6 +261,7 @@ def main():
         print(json.dumps({
             "trainable_parameters": trainable_parameters,
             "total_parameters": sum(p.numel() for p in model.parameters()),
+            "spatial_variant": plan.get("spatial_variant", "standard"),
             "optimizer": plan.get("optimizer", "adam"),
             "weight_decay": plan.get("weight_decay", 0.0),
             "trainable_stages": list(trainable_stages),
@@ -265,6 +284,7 @@ def main():
         "src/pv_fault/augmentation.py",
         "src/pv_fault/finetuning.py",
         "src/pv_fault/resnet_training.py",
+        "src/pv_fault/resnet_spatial.py",
         "src/pv_fault/models/resnet.py",
         "src/pv_fault/data.py",
         "src/pv_fault/train.py",
@@ -276,6 +296,7 @@ def main():
         destination.write_bytes((ROOT / name).read_bytes())
     save_json(run_dir / "provenance.json", {
         "manifest_sha256": plan["manifest_sha256"],
+        "cv_summary_sha256": plan.get("cv_summary_sha256"),
         "parent_checkpoint_sha256": plan["parent_checkpoint_sha256"],
         "pretrained_sha256": plan["pretrained_sha256"],
         "plan_sha256": file_hash(plan_path),
@@ -295,6 +316,7 @@ def main():
         "label_smoothing": plan.get("label_smoothing", 0.0),
         "parent_model": plan.get("parent_model", "resnet18_frozen"),
         "optimizer_state_restored": False,
+        "spatial_variant": plan.get("spatial_variant", "standard"),
         "train_augmentation": augmentation_settings,
         "scheduler": plan.get("scheduler", "none"),
         "scheduler_settings": plan.get("scheduler_settings"),
@@ -316,106 +338,19 @@ def main():
         "test_evaluated": False,
     })
 
-    history = []
-    best_score = -1.0
-    best_epoch = None
-    epochs_without_improvement = 0
-    stop_reason = "max_epochs"
-
-    for epoch in range(1, plan["max_epochs"] + 1):
-        if time.monotonic() - started >= plan["max_elapsed_seconds"]:
-            stop_reason = "time_limit_before_epoch"
-            break
-
-        learning_rates_used = [group["lr"] for group in optimizer.param_groups]
-        phase_started = time.monotonic()
-        train_stats = train_one_epoch(
-            model, train_loader, optimizer, training_loss, "cpu"
-        )
-        train_seconds = time.monotonic() - phase_started
-        phase_started = time.monotonic()
-        validation_stats = evaluate_one_epoch(
-            model, val_loader, validation_loss, "cpu"
-        )
-        validation_loss_seconds = time.monotonic() - phase_started
-        phase_started = time.monotonic()
-        predictions = collect_validation_predictions(
-            model, val_loader, "cpu"
-        )
-        validation_prediction_seconds = time.monotonic() - phase_started
-        metrics = classification_metrics(
-            [row["true_index"] for row in predictions],
-            [row["predicted_index"] for row in predictions],
-        )
-
-        if abs(metrics["accuracy"] - validation_stats["accuracy"]) > 1e-9:
-            raise ValueError(
-                "Validation metrics disagree with saved predictions."
-            )
-
-        if scheduler is not None:
-            scheduler.step(metrics["macro_f1"])
-
-        elapsed = time.monotonic() - started
-        epoch_result = {
-            "train_seconds": train_seconds,
-            "validation_loss_seconds": validation_loss_seconds,
-            "validation_prediction_seconds": validation_prediction_seconds,
-            "learning_rates": learning_rates_used,
-            "next_learning_rates": [group["lr"] for group in optimizer.param_groups],
-            "epoch": epoch,
-            "train": train_stats,
-            "validation_loss": validation_stats["loss"],
-            "validation_accuracy": metrics["accuracy"],
-            "validation_macro_f1": metrics["macro_f1"],
-            "fault_to_normal_rate": metrics["fault_to_normal_rate"],
-            "normal_false_alarm_rate": metrics["normal_false_alarm_rate"],
-            "elapsed_seconds": elapsed,
-        }
-        history.append(epoch_result)
-        save_json(run_dir / "history.json", history)
-        print(json.dumps(epoch_result), flush=True)
-
-        if metrics["macro_f1"] > best_score:
-            best_score = metrics["macro_f1"]
-            best_epoch = epoch
-            epochs_without_improvement = 0
-
-            torch.save({
-                "model_state_dict": model.state_dict(),
-                "model": plan["model"],
-                "scheduler": plan.get("scheduler", "none"),
-                "epoch": epoch,
-                "class_names": CLASS_NAMES,
-                "manifest_sha256": plan["manifest_sha256"],
-                "parent_checkpoint_sha256": plan["parent_checkpoint_sha256"],
-                "pretrained_sha256": plan["pretrained_sha256"],
-            }, run_dir / "best_model.pt")
-            save_json(run_dir / "best_validation_metrics.json", metrics)
-            save_json(
-                run_dir / "best_validation_predictions.json",
-                predictions,
-            )
-        else:
-            epochs_without_improvement += 1
-
-        if elapsed >= plan["max_elapsed_seconds"]:
-            stop_reason = "time_limit_after_epoch"
-            break
-        if epochs_without_improvement >= plan["early_stopping_patience"]:
-            stop_reason = "early_stopping"
-            break
-
-    save_json(run_dir / "summary.json", {
-        "best_epoch": best_epoch,
-        "best_validation_macro_f1": (
-            best_score if best_epoch is not None else None
-        ),
-        "epochs_completed": len(history),
-        "stop_reason": stop_reason,
-        "elapsed_seconds": time.monotonic() - started,
-        "test_evaluated": False,
-    })
+    checkpoint_metadata = {
+        "model": plan.get("model", "small_cnn"),
+        "manifest_sha256": plan["manifest_sha256"],
+        "trainable_parameters": trainable_parameters,
+        "batch_norm": plan.get("batch_norm", False),
+        "activation": plan.get("activation", "relu"),
+        "extra_conv": plan.get("extra_conv", False),
+        **{key: plan[key] for key in ("scheduler", "parent_checkpoint_sha256",
+                                    "pretrained_sha256", "spatial_variant") if key in plan},
+    }
+    summary = fit(model, train_loader, val_loader, optimizer, training_loss,
+                  validation_loss, plan, run_dir, checkpoint_metadata,
+                  started, scheduler=scheduler)
     print(f"Saved run to {run_dir}")
 
 

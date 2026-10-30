@@ -13,6 +13,18 @@ def read(path):
 def digest(path):
     return hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
 
+def validation_seconds(history):
+    total = 0.0
+    for row in history:
+        if "validation_seconds" in row:
+            total += row["validation_seconds"]
+        elif "validation_loss_seconds" in row and "validation_prediction_seconds" in row:
+            total += row["validation_loss_seconds"] + row["validation_prediction_seconds"]
+        else:
+            return None
+    return total
+
+
 def checked_run(run_id, arm, plan_path=None):
     folder = Path('runs') / run_id
     plan = read(folder / 'experiment-plan.json')
@@ -83,7 +95,7 @@ def main():
                          trainable_parameters=run['provenance']['trainable_parameters'],
                          total_parameters=total_parameters,
                          sum_training_seconds=(sum(h['train_seconds'] for h in run['history']) if all('train_seconds' in h for h in run['history']) else None),
-                         sum_validation_seconds=(sum(h['validation_loss_seconds']+h['validation_prediction_seconds'] for h in run['history']) if all('validation_loss_seconds' in h and 'validation_prediction_seconds' in h for h in run['history']) else None),
+                         sum_validation_seconds=validation_seconds(run['history']),
                          delta_macro_f1_vs_reference=metrics['macro_f1']-reference['metrics']['macro_f1']))
     warm_control = next(r for r in candidates if r['arm'] == 'continue4')
     gradual = next(r for r in candidates if r['arm'] == 'gradual34')

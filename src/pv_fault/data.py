@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader, Dataset
 
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_DATA_ROOT = ROOT / "data/processed/near_clean"
+DEFAULT_DATA_ROOT = ROOT / "data"
 DEFAULT_MANIFEST = ROOT / "data/splits/infrared_solar_modules_v1.csv"
 CLASS_NAMES = (
     "Cell", "Cell-Multi", "Cracking", "Diode", "Diode-Multi", "Hot-Spot",
@@ -25,7 +25,7 @@ SPLITS = ("train", "val", "test")
 
 def _verified_rows(manifest, data_root):
     summary = json.loads(manifest.with_suffix(".json").read_text())
-    metadata_path = data_root / "module_metadata.json"
+    metadata_path = data_root / "processed/near_clean/module_metadata.json"
     for path, key in ((manifest, "manifest_sha256"),
                       (metadata_path, "metadata_sha256")):
         if hashlib.sha256(path.read_bytes()).hexdigest() != summary[key]:
@@ -48,8 +48,8 @@ def _verified_rows(manifest, data_root):
         if (relative.is_absolute() or len(relative.parts) != 2
                 or relative.parts[0] != "images" or ".." in relative.parts):
             raise ValueError(f"Unsafe image path: {relative}")
-        path = data_root / relative
-        if not path.resolve().is_relative_to(data_root.resolve()):
+        path = data_root / "raw" / relative
+        if not path.resolve().is_relative_to((data_root / "raw").resolve()):
             raise ValueError(f"Image outside dataset: {relative}")
         if not path.is_file():
             raise FileNotFoundError(path)
@@ -100,7 +100,7 @@ class SolarModuleDataset(Dataset):
 
     def __getitem__(self, index):
         row = self.rows[index]
-        path = self.data_root / row["image_path"]
+        path = self.data_root / "raw" / row["image_path"]
         with Image.open(path) as image:
             if image.mode != "L" or image.size != (24, 40):
                 raise ValueError(f"Expected grayscale 24 x 40 image: {path}")

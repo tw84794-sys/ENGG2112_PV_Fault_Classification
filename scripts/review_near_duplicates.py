@@ -1,9 +1,7 @@
 """Review similar PV images and create a cross-label-filtered dataset."""
 
 import csv
-import html
 import json
-import shutil
 from collections import Counter, defaultdict
 from itertools import combinations
 from pathlib import Path
@@ -15,7 +13,6 @@ PROJECT_DIR = Path(__file__).resolve().parents[1]
 PROCESSED_DIR = PROJECT_DIR / "data" / "processed"
 METADATA_PATH = PROCESSED_DIR / "module_metadata.json"
 CSV_PATH = PROCESSED_DIR / "near_duplicate_candidates.csv"
-HTML_PATH = PROCESSED_DIR / "near_duplicate_review.html"
 NEAR_CLEAN_DIR = PROCESSED_DIR / "near_clean"
 
 MAX_THUMBNAIL_MAE = 4.0
@@ -61,7 +58,7 @@ for image_id, details in metadata.items():
     ):
         raise ValueError(f"Unexpected image path: {relative_path}")
 
-    image_path = PROCESSED_DIR / relative_path
+    image_path = PROJECT_DIR / "data/raw" / relative_path
     with Image.open(image_path) as image:
         image.load()
         if image.mode != "L" or image.size != EXPECTED_SIZE:
@@ -169,74 +166,6 @@ with CSV_PATH.open("w", newline="", encoding="utf-8") as output:
             }
         )
 
-cards = []
-
-for candidate in candidates:
-    first_path = html.escape(candidate["first_path"], quote=True)
-    second_path = html.escape(candidate["second_path"], quote=True)
-    first_id = html.escape(candidate["first_id"])
-    second_id = html.escape(candidate["second_id"])
-    first_label = html.escape(candidate["first_label"])
-    second_label = html.escape(candidate["second_label"])
-    label_note = "Different labels" if candidate["different_labels"] else "Same label"
-
-    cards.append(
-        f"""
-        <article>
-          <div class="heading">
-            <strong>{first_id} and {second_id}</strong>
-            <span>{label_note} · hash distance {candidate["hash_distance"]}
-            · full-image difference {candidate["full_mae"]:.2f}</span>
-          </div>
-          <div class="images">
-            <figure>
-              <img src="{first_path}" alt="Image {first_id}">
-              <figcaption>{first_id}: {first_label}</figcaption>
-            </figure>
-            <figure>
-              <img src="{second_path}" alt="Image {second_id}">
-              <figcaption>{second_id}: {second_label}</figcaption>
-            </figure>
-          </div>
-        </article>
-        """
-    )
-
-page = f"""<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Near-duplicate PV image review</title>
-  <style>
-    body {{ font-family: system-ui, sans-serif; max-width: 1100px;
-           margin: 2rem auto; padding: 0 1rem; color: #222; }}
-    p {{ line-height: 1.5; }}
-    article {{ border: 1px solid #ccc; border-radius: 8px;
-              padding: 1rem; margin: 1rem 0; }}
-    .heading {{ display: flex; justify-content: space-between; gap: 1rem; }}
-    .images {{ display: flex; gap: 2rem; }}
-    figure {{ margin: 1rem 0 0; }}
-    img {{ width: 120px; height: 200px; image-rendering: pixelated;
-           border: 1px solid #888; }}
-    figcaption {{ margin-top: 0.3rem; }}
-  </style>
-</head>
-<body>
-  <h1>Near-duplicate PV image review</h1>
-  <p>{len(candidates)} candidate pairs from {len(records)} retained images.
-     Pairs have a difference-hash distance of 0 or 1 and an 8×8 thumbnail
-     mean absolute difference of at most {MAX_THUMBNAIL_MAE}.
-     This is a screening rule, not proof that two images show the same module.
-     The original processed images remain unchanged. Both images in every
-     different-label candidate pair are excluded from the near-clean dataset.
-     Same-label candidates remain and must be kept together in the data split.
-     Different-label pairs appear first.</p>
-  {''.join(cards)}
-</body>
-</html>
-"""
-HTML_PATH.write_text(page, encoding="utf-8")
-
 cross_label_pairs = [
     candidate for candidate in candidates if candidate["different_labels"]
 ]
@@ -256,42 +185,6 @@ near_clean_metadata = {
 }
 
 NEAR_CLEAN_DIR.mkdir(parents=True, exist_ok=True)
-near_clean_images_dir = NEAR_CLEAN_DIR / "images"
-expected_paths = {
-    records[image_id]["path"] for image_id in near_clean_metadata
-}
-
-if len(expected_paths) != len(near_clean_metadata):
-    raise SystemExit("Two retained image IDs point to the same image path.")
-
-if near_clean_images_dir.exists():
-    for existing_path in near_clean_images_dir.rglob("*"):
-        if existing_path.is_file() and existing_path.name != ".DS_Store":
-            relative_path = existing_path.relative_to(NEAR_CLEAN_DIR).as_posix()
-            if relative_path not in expected_paths:
-                raise SystemExit(
-                    f"Unexpected old file in near-clean images: {relative_path}"
-                )
-
-copied_count = 0
-verified_count = 0
-
-for image_id in near_clean_metadata:
-    relative_path = Path(records[image_id]["path"])
-    source_path = PROCESSED_DIR / relative_path
-    destination_path = NEAR_CLEAN_DIR / relative_path
-    destination_path.parent.mkdir(parents=True, exist_ok=True)
-
-    if destination_path.exists():
-        if source_path.read_bytes() != destination_path.read_bytes():
-            raise SystemExit(
-                f"Near-clean image differs from source: {relative_path}"
-            )
-        verified_count += 1
-    else:
-        shutil.copy2(source_path, destination_path)
-        copied_count += 1
-
 exclusions_path = NEAR_CLEAN_DIR / "exclusions.csv"
 
 with exclusions_path.open("w", newline="", encoding="utf-8") as output:
@@ -379,10 +272,7 @@ print(f"Distinct cross-label images excluded: {len(excluded_ids)}")
 print(f"Near-clean images retained: {len(near_clean_metadata)}")
 print(f"Excluded images by class: {dict(sorted(removed_by_class.items()))}")
 print(f"Same-label groups with multiple retained images: {multi_image_groups}")
-print(f"Images copied this run: {copied_count}")
-print(f"Existing copies verified: {verified_count}")
 print(f"CSV report: {CSV_PATH}")
-print(f"Side-by-side review page: {HTML_PATH}")
 print(f"Near-clean metadata: {near_clean_metadata_path}")
 print(f"Near-clean exclusions: {exclusions_path}")
 print(f"Related-image groups for splitting: {groups_path}")

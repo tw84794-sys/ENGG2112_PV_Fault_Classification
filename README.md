@@ -9,6 +9,29 @@ InfraredSolarModules
 
 https://github.com/RaptorMaps/InfraredSolarModules
 
+## Start here
+
+Install Python dependencies with `python -m pip install -r requirements.txt`.
+Follow [data setup](data/README.md), then launch `jupyter notebook` from the repository root.
+Read and run the notebooks in this order:
+
+1. [Data exploration](notebooks/01_data_exploration.ipynb): images, imbalance, cleaning and fixed splits. Requires local data.
+2. [Baseline experiments](notebooks/02_baseline_experiments.ipynb): CNN development, comparisons and remaining errors.
+3. [ResNet experiments](notebooks/03_resnet18_experiments.ipynb): transfer learning, fine-tuning and compute trade-offs.
+
+The experiment notebooks read tracked results by default. Local image previews are skipped when data is absent;
+training is an explicit action. Shared Python handles data checks, fitting, metrics and repeated plots.
+JSON plans and result records retain the full experiment history, including unsuccessful trials.
+
+Training uses one shared fit loop and one validation pass per epoch, then reloads the selected checkpoint
+and compares every saved validation probability. Earlier recorded timings describe the original two-pass
+implementations; those historical results have not been rewritten. New histories record combined
+`validation_seconds`. Existing run folders cannot be overwritten.
+
+Checkpoint verification keeps archived producer hashes strict and records any changed live inference sources
+separately. A refactored model must still reproduce all saved predictions and probabilities exactly.
+The selected-ResNet command remains a short compatibility entry point for the same CV-checked plan.
+
 ## Frozen ResNet18 comparison
 
 After recreating the cleaned data and frozen split, activate the project's environment and run these commands from the repository root:
@@ -62,3 +85,5 @@ The [fresh local ResNet reproduction](results/resnet18-reproduction-v1.md) recor
 The [bounded optimisation and compute record](results/resnet18-hour-v1.md) documents the selected learning rates, longer training, plateau scheduling, AdamW and late-stage adaptation. It compares validation macro-F1, per-class errors, missed faults and false alarms with SmallCNN, alongside recorded run times, phase timings, parameter counts and model-only latency. The [ResNet notebook](notebooks/03_resnet18_experiments.ipynb) contains the complete progression and executed plots. Test inference and additional-seed checks remain deferred.
 
 The [generalisation experiment record](results/resnet18-generalisation-v1.md) compares mild augmentation, label smoothing, stronger rare-class weighting and gradual layer3 adaptation. The notebook records the hypotheses, fixed plans, matched continuation control, per-class results and both incremental and cumulative training costs. These remain validation-selected, single-seed experiments.
+
+The [early-downsampling comparison](results/resnet18-spatial-v1.md) tests first-convolution stride 1 and removal of initial max pooling separately against the augmented ResNet reference. The notebook records feature-map sizes, controlled training settings, per-class results, fit costs and synthetic inference latency. Checkpoints explicitly retain their architecture variant.

@@ -1,0 +1,27 @@
+{
+  "protocol": "resnet18-spatial-v1",
+  "started_utc": "2026-10-27T07:10:34.689367+00:00",
+  "test_evaluated": false,
+  "status": "complete_verified",
+  "trials": [
+    {
+      "arm": "stride1",
+      "plan": "configs/experiment-plan-resnet18-spatial-stride1.json",
+      "run_id": "resnet18-spatial-stride1-s2112-v1",
+      "hypothesis": "Reduce first-convolution stride from 2 to 1, preserving higher spatial resolution without changing kernel weights.",
+      "status": "complete_verified",
+      "full_elapsed_seconds": 1273.28105825,
+      "verify_elapsed_seconds": 18.020731583000043
+    },
+    {
+      "arm": "no_maxpool",
+      "plan": "configs/experiment-plan-resnet18-spatial-no_maxpool.json",
+      "run_id": "resnet18-spatial-no_maxpool-s2112-v1",
+      "hypothesis": "Remove the initial max pool while retaining convolution stride 2; test early pooling separately.",
+      "status": "complete_verified",
+      "full_elapsed_seconds": 1381.1613639579998,
+      "verify_elapsed_seconds": 20.45561587500015
+    }
+  ],
+  "completed_utc": "2026-10-27T07:55:27.615029+00:00"
+}

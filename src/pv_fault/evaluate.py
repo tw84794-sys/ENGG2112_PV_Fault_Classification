@@ -84,7 +84,7 @@ def classification_metrics(y_true, y_pred, class_names=CLASS_NAMES):
     }
 
 @torch.inference_mode()
-def collect_validation_predictions(model, loader, device, max_batches=None):
+def collect_validation_predictions(model, loader, device, max_batches=None, criterion=None):
     if getattr(loader.dataset, "split", None) != "val":
         raise ValueError("Expected the validation loader.")
     if not isinstance(loader.sampler, SequentialSampler):
@@ -94,13 +94,19 @@ def collect_validation_predictions(model, loader, device, max_batches=None):
 
     model.eval()
     records = []
+    total_loss = 0.0
+    total_correct = 0
     row_offset = 0
 
     for batch_number, (images, labels) in enumerate(loader):
         if max_batches is not None and batch_number >= max_batches:
             break
 
-        probabilities = model(images.to(device)).softmax(dim=1).cpu()
+        scores = model(images.to(device))
+        if criterion is not None:
+            total_loss += criterion(scores, labels.to(device)).item() * len(labels)
+            total_correct += int((scores.argmax(dim=1).cpu() == labels).sum())
+        probabilities = scores.softmax(dim=1).cpu()
         if probabilities.shape != (len(labels), len(CLASS_NAMES)):
             raise ValueError("Model output does not match the class contract.")
 
@@ -127,4 +133,7 @@ def collect_validation_predictions(model, loader, device, max_batches=None):
     if max_batches is None and len(records) != len(loader.dataset):
         raise ValueError("Validation predictions do not cover every image.")
 
-    return records
+    if criterion is None:
+        return records
+    return records, {"loss": total_loss / len(records),
+                     "accuracy": total_correct / len(records), "count": len(records)}

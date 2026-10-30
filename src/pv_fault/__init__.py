@@ -1,1 +1,1 @@
-"""PV thermal module classification package; implementation pending team review."""
+"""Data, models, fitting and metrics for thermal solar-module classification."""

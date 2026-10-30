@@ -11,6 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_ROOT = ROOT / "data" / "processed" / "near_clean"
+IMAGE_ROOT = ROOT / "data/raw"
 METADATA_PATH = DATA_ROOT / "module_metadata.json"
 GROUPS_PATH = DATA_ROOT / "related_groups.csv"
 DEFAULT_OUTPUT = ROOT / "data" / "splits" / "infrared_solar_modules_v1.csv"
@@ -70,7 +71,7 @@ def load_inputs():
         if details["image_filepath"] in paths:
             raise ValueError(f"Repeated image path: {relative}")
         paths.add(details["image_filepath"])
-        if not (DATA_ROOT / relative).is_file():
+        if not (IMAGE_ROOT / relative).is_file():
             raise ValueError(f"Missing image: {relative}")
 
     for group_id, image_ids in members.items():
@@ -176,7 +177,7 @@ def image_tree_digest(metadata):
     digest = hashlib.sha256()
     for image_id in sorted(metadata, key=int):
         details = metadata[image_id]
-        image_hash = sha256_file(DATA_ROOT / details["image_filepath"])
+        image_hash = sha256_file(IMAGE_ROOT / details["image_filepath"])
         entry = (f"{image_id}\0{details['image_filepath']}\0"
                  f"{details['anomaly_class']}\0{image_hash}\n")
         digest.update(entry.encode("utf-8"))

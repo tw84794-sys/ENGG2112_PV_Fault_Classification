@@ -1,0 +1,14 @@
+{
+  "notebook_cells": 61,
+  "notebook_code_cells": 32,
+  "notebook_executed": true,
+  "notebook_error_outputs": 0,
+  "tests_passed": 33,
+  "tests_skipped": 1,
+  "skip_note": "Existing checkpoint-inference placeholder; real checkpoint reload checks passed separately.",
+  "dataset_integrity_verified": true,
+  "reference_checkpoint_reverified": true,
+  "new_spatial_checkpoints_verified": 2,
+  "inference_benchmark_used_dataset_images": false,
+  "test_evaluated": false
+}

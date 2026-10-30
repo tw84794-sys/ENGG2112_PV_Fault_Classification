@@ -1,4 +1,4 @@
-"""Data-audit entry point (not implemented).
+"""Audit original images and record exclusions without copying images.
 
 Check image decoding, shape/channel, labels, imbalance, contradictory annotations,
 exact/near duplicates and available independent-unit identifiers before splitting.
@@ -6,7 +6,6 @@ exact/near duplicates and available independent-unit identifiers before splittin
 
 import csv
 import json
-import shutil
 from collections import Counter, defaultdict
 from hashlib import sha256
 from pathlib import Path
@@ -126,41 +125,6 @@ clean_metadata = {
 }
 
 processed_dir.mkdir(parents=True, exist_ok=True)
-processed_images_dir = processed_dir / "images"
-
-expected_paths = {
-    checked_relative_path(details["image_filepath"]).as_posix()
-    for details in clean_metadata.values()
-}
-
-if processed_images_dir.exists():
-    for existing_path in processed_images_dir.rglob("*"):
-        if existing_path.is_file() and existing_path.name != ".DS_Store":
-            relative_path = existing_path.relative_to(processed_dir).as_posix()
-            if relative_path not in expected_paths:
-                raise SystemExit(
-                    f"Unexpected old file in processed images: {relative_path}"
-                )
-
-copied_count = 0
-verified_count = 0
-
-for details in clean_metadata.values():
-    relative_path = checked_relative_path(details["image_filepath"])
-    source_path = raw_dir / relative_path
-    destination_path = processed_dir / relative_path
-    destination_path.parent.mkdir(parents=True, exist_ok=True)
-
-    if destination_path.exists():
-        if source_path.read_bytes() != destination_path.read_bytes():
-            raise SystemExit(
-                f"Processed image differs from raw image: {relative_path}"
-            )
-        verified_count += 1
-    else:
-        shutil.copy2(source_path, destination_path)
-        copied_count += 1
-
 duplicate_report_path = processed_dir / "duplicate_groups.csv"
 
 with duplicate_report_path.open("w", newline="", encoding="utf-8") as report_file:
@@ -226,8 +190,6 @@ print(f"Images in those groups: {sum(len(images) for _, images in duplicate_grou
 print(f"Groups with conflicting labels: {len(conflicting_groups)}")
 print(f"Images excluded: {len(exclusions)}")
 print(f"Clean images retained: {len(clean_metadata)}")
-print(f"Images copied this run: {copied_count}")
-print(f"Existing copies verified: {verified_count}")
 print(f"Duplicate report: {duplicate_report_path}")
 print(f"Exclusion report: {exclusions_path}")
 print(f"Clean metadata: {clean_metadata_path}")
