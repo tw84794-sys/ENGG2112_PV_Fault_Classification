@@ -2,18 +2,12 @@
 
 import argparse
 import json
-import platform
-import random
 import re
-import sys
 import time
-from collections import Counter
 from pathlib import Path
 
-import numpy as np
 import torch
 import torchvision
-from PIL import __version__ as pillow_version
 from torch import nn
 
 from pv_fault.augmentation import ThermalTrainAugmentation
@@ -25,20 +19,19 @@ from pv_fault.models.resnet import (
     ResNet18Thermal,
     WEIGHT_SHA256,
 )
-from pv_fault.train import fit, save_json, evaluate_one_epoch, train_one_epoch
+from pv_fault.train import prepare_run, smoke_check, record_run, resolve_plan, file_hash, fit
 from train_baseline import (
     ROOT,
-    file_hash,
     make_loaders,
     make_scheduler,
 )
 
 
-PLAN_PATH = ROOT / "configs/experiment-plan-resnet18-finetune.json"
+PLAN_PATH = ROOT / "configs/experiment-plan-resnet18-generalisation-augmentation.json"
 
 
 def load_plan(path):
-    plan = json.loads(path.read_text(encoding="utf-8"))
+    plan = json.loads(resolve_plan(path).read_text(encoding="utf-8"))
 
     if file_hash(ROOT / plan["manifest"]) != plan["manifest_sha256"]:
         raise ValueError("The frozen split manifest has changed.")
@@ -155,25 +148,16 @@ def main(default_plan=PLAN_PATH):
         "--plan",
         type=Path,
         default=default_plan,
-        help="Plan JSON; defaults to the original layer-4 plan.",
+        help="Plan JSON; defaults to the standard augmented ResNet reference.",
     )
     args = parser.parse_args()
 
     plan_path = args.plan
     if not plan_path.is_absolute():
         plan_path = ROOT / plan_path
+    plan_path = resolve_plan(plan_path)
     plan = load_plan(plan_path)
-    torch.set_num_threads(plan.get("cpu_threads", 4))
-
-    run_dir = ROOT / "runs" / plan["run_id"]
-
-    # Never overwrite an earlier full trial.
-    if args.full and run_dir.exists():
-        raise FileExistsError(f"Existing run will not be overwritten: {run_dir}")
-
-    random.seed(plan["seed"])
-    np.random.seed(plan["seed"])
-    torch.manual_seed(plan["seed"])
+    run_dir = prepare_run(plan, args.full)
 
     augmentation_settings = plan.get("train_augmentation")
     train_transform = None
@@ -237,46 +221,11 @@ def main(default_plan=PLAN_PATH):
     validation_loss = nn.CrossEntropyLoss()
 
     if not args.full:
-        train_started = time.monotonic()
-        train_smoke = train_one_epoch(
-            model,
-            train_loader,
-            optimizer,
-            training_loss,
-            "cpu",
-            max_batches=2,
-        )
-        train_seconds = time.monotonic() - train_started
-
-        validation_started = time.monotonic()
-        validation_smoke = evaluate_one_epoch(
-            model,
-            val_loader,
-            validation_loss,
-            "cpu",
-            max_batches=2,
-        )
-        validation_seconds = time.monotonic() - validation_started
-
-        print(json.dumps({
-            "trainable_parameters": trainable_parameters,
-            "total_parameters": sum(p.numel() for p in model.parameters()),
-            "spatial_variant": plan.get("spatial_variant", "standard"),
-            "optimizer": plan.get("optimizer", "adam"),
-            "weight_decay": plan.get("weight_decay", 0.0),
-            "trainable_stages": list(trainable_stages),
-            "parameter_group_names": [g["name"] for g in optimizer.param_groups],
-            "train_smoke": train_smoke,
-            "train_smoke_seconds": train_seconds,
-            "validation_smoke": validation_smoke,
-            "validation_smoke_seconds": validation_seconds,
-            "total_seconds": time.monotonic() - started,
-        }, indent=2))
+        print(json.dumps({"model": plan.get("model", "small_cnn"),
+                          "trainable_parameters": trainable_parameters,
+                          **smoke_check(model, train_loader, val_loader, optimizer,
+                                        training_loss, validation_loss, started)}, indent=2))
         return
-
-    # The test dataset is never created or loaded by this script.
-    run_dir.mkdir(parents=True, exist_ok=False)
-    save_json(run_dir / "experiment-plan.json", plan)
 
     source_files = (
         "scripts/finetune_resnet18.py",
@@ -290,64 +239,20 @@ def main(default_plan=PLAN_PATH):
         "src/pv_fault/train.py",
         "src/pv_fault/evaluate.py",
     )
-    for name in source_files:
-        destination = run_dir / "source_snapshot" / name
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        destination.write_bytes((ROOT / name).read_bytes())
-    save_json(run_dir / "provenance.json", {
-        "manifest_sha256": plan["manifest_sha256"],
-        "cv_summary_sha256": plan.get("cv_summary_sha256"),
-        "parent_checkpoint_sha256": plan["parent_checkpoint_sha256"],
-        "pretrained_sha256": plan["pretrained_sha256"],
-        "plan_sha256": file_hash(plan_path),
-        "source_sha256": {
-            name: file_hash(ROOT / name) for name in source_files
-        },
-        "model": plan["model"],
-        "trainable_parameters": trainable_parameters,
-        "class_names": CLASS_NAMES,
-        "total_parameters": sum(p.numel() for p in model.parameters()),
-        "optimizer": plan.get("optimizer", "adam"),
-        "weight_decay": plan.get("weight_decay", 0.0),
-        "trainable_stages": list(trainable_stages),
-        "parameter_group_names": [g["name"] for g in optimizer.param_groups],
-        "class_weighting": plan["class_weighting"],
-        "class_weight_exponent": plan.get("class_weight_exponent", 0.5),
-        "label_smoothing": plan.get("label_smoothing", 0.0),
-        "parent_model": plan.get("parent_model", "resnet18_frozen"),
-        "optimizer_state_restored": False,
-        "spatial_variant": plan.get("spatial_variant", "standard"),
-        "train_augmentation": augmentation_settings,
-        "scheduler": plan.get("scheduler", "none"),
-        "scheduler_settings": plan.get("scheduler_settings"),
-        "train_class_counts": dict(
-            Counter(row["label"] for row in train_data.rows)
-        ),
-        "class_weights": class_weights.tolist(),
-        "train_images": len(train_data),
-        "validation_images": len(val_data),
-        "seed": plan["seed"],
-        "python": sys.version,
-        "torch": torch.__version__,
-        "torchvision": torchvision.__version__,
-        "numpy": np.__version__,
-        "pillow": pillow_version,
-        "platform": platform.platform(),
-        "device": "cpu",
-        "cpu_threads": torch.get_num_threads(),
-        "test_evaluated": False,
-    })
-
-    checkpoint_metadata = {
-        "model": plan.get("model", "small_cnn"),
-        "manifest_sha256": plan["manifest_sha256"],
-        "trainable_parameters": trainable_parameters,
-        "batch_norm": plan.get("batch_norm", False),
-        "activation": plan.get("activation", "relu"),
-        "extra_conv": plan.get("extra_conv", False),
-        **{key: plan[key] for key in ("scheduler", "parent_checkpoint_sha256",
-                                    "pretrained_sha256", "spatial_variant") if key in plan},
-    }
+    checkpoint_metadata = record_run(
+        run_dir, plan_path, plan, model, train_data, val_data, class_weights, source_files,
+        cv_summary_sha256=plan.get("cv_summary_sha256"),
+        optimizer=plan.get("optimizer", "adam"),
+        weight_decay=plan.get("weight_decay", 0.0),
+        trainable_stages=list(trainable_stages),
+        parameter_group_names=[g["name"] for g in optimizer.param_groups],
+        class_weight_exponent=plan.get("class_weight_exponent", 0.5),
+        label_smoothing=plan.get("label_smoothing", 0.0),
+        parent_model=plan.get("parent_model", "resnet18_frozen"),
+        optimizer_state_restored=False,
+        train_augmentation=augmentation_settings,
+        scheduler_settings=plan.get("scheduler_settings"),
+        torchvision=torchvision.__version__)
     summary = fit(model, train_loader, val_loader, optimizer, training_loss,
                   validation_loss, plan, run_dir, checkpoint_metadata,
                   started, scheduler=scheduler)

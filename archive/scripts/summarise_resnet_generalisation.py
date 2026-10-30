@@ -5,13 +5,15 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+from pv_fault.train import resolve_plan
+
+ROOT = Path(__file__).resolve().parents[2]
 
 def read(path):
-    return json.loads((ROOT / path).read_text())
+    return json.loads(resolve_plan(ROOT / path).read_text())
 
 def digest(path):
-    return hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
+    return hashlib.sha256(resolve_plan(ROOT / path).read_bytes()).hexdigest()
 
 def validation_seconds(history):
     total = 0.0

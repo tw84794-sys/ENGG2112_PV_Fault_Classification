@@ -10,16 +10,16 @@ from torch.utils.data import DataLoader, Subset
 
 from pv_fault.data import CLASS_NAMES, SolarModuleDataset
 from pv_fault.models.baseline import SmallCNN
-from pv_fault.train import evaluate_one_batch, train_one_batch
+from pv_fault.train import evaluate_one_batch, train_one_batch, resolve_plan
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 PLAN_PATH = ROOT / "configs/tiny-overfit-plan.json"
 RUN_DIR = ROOT / "runs/smallcnn-tiny-overfit-s2112"
 
 
 def main():
-    plan = json.loads(PLAN_PATH.read_text(encoding="utf-8"))
+    plan = json.loads(resolve_plan(PLAN_PATH).read_text(encoding="utf-8"))
     if plan["data_split"] != "train" or plan["test_evaluated"] is not False:
         raise ValueError("This diagnostic must use training images only.")
     if RUN_DIR.exists():

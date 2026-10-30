@@ -127,7 +127,7 @@ def build(root, seed=2112, folds=3):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[2])
     parser.add_argument("--seed", type=int, default=2112)
     parser.add_argument("--verify-only", action="store_true")
     args = parser.parse_args()

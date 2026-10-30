@@ -1,19 +1,12 @@
 """Run a planned CNN trial using training and validation only."""
 
 import argparse
-import hashlib
 import json
-import platform
-import random
-import sys
 import time
-import re
 from collections import Counter
 from pathlib import Path
 
-import numpy as np
 import torch
-from PIL import __version__ as pillow_version
 from torch import nn
 from torch.utils.data import DataLoader
 
@@ -21,19 +14,15 @@ from pv_fault.resnet_training import class_weights_from_training
 from pv_fault.data import CLASS_NAMES, CLASS_TO_INDEX, SolarModuleDataset
 from pv_fault.evaluate import classification_metrics
 from pv_fault.models.baseline import SmallCNN, WideCNN
-from pv_fault.train import fit, save_json, train_one_epoch, evaluate_one_epoch
+from pv_fault.train import prepare_run, smoke_check, record_run, resolve_plan, file_hash, fit, save_json, evaluate_one_epoch
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PLAN_PATH = ROOT / "configs/experiment-plan.json"
-
-
-def file_hash(path):
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+PLAN_PATH = ROOT / "configs/experiment-plan-smallcnn-depth-gentle60.json"
 
 
 def load_plan(plan_path):
-    plan = json.loads(plan_path.read_text(encoding="utf-8"))
+    plan = json.loads(resolve_plan(plan_path).read_text(encoding="utf-8"))
     manifest = ROOT / plan["manifest"]
 
     if file_hash(manifest) != plan["manifest_sha256"]:
@@ -164,29 +153,17 @@ def main():
         "--plan",
         type=Path,
         default=PLAN_PATH,
-        help="Plan JSON; defaults to the original five-epoch plan.",
+        help="Plan JSON; defaults to the selected SmallCNN reference.",
     )
     args = parser.parse_args()
 
     plan_path = args.plan
     if not plan_path.is_absolute():
         plan_path = ROOT / plan_path
+    plan_path = resolve_plan(plan_path)
     plan = load_plan(plan_path)
 
-    torch.set_num_threads(plan.get("cpu_threads", 4))
-    seed = plan["seed"]
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-
-    run_id = plan.get("run_id", f"smallcnn-s{seed}-cpu-v1")
-    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]*", run_id):
-        raise ValueError("run_id must be a simple folder name.")
-    run_dir = ROOT / "runs" / run_id
-    if args.full and run_dir.exists():
-        raise FileExistsError(
-            f"{run_dir} already exists; the planned trial will not be overwritten."
-        )
+    run_dir = prepare_run(plan, args.full)
 
     started = time.monotonic()
     train_data, val_data, train_loader, val_loader = make_loaders(
@@ -218,37 +195,12 @@ def main():
     scheduler = make_scheduler(optimizer, plan)
 
     if not args.full:
-        train_started = time.monotonic()
-        train_smoke = train_one_epoch(
-            model, train_loader, optimizer, criterion, "cpu",
-            max_batches=2,
-        )
-        train_smoke_seconds = time.monotonic() - train_started
-        validation_started = time.monotonic()
-        val_smoke = evaluate_one_epoch(
-            model, val_loader, validation_criterion, "cpu",
-            max_batches=2,
-        )
-        validation_smoke_seconds = time.monotonic() - validation_started
-        print(json.dumps({
-            "model": model_name,
-            "trainable_parameters": trainable_parameters,
-            "majority_class": majority_class,
-            "majority_validation_accuracy": majority_metrics["accuracy"],
-            "majority_validation_macro_f1": majority_metrics["macro_f1"],
-            "majority_fault_to_normal_rate":
-                majority_metrics["fault_to_normal_rate"],
-            "cnn_smoke_train": train_smoke,
-            "cnn_smoke_train_seconds": train_smoke_seconds,
-            "cnn_smoke_validation": val_smoke,
-            "cnn_smoke_validation_seconds": validation_smoke_seconds,
-            "cnn_smoke_seconds": time.monotonic() - started,
-        }, indent=2))
+        print(json.dumps({"model": plan.get("model", "small_cnn"),
+                          "trainable_parameters": trainable_parameters,
+                          "majority_class": majority_class, "majority_validation_macro_f1": majority_metrics["macro_f1"],
+                          **smoke_check(model, train_loader, val_loader, optimizer,
+                                        criterion, validation_criterion, started)}, indent=2))
         return
-
-    run_dir.mkdir(parents=True, exist_ok=False)
-    save_json(run_dir / "experiment-plan.json", plan)
-    save_json(run_dir / "majority_validation_metrics.json", majority_metrics)
 
     source_files = (
         "scripts/train_baseline.py",
@@ -259,57 +211,13 @@ def main():
         "src/pv_fault/evaluate.py",
         "src/pv_fault/augmentation.py",
     )
-    for name in source_files:
-        destination = run_dir / "source_snapshot" / name
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        destination.write_bytes((ROOT / name).read_bytes())
-    save_json(run_dir / "provenance.json", {
-        "manifest_sha256": plan["manifest_sha256"],
-        "plan_sha256": file_hash(plan_path),
-        "source_sha256": {
-            name: file_hash(ROOT / name) for name in source_files
-        },
-        "class_names": CLASS_NAMES,
-        "model": model_name,
-        "trainable_parameters": trainable_parameters,
-        "class_weighting": plan.get("class_weighting", "none"),
-        "train_class_counts": dict(
-            Counter(row["label"] for row in train_data.rows)
-        ),
-        "class_weights": (
-            class_weights.tolist() if class_weights is not None else None
-        ),
-        "train_images": len(train_data),
-        "validation_images": len(val_data),
-        "seed": seed,
-        "python": sys.version,
-        "torch": torch.__version__,
-        "numpy": np.__version__,
-        "pillow": pillow_version,
-        "platform": platform.platform(),
-        "device": "cpu",
-        "cpu_threads": torch.get_num_threads(),
-        "model_architecture": str(model),
-        "activation": plan.get("activation", "relu"),
-        "extra_conv": plan.get("extra_conv", False),
-        "optimizer": plan.get("optimizer", "adam"),
-        "weight_decay": plan.get("weight_decay", 0.0),
-        "augmentation": plan.get("augmentation", "none"),
-        "batch_norm": plan.get("batch_norm", False),
-        "scheduler": plan.get("scheduler", "none"),
-        "test_evaluated": False,
-    })
-
-    checkpoint_metadata = {
-        "model": plan.get("model", "small_cnn"),
-        "manifest_sha256": plan["manifest_sha256"],
-        "trainable_parameters": trainable_parameters,
-        "batch_norm": plan.get("batch_norm", False),
-        "activation": plan.get("activation", "relu"),
-        "extra_conv": plan.get("extra_conv", False),
-        **{key: plan[key] for key in ("scheduler", "parent_checkpoint_sha256",
-                                    "pretrained_sha256", "spatial_variant") if key in plan},
-    }
+    checkpoint_metadata = record_run(
+        run_dir, plan_path, plan, model, train_data, val_data, class_weights, source_files,
+        model_architecture=str(model),
+        optimizer=plan.get("optimizer", "adam"),
+        weight_decay=plan.get("weight_decay", 0.0),
+        augmentation=plan.get("augmentation", "none"))
+    save_json(run_dir / "majority_validation_metrics.json", majority_metrics)
     summary = fit(model, train_loader, val_loader, optimizer, criterion,
                   validation_criterion, plan, run_dir, checkpoint_metadata,
                   started, scheduler=scheduler)

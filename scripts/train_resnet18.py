@@ -2,18 +2,11 @@
 
 import argparse
 import json
-import platform
-import random
-import re
-import sys
 import time
-from collections import Counter
 from pathlib import Path
 
-import numpy as np
 import torch
 import torchvision
-from PIL import __version__ as pillow_version
 from torch import nn
 
 from pv_fault.resnet_training import class_weights_from_training
@@ -22,18 +15,18 @@ from pv_fault.models.resnet import (
     IMAGENET_MEAN, IMAGENET_STD, RESIZED_SIZE, WEIGHT_SHA256, WEIGHT_URL,
     ResNet18Thermal,
 )
-from pv_fault.train import fit, save_json, evaluate_one_epoch, train_one_epoch
+from pv_fault.train import prepare_run, smoke_check, record_run, resolve_plan, file_hash, fit, save_json
 from train_baseline import (
-    ROOT, file_hash, make_loaders,
+    ROOT, make_loaders,
     majority_baseline,
 )
 
 
-DEFAULT_PLAN = ROOT / "configs/experiment-plan-resnet18.json"
+DEFAULT_PLAN = ROOT / "configs/experiment-plan-resnet18-frozen-repro.json"
 
 
 def load_plan(path):
-    plan = json.loads(path.read_text(encoding="utf-8"))
+    plan = json.loads(resolve_plan(path).read_text(encoding="utf-8"))
     manifest = ROOT / plan["manifest"]
     weights = ROOT / plan["pretrained_weights"]
     if file_hash(manifest) != plan["manifest_sha256"]:
@@ -67,20 +60,9 @@ def main():
     parser.add_argument("--full", action="store_true")
     args = parser.parse_args()
     plan_path = args.plan if args.plan.is_absolute() else ROOT / args.plan
+    plan_path = resolve_plan(plan_path)
     plan = load_plan(plan_path)
-    torch.set_num_threads(plan.get("cpu_threads", 4))
-
-    seed = plan["seed"]
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-
-    run_id = plan["run_id"]
-    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]*", run_id):
-        raise ValueError("run_id must be a simple folder name.")
-    run_dir = ROOT / "runs" / run_id
-    if args.full and run_dir.exists():
-        raise FileExistsError(f"Existing run will not be overwritten: {run_dir}")
+    run_dir = prepare_run(plan, args.full)
 
     started = time.monotonic()
     train_data, val_data, train_loader, val_loader = make_loaders(plan)
@@ -103,33 +85,13 @@ def main():
     )
 
     if not args.full:
-        train_started = time.monotonic()
-        train_smoke = train_one_epoch(
-            model, train_loader, optimizer, training_criterion, "cpu",
-            max_batches=2,
-        )
-        train_seconds = time.monotonic() - train_started
-        validation_started = time.monotonic()
-        val_smoke = evaluate_one_epoch(
-            model, val_loader, validation_criterion, "cpu", max_batches=2,
-        )
-        validation_seconds = time.monotonic() - validation_started
-        print(json.dumps({
-            "model": plan["model"],
-            "trainable_parameters": trainable_parameters,
-            "majority_class": majority_class,
-            "majority_validation_macro_f1": majority_metrics["macro_f1"],
-            "train_smoke": train_smoke,
-            "train_smoke_seconds": train_seconds,
-            "validation_smoke": val_smoke,
-            "validation_smoke_seconds": validation_seconds,
-            "total_smoke_seconds": time.monotonic() - started,
-        }, indent=2))
+        print(json.dumps({"model": plan.get("model", "small_cnn"),
+                          "trainable_parameters": trainable_parameters,
+                          "majority_class": majority_class, "majority_validation_macro_f1": majority_metrics["macro_f1"],
+                          **smoke_check(model, train_loader, val_loader, optimizer,
+                                        training_criterion, validation_criterion, started)}, indent=2))
         return
 
-    run_dir.mkdir(parents=True, exist_ok=False)
-    save_json(run_dir / "experiment-plan.json", plan)
-    save_json(run_dir / "majority_validation_metrics.json", majority_metrics)
     source_files = (
         "scripts/train_resnet18.py",
         "scripts/train_baseline.py",
@@ -139,61 +101,21 @@ def main():
         "src/pv_fault/train.py",
         "src/pv_fault/evaluate.py",
     )
-    for name in source_files:
-        destination = run_dir / "source_snapshot" / name
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        destination.write_bytes((ROOT / name).read_bytes())
-    save_json(run_dir / "provenance.json", {
-        "manifest_sha256": plan["manifest_sha256"],
-        "plan_sha256": file_hash(plan_path),
-        "source_sha256": {
-            name: file_hash(ROOT / name) for name in source_files
-        },
-        "model": plan["model"],
-        "trainable_parameters": trainable_parameters,
-        "class_names": CLASS_NAMES,
-        "pretrained_weights_url": WEIGHT_URL,
-        "pretrained_weights_sha256": plan["pretrained_sha256"],
-        "pretrained_weight_rights": (
-            "TorchVision warns pretrained weights may have dataset-derived terms; "
-            "commercial deployment rights have not been verified."
-        ),
-        "preprocessing": {
+    checkpoint_metadata = record_run(
+        run_dir, plan_path, plan, model, train_data, val_data, class_weights, source_files,
+        pretrained_weights_url=WEIGHT_URL,
+        pretrained_weights_sha256=plan["pretrained_sha256"],
+        pretrained_weight_rights="TorchVision warns pretrained weights may have dataset-derived terms; "
+            "commercial deployment rights have not been verified.",
+        preprocessing={
             "input": "grayscale float32 [1,40,24] in [0,1]",
             "resize": list(RESIZED_SIZE),
             "repeat_channels": 3,
             "normalization_mean": IMAGENET_MEAN,
             "normalization_std": IMAGENET_STD,
         },
-        "class_weighting": plan["class_weighting"],
-        "train_class_counts": dict(
-            Counter(row["label"] for row in train_data.rows)
-        ),
-        "class_weights": class_weights.tolist(),
-        "train_images": len(train_data),
-        "validation_images": len(val_data),
-        "seed": seed,
-        "python": sys.version,
-        "torch": torch.__version__,
-        "torchvision": torchvision.__version__,
-        "numpy": np.__version__,
-        "pillow": pillow_version,
-        "platform": platform.platform(),
-        "device": "cpu",
-        "cpu_threads": torch.get_num_threads(),
-        "test_evaluated": False,
-    })
-
-    checkpoint_metadata = {
-        "model": plan.get("model", "small_cnn"),
-        "manifest_sha256": plan["manifest_sha256"],
-        "trainable_parameters": trainable_parameters,
-        "batch_norm": plan.get("batch_norm", False),
-        "activation": plan.get("activation", "relu"),
-        "extra_conv": plan.get("extra_conv", False),
-        **{key: plan[key] for key in ("scheduler", "parent_checkpoint_sha256",
-                                    "pretrained_sha256", "spatial_variant") if key in plan},
-    }
+        torchvision=torchvision.__version__)
+    save_json(run_dir / "majority_validation_metrics.json", majority_metrics)
     summary = fit(model, train_loader, val_loader, optimizer, training_criterion,
                   validation_criterion, plan, run_dir, checkpoint_metadata,
                   started, scheduler=None)

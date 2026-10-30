@@ -13,7 +13,7 @@ import finetune_resnet18 as runner
 
 class SelectedPlanTests(unittest.TestCase):
     def test_selected_plan_requires_winning_cv_and_original_limits(self):
-        plan = json.loads((ROOT / "configs/experiment-plan-resnet18-selected.json").read_text())
+        plan = json.loads((ROOT / "archive/configs/experiment-plan-resnet18-selected.json").read_text())
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             evidence = root / plan["cv_summary"]
