@@ -61,3 +61,9 @@ PYTHONPATH=src python scripts/evaluate_final.py test
 The test command requires the committed protocol, unchanged code/environment, matching checkpoint fingerprints and the verified dataset. It records a start marker before loading test images and refuses to overwrite any started or completed evaluation. If execution fails after that marker, preserve the partial folder and review what was exposed before continuing; do not delete it to rerun model selection.
 
 Multiclass argmax predictions and threshold-based anomaly screening are scored separately. Results include per-class metrics, confusion matrices and seeded 95% bootstrap intervals resampling detected related-image groups. Group intervals do not establish independent-site generalisation. Compact results and figures go under `results/final-evaluation-v1*`; full prediction vectors stay in ignored `runs/final-evaluation-v1/`.
+
+## Validation crop robustness
+
+The ResNet notebook also checks fixed shifts, small rotations, blur and resolution loss on validation crops using the frozen model and screening cutoff. The [compact record](results/resnet18-validation-robustness-v1.json) preserves the declared operations and measured changes. These are synthetic sensitivity checks, not camera acceptance limits or end-to-end inspection results. No retraining or test inference occurs.
+
+With retained local data and checkpoints, run `PYTHONPATH=src python scripts/check_validation_robustness.py` deliberately; existing records are protected from overwrite.
