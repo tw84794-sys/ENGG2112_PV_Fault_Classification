@@ -26,7 +26,7 @@ from pv_fault.data import CLASS_NAMES, SolarModuleDataset
 from pv_fault.evaluate import classification_metrics, collect_validation_predictions
 from pv_fault.finetuning import configure_resnet_finetuning
 from pv_fault.models.resnet import ResNet18Thermal, WEIGHT_SHA256
-from pv_fault.train import train_one_epoch, fit
+from pv_fault.train import train_one_epoch, fit, resolve_plan
 
 
 def digest(path):
@@ -387,7 +387,7 @@ def full(root, plan, plan_path, base, fold_indices, smoke_path):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[2])
     parser.add_argument("--plan", type=Path,
                         default=Path("configs/experiment-plan-resnet18-cv.json"))
     parser.add_argument("--smoke-out", type=Path, default=None)
@@ -395,6 +395,7 @@ def main():
     args = parser.parse_args()
     root = args.root.resolve()
     plan_path = args.plan if args.plan.is_absolute() else root / args.plan
+    plan_path = resolve_plan(plan_path)
     plan = load_plan(root, plan_path)
     torch.set_num_threads(plan["cpu_threads"])
 

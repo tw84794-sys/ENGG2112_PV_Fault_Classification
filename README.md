@@ -1,89 +1,41 @@
-# ENGG2112 AI for Good PV_Fault_Classification
+# ENGG2112: thermal solar-panel fault classification
 
-Australia’s growing volume of photovoltaic (PV) cells creates a need for efficient methods of identifying panels that may still be suitable for reuse and repair rather than being unnecessarily recycled or discarded. This project proposes an AI-supported screening system that uses traditional machine learning and convolutional neural network (CNN) models to classify common defects in PV cells from thermal imagery. Publicly available labelled faulty and unfaulty PV image datasets will be used to train, validate and test the model, with transfer learning considered to enable a feasible implementation within the project timeframe. Model performance will be assessed using accuracy, precision, recall, F1-score and confusion matrices. Techniques such as Grad_CAM will be used to highlight image regions primarily influencing predictions. Emphasis will be made on reducing false negative classifications for safety-critical defects. The intended goal is a decision support tool that identifies potential panel defects and helps prioritise decommissioned cells for further reuse testing, repair assessments or recycling, whilst leaving final safety and reuse decisions to qualified technicians.
+We compare compact CNNs and pretrained ResNet18 on 12 classes of thermal solar-module images. The goal is to support further inspection and reuse assessment. Predictions do not certify panel safety or suitability for reuse.
 
+## Read the project
 
-Dataset:
+1. [Data exploration](notebooks/01_data_exploration.ipynb): image properties, imbalance, cleaning and frozen splits.
+2. [CNN baseline](notebooks/02_baseline_experiments.ipynb): model design, useful comparisons, two retained references and errors.
+3. [ResNet experiments](notebooks/03_resnet18_experiments.ipynb): transfer learning, controlled spatial variants, remaining errors and compute cost.
 
-InfraredSolarModules
+The experiment notebooks display recorded results without training. Their image examples are optional; notebook 01 requires the local dataset. Executed plots remain visible on GitHub.
 
-https://github.com/RaptorMaps/InfraredSolarModules
-
-## Start here
-
-Install Python dependencies with `python -m pip install -r requirements.txt`.
-Follow [data setup](data/README.md), then launch `jupyter notebook` from the repository root.
-Read and run the notebooks in this order:
-
-1. [Data exploration](notebooks/01_data_exploration.ipynb): images, imbalance, cleaning and fixed splits. Requires local data.
-2. [Baseline experiments](notebooks/02_baseline_experiments.ipynb): CNN development, comparisons and remaining errors.
-3. [ResNet experiments](notebooks/03_resnet18_experiments.ipynb): transfer learning, fine-tuning and compute trade-offs.
-
-The experiment notebooks read tracked results by default. Local image previews are skipped when data is absent;
-training is an explicit action. Shared Python handles data checks, fitting, metrics and repeated plots.
-JSON plans and result records retain the full experiment history, including unsuccessful trials.
-
-Training uses one shared fit loop and one validation pass per epoch, then reloads the selected checkpoint
-and compares every saved validation probability. Earlier recorded timings describe the original two-pass
-implementations; those historical results have not been rewritten. New histories record combined
-`validation_seconds`. Existing run folders cannot be overwritten.
-
-Checkpoint verification keeps archived producer hashes strict and records any changed live inference sources
-separately. A refactored model must still reproduce all saved predictions and probabilities exactly.
-The selected-ResNet command remains a short compatibility entry point for the same CV-checked plan.
-
-## Frozen ResNet18 comparison
-
-After recreating the cleaned data and frozen split, activate the project's environment and run these commands from the repository root:
+## Run locally
 
 ```bash
-PYTHONPATH=src .venv/bin/python scripts/fetch_resnet18_weights.py
-PYTHONPATH=src .venv/bin/python scripts/fetch_resnet18_weights.py --verify-only
-PYTHONPATH=src .venv/bin/python -m unittest discover -s tests
-PYTHONPATH=src .venv/bin/python scripts/train_resnet18.py --plan configs/experiment-plan-resnet18.json
-PYTHONPATH=src .venv/bin/python scripts/train_resnet18.py --plan configs/experiment-plan-resnet18.json --full
+python -m pip install -r requirements.txt
+jupyter notebook
 ```
 
-The first training command runs a two-batch smoke check. The final command runs one bounded trial and refuses to overwrite an existing run. It saves its checkpoint, metrics and validation predictions under `runs/resnet18-frozen-s2112-cpu-v1/`, which is excluded from Git. The [validation comparison](results/resnet18-frozen-v1-validation.md) contains the shareable results and limitations. The frozen test split remains untouched until independent review.
+Launch from the repository root. Follow [data setup](data/README.md) before loading images or fitting models. The six [current recipes](configs/README.md) describe the retained CNN references, frozen ResNet parent and three ResNet spatial variants.
 
-## CNN training comparison
+```bash
+PYTHONPATH=src python -m unittest discover -s tests
+PYTHONPATH=src python scripts/create_split.py --verify-only
+PYTHONPATH=src python scripts/train_baseline.py
+PYTHONPATH=src python scripts/fetch_resnet18_weights.py --verify-only
+PYTHONPATH=src python scripts/train_resnet18.py
+PYTHONPATH=src python scripts/finetune_resnet18.py
+```
 
-The [extended CNN comparison](results/cnn-training-comparison-v1.md) records four
-training/validation-only trials: SmallCNN and WideCNN, each at learning rates
-0.001 and 0.0003. The explicit plans allow up to 30 epochs, five epochs of
-early-stopping patience, and 300 seconds per trial. Architectures, class weighting,
-batch size and seed remain fixed. Each saved checkpoint is reloaded to verify its
-validation predictions. Full weights and image-level predictions stay in ignored
-`runs/` folders; shareable metrics and learning curves are under `results/`.
+Training commands default to two-batch diagnostics. Full fitting requires `--full`, a new run ID in a copied plan, and the exact recorded inputs/parent checkpoint. Existing full runs cannot be overwritten. Download missing ImageNet weights with `PYTHONPATH=src python scripts/fetch_resnet18_weights.py` before ResNet diagnostics.
 
-## Optimiser follow-up
+## Evidence and history
 
-The [AdamW/SGD follow-up](results/cnn-optimizers-v1.md) compares six new trials on
-the matched two-layer BatchNorm CNNs, using seed 2112 without seed checks.
-The baseline experiments notebook records the settings, curves, error trade-offs
-and comparison with the earlier deeper models. Test images remain reserved.
+- [CNN error review](results/cnn-error-review-v1.md): higher macro-F1 versus fewer missed faults.
+- [ResNet spatial comparison](results/resnet18-spatial-v1.md): performance, feature geometry and actual compute measurements.
+- [Experiment archive](archive/README.md): older recipes, reporting tools and detailed trial records.
 
-## Three-layer SmallCNN follow-up
+Historical JSON records, figures, frozen splits and archived producer sources are preserved. Shared code handles setup, source snapshots, fitting, validation and plotting. Current training uses one validation pass per epoch and verifies every saved probability after reloading the selected checkpoint; older reported timings describe their original producers.
 
-The [GELU and training-duration follow-up](results/smallcnn-20min-v1.md) records
-activation, longer-training, mild-augmentation and gentler-scheduler trials.
-The highest macro-F1 candidate misses more faults than the previous reference;
-the baseline notebook retains both results and the decision trade-off.
-
-### Consolidated baseline error review
-
-The [baseline error review](results/cnn-error-review-v1.md) compares the two SmallCNN references, their weakest classes and common confusions. The baseline notebook includes their confusion matrices and illustrative validation errors. Higher macro-F1 came with more missed faults; retain both references for the separate ResNet comparison.
-
-### ResNet experiment notebook
-
-[ResNet18 experiments](notebooks/03_resnet18_experiments.ipynb) explains the existing frozen-backbone, layer4 fine-tuning, augmentation and learning-rate progression, then compares it with the optimised SmallCNN references. It reads tracked results by default; reproducing training requires verified pretrained weights and the recorded parent checkpoint.
-
-The [fresh local ResNet reproduction](results/resnet18-reproduction-v1.md) records verified frozen and layer4 runs, their learning curves, and comparison with the current SmallCNN references. Both checkpoints reproduce all saved validation predictions; test inference remains unused.
-
-### ResNet optimisation and compute
-
-The [bounded optimisation and compute record](results/resnet18-hour-v1.md) documents the selected learning rates, longer training, plateau scheduling, AdamW and late-stage adaptation. It compares validation macro-F1, per-class errors, missed faults and false alarms with SmallCNN, alongside recorded run times, phase timings, parameter counts and model-only latency. The [ResNet notebook](notebooks/03_resnet18_experiments.ipynb) contains the complete progression and executed plots. Test inference and additional-seed checks remain deferred.
-
-The [generalisation experiment record](results/resnet18-generalisation-v1.md) compares mild augmentation, label smoothing, stronger rare-class weighting and gradual layer3 adaptation. The notebook records the hypotheses, fixed plans, matched continuation control, per-class results and both incremental and cumulative training costs. These remain validation-selected, single-seed experiments.
-
-The [early-downsampling comparison](results/resnet18-spatial-v1.md) tests first-convolution stride 1 and removal of initial max pooling separately against the augmented ResNet reference. The notebook records feature-map sizes, controlled training settings, per-class results, fit costs and synthetic inference latency. Checkpoints explicitly retain their architecture variant.
+These are mainly single-seed, validation-selected experiments. The duplicate-aware split has no verified site/panel identifiers; it cannot establish unseen-site performance. Original-test inference remains reserved. Raw data, checkpoints, environments and full local runs stay outside Git.

@@ -12,7 +12,7 @@ from pv_fault.data import (
 )
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 RUN_DIR = ROOT / "runs/resnet18-layer4-s2112-cpu-v1"
 
 

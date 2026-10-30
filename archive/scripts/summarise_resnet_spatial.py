@@ -4,7 +4,7 @@ import sys
 from datetime import datetime,timezone
 from pathlib import Path
 from summarise_resnet_generalisation import checked_run,read
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(__file__).resolve().parents[2]
 
 
 def main():

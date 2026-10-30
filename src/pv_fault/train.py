@@ -1,11 +1,21 @@
 """Reusable training and validation steps for the fault classifier."""
 
 import json
+import hashlib
+import platform
+import random
+import re
+import sys
+from collections import Counter
+from pathlib import Path
+
+import numpy as np
+from PIL import __version__ as pillow_version
 import time
 
 import torch
 
-from pv_fault.data import CLASS_NAMES
+from pv_fault.data import CLASS_NAMES, ROOT
 from pv_fault.evaluate import classification_metrics, collect_validation_predictions
 
 
@@ -165,3 +175,73 @@ def fit(model, train_loader, val_loader, optimizer, training_loss, validation_lo
                "checkpoint_predictions_verified": verified, "test_evaluated": False}
     save_json(run_dir / "summary.json", summary)
     return summary
+
+
+
+def resolve_plan(path):
+    """Keep recorded config paths usable after older recipes move to archive."""
+    path = Path(path)
+    if not path.is_file() and path.parent.name == "configs":
+        archived = path.parent.parent / "archive/configs" / path.name
+        if archived.is_file():
+            return archived
+    return path
+
+
+def file_hash(path):
+    return hashlib.sha256(resolve_plan(path).read_bytes()).hexdigest()
+
+
+def prepare_run(plan, full):
+    run_id = plan.get("run_id", f"smallcnn-s{plan['seed']}-cpu-v1")
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]*", run_id):
+        raise ValueError("run_id must be a simple folder name.")
+    run_dir = ROOT / "runs" / run_id
+    if full and run_dir.exists():
+        raise FileExistsError(f"Existing run will not be overwritten: {run_dir}")
+    torch.set_num_threads(plan.get("cpu_threads", 4))
+    random.seed(plan["seed"])
+    np.random.seed(plan["seed"])
+    torch.manual_seed(plan["seed"])
+    return run_dir
+
+
+def smoke_check(model, train_loader, val_loader, optimizer, training_loss, validation_loss, started):
+    phase = time.monotonic()
+    training = train_one_epoch(model, train_loader, optimizer, training_loss, "cpu", max_batches=2)
+    train_seconds = time.monotonic() - phase
+    phase = time.monotonic()
+    validation = evaluate_one_epoch(model, val_loader, validation_loss, "cpu", max_batches=2)
+    return {"train_smoke": training, "train_smoke_seconds": train_seconds,
+            "validation_smoke": validation, "validation_smoke_seconds": time.monotonic() - phase,
+            "total_seconds": time.monotonic() - started}
+
+
+def record_run(run_dir, plan_path, plan, model, train_data, val_data, weights, source_files, **details):
+    """Archive the exact producer and record the inputs for one new full run."""
+    run_dir.mkdir(parents=True, exist_ok=False)
+    save_json(run_dir / "experiment-plan.json", plan)
+    for name in source_files:
+        destination = run_dir / "source_snapshot" / name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes((ROOT / name).read_bytes())
+    checkpoint = {"model": plan.get("model", "small_cnn"),
+                  "manifest_sha256": plan["manifest_sha256"],
+                  "trainable_parameters": sum(p.numel() for p in model.parameters() if p.requires_grad),
+                  "batch_norm": plan.get("batch_norm", False),
+                  "activation": plan.get("activation", "relu"), "extra_conv": plan.get("extra_conv", False),
+                  **{key: plan[key] for key in ("scheduler", "parent_checkpoint_sha256", "pretrained_sha256", "spatial_variant") if key in plan}}
+    save_json(run_dir / "provenance.json", {
+        **checkpoint, "class_names": CLASS_NAMES,
+        "plan_sha256": file_hash(plan_path),
+        "source_sha256": {name: file_hash(ROOT / name) for name in source_files},
+        "total_parameters": sum(p.numel() for p in model.parameters()),
+        "class_weighting": plan.get("class_weighting", "none"),
+        "train_class_counts": dict(Counter(row["label"] for row in train_data.rows)),
+        "class_weights": weights.tolist() if weights is not None else None,
+        "train_images": len(train_data), "validation_images": len(val_data), "seed": plan["seed"],
+        "python": sys.version, "torch": torch.__version__, "numpy": np.__version__,
+        "pillow": pillow_version, "platform": platform.platform(),
+        "device": plan["device"], "cpu_threads": torch.get_num_threads(), "test_evaluated": False,
+        **details})
+    return checkpoint

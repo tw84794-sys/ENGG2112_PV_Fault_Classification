@@ -6,17 +6,18 @@ from datetime import datetime,timezone
 from pathlib import Path
 import torch
 from benchmark_cnn_resnet import measure_batch,file_hash
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/'src'))
 from pv_fault.models.baseline import SmallCNN
 from pv_fault.models.resnet import ResNet18Thermal
 from pv_fault.resnet_spatial import configure_spatial_variant
+from pv_fault.train import resolve_plan
 
 
 def main():
     torch.set_num_threads(4)
     torch.manual_seed(2112)
-    protocol=json.loads((ROOT/'configs/resnet18-spatial-v1.json').read_text())
+    protocol=json.loads(resolve_plan(ROOT/'configs/resnet18-spatial-v1.json').read_text())
     ledger=json.loads((ROOT/'results/resnet18-spatial-v1-ledger.json').read_text())
     if ledger['status']!='complete_verified': raise ValueError('Finish both fits and checkpoint checks first.')
     models=[]
@@ -58,7 +59,7 @@ def main():
         print(name,record['batches'][0]['median_batch_ms'],'ms/image;',record['batches'][1]['median_batch_ms'],'ms/batch64',flush=True)
     result=dict(models=records,measured_utc=datetime.now(timezone.utc).isoformat(),cpu_threads=4,device='cpu',
                 torch=torch.__version__,python=sys.version,platform=platform.platform(),test_evaluated=False,
-                source_sha256={name:file_hash(ROOT/name) for name in ('scripts/benchmark_resnet_spatial.py','scripts/benchmark_cnn_resnet.py','src/pv_fault/resnet_spatial.py','src/pv_fault/models/resnet.py','src/pv_fault/models/baseline.py')},
+                source_sha256={name:file_hash(ROOT/name) for name in ('archive/scripts/benchmark_resnet_spatial.py','archive/scripts/benchmark_cnn_resnet.py','src/pv_fault/resnet_spatial.py','src/pv_fault/models/resnet.py','src/pv_fault/models/baseline.py')},
                 scope='Actual checkpoint weights, same synthetic grayscale inputs [N,1,40,24]. Five warmups then twenty timed model-only CPU forwards per batch size; after both fits finish. No dataset images or application/image-loading overhead. Parameter storage excludes buffers, gradients, optimiser state and activations; it is not peak RAM, FLOPs or energy.')
     (ROOT/'results/resnet18-spatial-v1-inference.json').write_text(json.dumps(result,indent=2)+'\n')
 
