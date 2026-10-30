@@ -14,3 +14,5 @@ Each JSON records the exact settings, input fingerprints, run ID and compute lim
 Prefix commands with `PYTHONPATH=src python` from the repository root. They run short diagnostics unless `--full` is supplied. Existing run IDs are protected. New fitting needs a copied plan with a new run ID; a new parent checkpoint also needs its actual checksum in the child plan.
 
 All other original recipes are retained unchanged in [archive/configs](../archive/configs/). Training commands still resolve their recorded `configs/<filename>.json` paths there, preserving old plan hashes and references. The default recipes above use locally available retained parents; the old CV-selected recipe requires additional historical artifacts.
+
+The [final-evaluation protocol](final-evaluation-v1.json) records the selected checkpoints, validation-only screening cutoffs, environment and code fingerprints before the reserved test pass. It is an evaluation record, not another training recipe.

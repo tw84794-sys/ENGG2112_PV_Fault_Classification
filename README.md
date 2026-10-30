@@ -32,15 +32,19 @@ Training commands default to two-batch diagnostics. Full fitting requires `--ful
 
 ## Evidence and history
 
+- [Final reserved-test results](results/final-evaluation-v1.md): frozen choices, per-class metrics, screening performance and group-bootstrap intervals.
+
 - [CNN error review](results/cnn-error-review-v1.md): higher macro-F1 versus fewer missed faults.
 - [ResNet spatial comparison](results/resnet18-spatial-v1.md): performance, feature geometry and actual compute measurements.
 - [Experiment archive](archive/README.md): older recipes, reporting tools and detailed trial records.
 
 Historical JSON records, figures, frozen splits and archived producer sources are preserved. Shared code handles setup, source snapshots, fitting, validation and plotting. Current training uses one validation pass per epoch and verifies every saved probability after reloading the selected checkpoint; older reported timings describe their original producers.
 
-These are mainly single-seed, validation-selected experiments. The duplicate-aware split has no verified site/panel identifiers; it cannot establish unseen-site performance. Original-test inference remains reserved. Raw data, checkpoints, environments and full local runs stay outside Git.
+These are mainly single-seed, validation-selected experiments. The duplicate-aware split has no verified site/panel identifiers; it cannot establish unseen-site performance. The one-time reserved-test evaluation of frozen choices is [recorded here](results/final-evaluation-v1.md). Raw data, checkpoints, environments and full local runs stay outside Git.
 
 ## Final reserved-test evaluation
+
+The frozen protocol and completed results are retained. The commands below document the sequence used; they intentionally refuse to overwrite an existing protocol or started test evaluation.
 
 `scripts/evaluate_final.py` freezes the majority baseline, selected SmallCNN and standard augmented ResNet. It reproduces saved validation probabilities and selects each learned model's binary screening threshold on validation only: the highest cutoff achieving at least 90% anomaly recall, with the resulting false-alarm rate checked against 20%. Infeasible targets are recorded honestly.
 
