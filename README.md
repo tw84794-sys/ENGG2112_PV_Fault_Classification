@@ -39,3 +39,21 @@ Training commands default to two-batch diagnostics. Full fitting requires `--ful
 Historical JSON records, figures, frozen splits and archived producer sources are preserved. Shared code handles setup, source snapshots, fitting, validation and plotting. Current training uses one validation pass per epoch and verifies every saved probability after reloading the selected checkpoint; older reported timings describe their original producers.
 
 These are mainly single-seed, validation-selected experiments. The duplicate-aware split has no verified site/panel identifiers; it cannot establish unseen-site performance. Original-test inference remains reserved. Raw data, checkpoints, environments and full local runs stay outside Git.
+
+## Final reserved-test evaluation
+
+`scripts/evaluate_final.py` freezes the majority baseline, selected SmallCNN and standard augmented ResNet. It reproduces saved validation probabilities and selects each learned model's binary screening threshold on validation only: the highest cutoff achieving at least 90% anomaly recall, with the resulting false-alarm rate checked against 20%. Infeasible targets are recorded honestly.
+
+```bash
+PYTHONPATH=src python scripts/evaluate_final.py freeze
+```
+
+Review and commit `configs/final-evaluation-v1.json` together with its evaluation code before running:
+
+```bash
+PYTHONPATH=src python scripts/evaluate_final.py test
+```
+
+The test command requires the committed protocol, unchanged code/environment, matching checkpoint fingerprints and the verified dataset. It records a start marker before loading test images and refuses to overwrite any started or completed evaluation. If execution fails after that marker, preserve the partial folder and review what was exposed before continuing; do not delete it to rerun model selection.
+
+Multiclass argmax predictions and threshold-based anomaly screening are scored separately. Results include per-class metrics, confusion matrices and seeded 95% bootstrap intervals resampling detected related-image groups. Group intervals do not establish independent-site generalisation. Compact results and figures go under `results/final-evaluation-v1*`; full prediction vectors stay in ignored `runs/final-evaluation-v1/`.
