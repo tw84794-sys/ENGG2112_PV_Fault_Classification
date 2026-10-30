@@ -1,0 +1,32 @@
+{
+  "analysis": "Post-hoc comparison of the two previously frozen models",
+  "split": "test",
+  "new_model_inference": false,
+  "model_selection_performed": false,
+  "images": 2988,
+  "evaluation_results_sha256": "0feaf343f0f4810e44171067703b4063dc474388b9bc5bf0d36dad4c908cd5ed",
+  "protocol_sha256": "b0e1c1fdee9be29fb79919fbf23bc8b15da18833f12dd3ecadcbf398786ce21d",
+  "prediction_sha256": {
+    "SmallCNN": "decaf980e605e5fd638fc845bc35b35925ca8babb9629fad4b8c8e0bc0be8a52",
+    "ResNet18": "e177984cb1ddebc6dbbe4973f9b926ee17c7723b5b6ec56b8c6ea63bc194661f"
+  },
+  "source_sha256": {
+    "src/pv_fault/evaluate.py": "32f3954e1fd0c460e9df5930b020b46c99d896fc203513ab94559dd2cbf50f2c",
+    "src/pv_fault/data.py": "fa1b17a1e22a023bc6ae72a1d842b187235c7294acc44d03a642aae331e47ce7",
+    "scripts/compare_frozen_models.py": "7d50897e6ba4d3200a729fa38083d38767bc11c2963cb808fe431b2b664b23ea"
+  },
+  "numpy_version": "2.0.2",
+  "paired_gap": {
+    "direction": "ResNet18 minus SmallCNN test macro-F1",
+    "observed": 0.027462061869218846,
+    "lower": 0.00203922486952618,
+    "upper": 0.052424690467945755,
+    "groups": 2807,
+    "resamples": 1000,
+    "seed": 2112,
+    "confidence": 0.95,
+    "method": "Paired percentile bootstrap of the same recorded related-image groups"
+  },
+  "interpretation": "The interval is above zero, supporting a positive macro-F1 gap on this benchmark.",
+  "limitations": "Added after observing final test summaries. Conditions on these trained checkpoints and detected related-image groups; no uncertainty across training seeds or verified independent sites. Does not replace the original frozen evaluation or justify retuning."
+}
